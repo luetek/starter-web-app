@@ -40,3 +40,4 @@ npx nx serve nest-app
 
 - Added react, nestjs app and common library for shared models
 - Added airbnb eslint for react, nestjs app and common models and vscode editor setup
+- [Added Logging](./apps/nest-app/src/logger/README.md) using nest-cls to log `X-Request-Id` across the log
