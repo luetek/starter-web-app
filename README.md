@@ -14,6 +14,10 @@ npx nx add @nx/nest
 npx nx g @nx/nest:app nest-app --frontendProject react-app
 # Remove e2e project
 npx nx g @nx/workspace:remove nest-app-e2e
+# Add a common models library
+npx nx g @nx/node:library common-models
+# Move the common-models library to another folder
+npx nx g @nx/workspace:move --project common-models --destination libs/common-models
 ```
 
 Quick commands
@@ -25,11 +29,12 @@ npx nx lint nest-app
 # Run unit tests and tests
 npx nx test react-app
 npx nx test nest-app
-# Run app in development mode
+# Run app in development mode  React-app runs at 4200 port
 npx nx serve react-app
+# Run app in development mode  nest-app runs at 3000 port
 npx nx serve nest-app
 ```
 
 ### Features
 
-- Added react and nestjs app
+- Added react, nestjs app and common library for shared models
