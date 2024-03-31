@@ -1,6 +1,21 @@
 {
-  "extends": ["../../.eslintrc.json"],
+  "extends": [
+    "airbnb-base",
+    "airbnb-typescript/base",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/typescript",
+    "../../.eslintrc.json"
+  ],
   "ignorePatterns": ["!**/*"],
+  "parserOptions": {
+    "project": ["./tsconfig.*?.json"]
+  },
+  "rules": {
+    "import/prefer-default-export": "off",
+    "class-methods-use-this": "off"
+  },
+  "plugins": ["import"],
+  "parser": "@typescript-eslint/parser",
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],

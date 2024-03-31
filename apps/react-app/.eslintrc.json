@@ -1,5 +1,28 @@
 {
-  "extends": ["plugin:@nx/react", "../../.eslintrc.json"],
+  "extends": [
+    "plugin:@nx/react",
+    "airbnb",
+    "airbnb-typescript",
+    "plugin:@typescript-eslint/recommended",
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:import/typescript",
+    "plugin:@nx/react",
+    "../../.eslintrc.json"
+  ],
+  "parserOptions": {
+    "project": ["./tsconfig.*?.json"]
+  },
+  "rules": {
+    "import/no-named-as-default": "off",
+    "import/prefer-default-export": "off",
+    "class-methods-use-this": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-props-no-spreading": "off"
+  },
+  "plugins": ["import"],
+  "parser": "@typescript-eslint/parser",
   "ignorePatterns": ["!**/*"],
   "overrides": [
     {
