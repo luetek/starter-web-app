@@ -6,9 +6,10 @@ import { UserService } from './user.service';
 import { UserPasswordEntity } from './entities/user-password.entity';
 import { UserController } from './user.controller';
 import { UserAutoMapperProfile } from './user-auto-mapper.profile';
+import { UserAuthProviderEntity } from './entities/user-auth-provider.entity';
 
 @Module({
-  imports: [LoggerModule, TypeOrmModule.forFeature([UserEntity, UserPasswordEntity])],
+  imports: [LoggerModule, TypeOrmModule.forFeature([UserEntity, UserPasswordEntity, UserAuthProviderEntity])],
   controllers: [UserController],
   providers: [UserService, UserAutoMapperProfile],
   exports: [UserService],

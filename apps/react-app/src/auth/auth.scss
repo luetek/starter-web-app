@@ -1,0 +1,23 @@
+$secondary-color:#aaa;
+
+.login-page-form , .create-user-page-form{
+  min-width: 350px;
+  max-width:70%;
+  margin: auto;
+  margin-top: 100px;
+  border: 1px solid;
+  padding: 20px;
+  border-radius: 0.5rem;
+  background-color: $secondary-color;
+  color: white;
+}
+
+.login-button, .create-user-submit-button {
+  width: 100%;
+}
+
+.login-page-heading, .create-user-page-heading {
+  text-align: center;
+  font-size: larger;
+  font-weight: bold;
+}

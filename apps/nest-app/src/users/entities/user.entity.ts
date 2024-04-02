@@ -21,10 +21,6 @@ export class UserEntity implements User {
   @Column({ unique: true })
   primaryEmail: string;
 
-  @AutoMap()
-  @Column({ unique: true })
-  userName: string;
-
   @Index('user-status-idx')
   @Column({ nullable: true })
   status: UserStatus;

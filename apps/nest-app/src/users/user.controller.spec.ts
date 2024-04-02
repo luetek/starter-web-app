@@ -30,12 +30,13 @@ describe('Users Acceptance/E2E Tests', () => {
     createUserDto.firstName = 'Depss';
     createUserDto.lastName = 'Kumr';
     createUserDto.password = '12345@tyre';
+    createUserDto.reenterPassword = '12345@tyre';
     createUserDto.primaryEmail = 'deeep@gmail.com';
     createUserDto.userName = 'deep878';
     const res = await request(app.getHttpServer()).post('/users').send(createUserDto);
     expect(res.status).toBe(201);
+
     expect(res.body).toMatchObject({
-      userName: createUserDto.userName,
       firstName: createUserDto.firstName,
       lastName: createUserDto.lastName,
       primaryEmail: createUserDto.primaryEmail,
@@ -52,6 +53,7 @@ describe('Users Acceptance/E2E Tests', () => {
     createUserDto.firstName = '';
     createUserDto.lastName = '';
     createUserDto.password = '12345@tyre';
+    createUserDto.reenterPassword = '12345@tyre';
     createUserDto.primaryEmail = 'deeep';
     createUserDto.userName = 'deep878';
     const res = await request(app.getHttpServer()).post('/users').send(createUserDto);
@@ -63,6 +65,7 @@ describe('Users Acceptance/E2E Tests', () => {
     createUserDto.firstName = 'Depssus';
     createUserDto.lastName = 'Kumr';
     createUserDto.password = '12345@tyre';
+    createUserDto.reenterPassword = '12345@tyre';
     createUserDto.primaryEmail = 'deeepad@gmail.com';
     createUserDto.userName = 'deep87895';
     const res = await request(app.getHttpServer()).post('/users').send(createUserDto);
@@ -80,6 +83,7 @@ describe('Users Acceptance/E2E Tests', () => {
     createUserDto.firstName = 'Depssus';
     createUserDto.lastName = 'Kumr';
     createUserDto.password = '12345@tyre';
+    createUserDto.reenterPassword = '12345@tyre';
     createUserDto.primaryEmail = 'gheepad@gmail.com';
     createUserDto.userName = 'deep8723';
     const res = await request(app.getHttpServer()).post('/users').send(createUserDto);
