@@ -12,7 +12,8 @@
   },
   "rules": {
     "import/prefer-default-export": "off",
-    "class-methods-use-this": "off"
+    "class-methods-use-this": "off",
+    "max-classes-per-file": "off"
   },
   "plugins": ["import"],
   "parser": "@typescript-eslint/parser",

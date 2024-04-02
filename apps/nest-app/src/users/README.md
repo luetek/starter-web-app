@@ -2,6 +2,8 @@ User module provides the functionality for creating/accessing user information. 
 
 This mpdule is not responsible for anything else specifically how the user will authenticate etc. We also need to make sure the user account creation is behind a captha so that automated api cannot create users.
 
+Create account using google https://blog.logrocket.com/guide-adding-google-login-react-app/
+
 ```bash
 npm install @automapper/nestjs @automapper/classes @nestjs/typeorm @nestjs/config @nestlab/google-recaptcha class-validator class-transformer bcrypt sqlite3 typeorm @automapper/core
 
@@ -19,3 +21,5 @@ npm install supertest  --save-dev
 - Added acceptance test for api [tests](./user.controller.spec.ts). I will not be writing both Unit Test and Acceptance Tests. Will be adding unit tests when a cetain scenario cannot be tested using E2E tests. This provide a good enough tradeoff.
 
 - Added nest-changes for Google captha. We have disabled it for now in test and development.
+
+- Added google auth changes to fetch data from google to create a User Account. In this scenario not username/ password is created for user.
