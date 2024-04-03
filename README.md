@@ -42,3 +42,4 @@ npx nx serve nest-app
 - Added airbnb eslint for react, nestjs app and common models and vscode editor setup
 - [Added Logging](./apps/nest-app/src/logger/README.md) using nest-cls to log `X-Request-Id` across the log
 - [Added User creation](./apps/nest-app/src/users/README.md) with user create form, or by fetching data from facebook or google.
+- [Added User login](./apps/nest-app/src/users/README.md) via user-password login and via google client side oauth.

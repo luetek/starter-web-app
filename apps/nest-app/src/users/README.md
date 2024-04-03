@@ -1,3 +1,5 @@
+## User Creation
+
 User module provides the functionality for creating/accessing user information. We need to create user using CreateUserForm where we ask for username, full name, password etc. We can also create a user using facebook, google login. In this case we will collect the above information using thier respective apis.
 
 This mpdule is not responsible for anything else specifically how the user will authenticate etc. We also need to make sure the user account creation is behind a captha so that automated api cannot create users.
@@ -23,3 +25,15 @@ npm install supertest  --save-dev
 - Added nest-changes for Google captha. We have disabled it for now in test and development.
 
 - Added google auth changes to fetch data from google to create a User Account. In this scenario not username/ password is created for user.
+
+## Authentication
+
+```bash
+npm install @nestjs/jwt  @nestjs/passport passport-jwt passport-local @nestjs/cache-manager cache-manager
+npm i -S cache-manager
+
+```
+
+- Added api for user/passowrd login
+
+- Added api for google login
