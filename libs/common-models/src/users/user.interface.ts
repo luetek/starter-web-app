@@ -4,3 +4,10 @@ export interface User {
   lastName: string;
   primaryEmail: string;
 }
+
+export interface UserAccessToken {
+  id: number;
+  token: string;
+  createdAt: Date;
+  user: User;
+}
