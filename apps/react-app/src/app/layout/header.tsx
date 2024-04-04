@@ -9,12 +9,15 @@ import { NavLink, useLocation, useNavigate, createSearchParams } from 'react-rou
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faUser } from '@fortawesome/free-solid-svg-icons';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 export function AppHeader() {
   const path = useLocation();
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState<string>('');
-  const isLoggedIn = false;
+  const userAccessToken = useSelector((state: RootState) => state.user);
+  const isLoggedIn = !!userAccessToken.token;
   return (
     <Navbar bg="primary" expand="md" className="app-header" fixed="top">
       <Container>

@@ -1,6 +1,6 @@
 import { AutoMap } from '@automapper/classes';
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
-import { UserEntity } from './user.entity';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn, Relation } from 'typeorm';
+import { type UserEntity } from './user.entity';
 
 /**
  * We want to keep the password seperate from UserEntity as it is possible a User may be using only
@@ -16,14 +16,13 @@ export class UserPasswordEntity {
   @Column({ unique: true })
   userName: string;
 
-  @AutoMap()
   @Column()
   password: string;
 
   @Column({ nullable: true })
   failedPasswordCount: number;
 
-  @OneToOne(() => UserEntity)
+  @OneToOne('UserEntity', 'userPassword')
   @JoinColumn({ name: 'id' })
-  user: UserEntity;
+  user: Relation<UserEntity>;
 }

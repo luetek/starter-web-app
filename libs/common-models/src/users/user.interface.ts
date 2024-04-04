@@ -6,8 +6,8 @@ export interface User {
 }
 
 export interface UserAccessToken {
-  id: number;
-  token: string;
-  createdAt: Date;
-  user: User;
+  id?: number;
+  token?: string;
+  createdAt?: Date;
+  user?: User;
 }

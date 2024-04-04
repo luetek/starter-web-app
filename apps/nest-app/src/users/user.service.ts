@@ -2,7 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateUserRequestDto, GoogleCredential } from '@luetek/common-models';
+import { CreateUserRequestDto, GoogleCredential, UpdateUserRequestDto } from '@luetek/common-models';
 import axios from 'axios';
 import { UserEntity } from './entities/user.entity';
 import { UserPasswordEntity } from './entities/user-password.entity';
@@ -19,19 +19,21 @@ export class UserService {
     private userAuthProviderRepository: Repository<UserAuthProviderEntity>
   ) {}
 
-  async updateUser(createUserDto: CreateUserRequestDto, id: number) {
+  async updateUser(updateUserDto: UpdateUserRequestDto, id: number) {
     const user = await this.usersRepository.findOne({ where: { id } });
-    user.firstName = createUserDto.firstName || user.firstName;
-    user.lastName = createUserDto.lastName || user.lastName;
+    user.firstName = updateUserDto.firstName || user.firstName;
+    user.lastName = updateUserDto.lastName || user.lastName;
     const userSaved = await this.usersRepository.save(user);
-    const userPassword = await this.userPasswordsRepository.findOne({ where: { id } });
+    const userPassword = (await this.userPasswordsRepository.findOne({ where: { id } })) || new UserPasswordEntity();
     userPassword.user = userSaved;
-    if (createUserDto.password) {
-      const hashedPassword = await bcrypt.hash(`${userPassword.userName}@${createUserDto.password}`, 10);
+    if (updateUserDto.password) {
+      const hashedPassword = await bcrypt.hash(`${updateUserDto.username}@${updateUserDto.password}`, 10);
+      userPassword.userName = updateUserDto.username;
       userPassword.password = hashedPassword;
       userPassword.failedPasswordCount = 0;
     }
-    await this.userPasswordsRepository.save(userPassword);
+    const userPasswordSaved = await this.userPasswordsRepository.save(userPassword);
+    userSaved.userPassword = userPasswordSaved;
     return userSaved;
   }
 
@@ -49,7 +51,8 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(`${createUserDto.userName}@${createUserDto.password}`, 10);
     userPassword.password = hashedPassword;
     userPassword.failedPasswordCount = 0;
-    await this.userPasswordsRepository.save(userPassword);
+    const userPasswordSaved = await this.userPasswordsRepository.save(userPassword);
+    userSaved.userPassword = userPasswordSaved;
     return userSaved;
   }
 
@@ -80,6 +83,6 @@ export class UserService {
   }
 
   async findOne(userId: number) {
-    return this.usersRepository.findOne({ where: { id: userId } });
+    return this.usersRepository.findOne({ where: { id: userId }, relations: ['userPassword'] });
   }
 }

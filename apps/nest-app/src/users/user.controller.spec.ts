@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { CreateUserRequestDto } from '@luetek/common-models';
+import { CreateUserRequestDto, UpdateUserRequestDto, UserDto } from '@luetek/common-models';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AcceptanceTestAppModule } from '../test-utils/acceptance-test-app.module';
@@ -88,17 +88,21 @@ describe('Users Acceptance/E2E Tests', () => {
     createUserDto.userName = 'deep8723';
     const res = await request(app.getHttpServer()).post('/users').send(createUserDto);
     expect(res.status).toBe(201);
-    createUserDto.firstName = 'Deepak';
-    createUserDto.lastName = 'Kumar';
-    const res3 = await request(app.getHttpServer()).put(`/users/${res.body.id}`).send(createUserDto);
+    const updateUserRequestDto = new UpdateUserRequestDto();
+    updateUserRequestDto.firstName = createUserDto.firstName;
+    updateUserRequestDto.lastName = createUserDto.lastName;
+    updateUserRequestDto.username = 'deeep8966';
+    updateUserRequestDto.password = '454rrer3434';
+    updateUserRequestDto.renterPassword = '454rrer3434';
+    const res3 = await request(app.getHttpServer()).put(`/users/${res.body.id}`).send(updateUserRequestDto);
     expect(res3.status).toBe(200);
     const res2 = await request(app.getHttpServer()).get(`/users/${res.body.id}`);
     expect(res2.status).toBe(200);
-    const user = res2.body;
+    const user = res2.body as UserDto;
     expect(user).toBeDefined();
-    expect(user.status).toBeUndefined();
     expect(user.primaryEmail).toBe(createUserDto.primaryEmail);
     expect(user.firstName).toBe(createUserDto.firstName);
+    expect(user.userPassword.userName).toBe(updateUserRequestDto.username);
     expect(user.lastName).toBe(createUserDto.lastName);
   });
 
