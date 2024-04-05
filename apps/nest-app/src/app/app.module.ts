@@ -37,7 +37,7 @@ import { UserModule } from '../users/user.module';
           type: 'sqlite',
           autoLoadEntities: true,
           synchronize: true,
-          database: ':memory:',
+          database: 'test.db',
           logging: ['error'],
         };
       },

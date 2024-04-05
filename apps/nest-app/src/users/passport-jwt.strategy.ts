@@ -26,15 +26,21 @@ export class PassportJwtStrategy extends PassportStrategy(Strategy) {
     const token = (await this.cacheManager.get(`tokenId-${payload.tokenId}`)) as UserAccessTokenEntity;
 
     // Use cache to speed up authentication
-    if (!token) {
-      const tokenEntity = await this.userTokensRepository.findOne({ where: { id: payload.tokenId } });
-      await this.userTokensRepository.save(tokenEntity); // Update usage data
-      if (!tokenEntity) {
-        // No token found
-        throw new UnauthorizedException();
-      }
-      await this.cacheManager.set(`tokenId-${tokenEntity.id}`, tokenEntity, 10000); // Cache for 10 sec
+    if (token) {
+      return token.user;
     }
-    return { id: payload.userId, username: payload.username };
+
+    const tokenEntity = await this.userTokensRepository.findOne({
+      where: { id: payload.tokenId },
+      relations: ['user', 'user.userPassword'],
+    });
+    if (!tokenEntity) {
+      // No token found
+      throw new UnauthorizedException();
+    }
+    await this.userTokensRepository.save(tokenEntity); // Update usage data
+    await this.cacheManager.set(`tokenId-${tokenEntity.id}`, tokenEntity, 10000); // Cache for 10 sec
+
+    return tokenEntity.user;
   }
 }

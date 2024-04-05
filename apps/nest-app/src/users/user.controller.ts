@@ -1,5 +1,5 @@
 import { Controller, Post, Param, Body, Get, Put, UseInterceptors } from '@nestjs/common';
-import { CreateUserRequestDto, GoogleCredential, UserDto } from '@luetek/common-models';
+import { CreateUserRequestDto, GoogleCredential, UpdateUserRequestDto, UserDto } from '@luetek/common-models';
 import { Recaptcha } from '@nestlab/google-recaptcha';
 import { MapInterceptor } from '@automapper/nestjs';
 import { UserService } from './user.service';
@@ -24,8 +24,8 @@ export class UserController {
 
   @UseInterceptors(MapInterceptor(UserEntity, UserDto))
   @Put(':id')
-  async update(@Body() createUserDto: CreateUserRequestDto, @Param('id') id: number) {
-    return this.usersService.updateUser(createUserDto, id);
+  async update(@Body() updateUserDto: UpdateUserRequestDto, @Param('id') id: number) {
+    return this.usersService.updateUser(updateUserDto, id);
   }
 
   @UseInterceptors(MapInterceptor(UserEntity, UserDto))

@@ -8,6 +8,7 @@ export class UserAuthProviderEntity {
   id: number;
 
   @AutoMap()
+  @Column()
   providerId: string;
 
   @AutoMap()

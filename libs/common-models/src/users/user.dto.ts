@@ -1,6 +1,11 @@
 import { AutoMap } from '@automapper/classes';
 import { IsEmail, Length } from 'class-validator';
-import { User } from './user.interface';
+import { User, UserAccessToken } from './user.interface';
+
+export class UserPasswordDto {
+  @AutoMap()
+  userName!: string;
+}
 
 export class UserDto implements User {
   @AutoMap()
@@ -15,8 +20,22 @@ export class UserDto implements User {
   @AutoMap()
   primaryEmail!: string;
 
+  @AutoMap(() => UserPasswordDto)
+  userPassword!: UserPasswordDto;
+}
+
+export class UserAccessTokenDto implements UserAccessToken {
   @AutoMap()
-  userName!: string;
+  id?: number;
+
+  @AutoMap()
+  token?: string;
+
+  @AutoMap()
+  createdAt?: Date;
+
+  @AutoMap(() => UserDto)
+  user?: UserDto;
 }
 
 export class CreateUserRequestDto implements Omit<User, 'id'> {
@@ -49,6 +68,9 @@ export class UpdateUserRequestDto {
 
   @Length(1, 20)
   lastName!: string;
+
+  @Length(5, 20)
+  username!: string;
 
   @Length(5, 20)
   renterPassword!: string;

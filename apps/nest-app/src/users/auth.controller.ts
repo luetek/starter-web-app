@@ -1,12 +1,16 @@
-import { Controller, Request, Post, UseGuards, Delete, Param, Get, Body } from '@nestjs/common';
+import { Controller, Request, Post, UseGuards, Delete, Param, Get, Body, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { GoogleCredential } from '@luetek/common-models';
+import { GoogleCredential, UserAccessTokenDto, UserDto } from '@luetek/common-models';
+import { MapInterceptor } from '@automapper/nestjs';
 import { AuthService } from './auth.service';
+import { UserAccessTokenEntity } from './entities/user-access-token.entity';
+import { UserEntity } from './entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @UseInterceptors(MapInterceptor(UserAccessTokenEntity, UserAccessTokenDto))
   @UseGuards(AuthGuard('local'))
   @Post('login')
   async login(@Request() req) {
@@ -25,6 +29,7 @@ export class AuthController {
     return { deleted: res.affected === 1 };
   }
 
+  @UseInterceptors(MapInterceptor(UserEntity, UserDto))
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
   getProfile(@Request() req) {
