@@ -89,7 +89,7 @@ export function ProfilePage() {
   }, [dispatch]);
   // Update the form every time user changes
   useEffect(() => {
-    reset({ username: user.userPassword.userName, firstName: user.firstName, lastName: user.lastName });
+    reset({ username: user?.userPassword?.userName, firstName: user.firstName, lastName: user.lastName });
   }, [user, reset]);
 
   if (!user) return 'Loading...';

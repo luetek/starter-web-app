@@ -70,13 +70,17 @@ export class AuthService {
       throw error;
     }
     userPassword.failedPasswordCount = 0;
-    await this.userPasswordsRepository.save(userPassword);
+    const userPasswordSaved = await this.userPasswordsRepository.save(userPassword);
+    delete userPassword.user;
+    user.userPassword = userPasswordSaved;
     return user;
   }
 
   async login(user: UserEntity) {
     // Delete older token
-    const userAccessTokens = await this.userAccessTokensRepository.find({ where: { user } });
+    this.logger.log(`Login function called for ${JSON.stringify(user.id)}`);
+    const userAccessTokens = await this.userAccessTokensRepository.find({ where: { user: { id: user.id } } });
+    this.logger.log(`Access token count = ${userAccessTokens.length}`);
     userAccessTokens?.sort((a, b) => a.updatedAt.getMilliseconds() - b.updatedAt.getMilliseconds());
     const N = userAccessTokens.length - 5;
     for (let i = 0; i < N; i += 1) {
@@ -107,8 +111,11 @@ export class AuthService {
       }
     );
     const profile = res.data;
-    const providerId = profile.id;
+    const providerId = profile.id as string;
     const provider = 'GOOGLE';
+    this.logger.log(`Google Login function called for ${providerId}`);
+    const all = await this.userAuthProviderRepository.find();
+    this.logger.log(`Google Login function called for ${JSON.stringify(all[0])}`);
     const userProvider = await this.userAuthProviderRepository.findOne({
       where: { providerId, provider },
       relations: ['user'],
@@ -140,6 +147,7 @@ export class AuthService {
   }
 
   async deleteToken(token: string) {
-    return this.userAccessTokensRepository.delete({ token });
+    this.logger.log(`delete Token called with ${token}`);
+    return this.userAccessTokensRepository.delete(Number(token));
   }
 }

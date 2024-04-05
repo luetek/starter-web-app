@@ -1,6 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import { IsEmail, Length } from 'class-validator';
-import { User } from './user.interface';
+import { User, UserAccessToken } from './user.interface';
 
 export class UserPasswordDto {
   @AutoMap()
@@ -22,6 +22,20 @@ export class UserDto implements User {
 
   @AutoMap(() => UserPasswordDto)
   userPassword!: UserPasswordDto;
+}
+
+export class UserAccessTokenDto implements UserAccessToken {
+  @AutoMap()
+  id?: number;
+
+  @AutoMap()
+  token?: string;
+
+  @AutoMap()
+  createdAt?: Date;
+
+  @AutoMap(() => UserDto)
+  user?: UserDto;
 }
 
 export class CreateUserRequestDto implements Omit<User, 'id'> {

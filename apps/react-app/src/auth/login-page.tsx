@@ -6,8 +6,31 @@ import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { classValidatorResolver } from '@hookform/resolvers/class-validator';
 import { useNavigate } from 'react-router-dom';
+import {
+  GoogleOAuthProvider,
+  TokenResponse,
+  UseGoogleLoginOptionsImplicitFlow,
+  useGoogleLogin,
+} from '@react-oauth/google';
 import { useAppDispatch } from '../store';
-import { loginThunk } from './user-slice';
+import { loginGoogleThunk, loginThunk } from './user-slice';
+
+function LoginWithGoogle(props: UseGoogleLoginOptionsImplicitFlow) {
+  const login = useGoogleLogin(props);
+
+  return (
+    <button
+      className="btn btn-primary w-100"
+      type="button"
+      onClick={(event) => {
+        event.preventDefault();
+        login();
+      }}
+    >
+      Login with Google
+    </button>
+  );
+}
 
 export function LoginPage() {
   const resolver = classValidatorResolver(PasswordAuthRequestDto);
@@ -34,10 +57,28 @@ export function LoginPage() {
       reset();
     }
   };
+
+  const onGoogleSignUpSuccess = async (credential: TokenResponse) => {
+    try {
+      await dispatch(loginGoogleThunk(credential)).unwrap();
+      navigate('/');
+    } catch (err) {
+      setApiError((err as Error).message);
+      reset();
+    }
+  };
+
+  const onGoogleSignUpFailure = async (error: Pick<TokenResponse, 'error' | 'error_description' | 'error_uri'>) => {
+    setApiError(error.error_description);
+  };
+
   return (
     <div className="login-page-form">
       <div className="login-page-heading">Login</div>
 
+      <GoogleOAuthProvider clientId={process.env.NX_GOOGLE_CLIENT_ID as string}>
+        <LoginWithGoogle onSuccess={onGoogleSignUpSuccess} onError={onGoogleSignUpFailure} />
+      </GoogleOAuthProvider>
       <Form>
         <Form.Group className="mb-3" controlId="login.username">
           <Form.Label>Username</Form.Label>

@@ -13,6 +13,6 @@ export function LogoutPage() {
       navigate('/');
     };
     logout();
-  });
+  }, [dispatch, navigate]);
   return <div>Logging out</div>;
 }

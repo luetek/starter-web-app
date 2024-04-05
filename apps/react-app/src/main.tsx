@@ -3,8 +3,20 @@ import * as ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
+import axios from 'axios';
 import { router } from './routes';
 import { persistor, store } from './store';
+import { cleanUpToken } from './auth/user-slice';
+
+axios.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    store.dispatch(cleanUpToken());
+    return error;
+  }
+);
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(

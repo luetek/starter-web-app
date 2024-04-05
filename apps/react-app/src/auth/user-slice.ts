@@ -3,10 +3,22 @@ import { PasswordAuthRequestDto, UpdateUserRequestDto, UserAccessToken, UserDto 
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { REHYDRATE } from 'redux-persist';
 import axios from 'axios';
+import { TokenResponse } from '@react-oauth/google';
 import { type RootState } from '../store';
 
 export const loginThunk = createAsyncThunk('users/login', async (passwordDto: PasswordAuthRequestDto) => {
   const tokenRes = await axios.post('/api/auth/login', passwordDto);
+  const token = tokenRes.data as UserAccessToken;
+  if (!token || tokenRes.status !== 201) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    throw new Error((tokenRes as any)?.response?.data?.message || 'Authentication Error');
+  }
+
+  return token;
+});
+
+export const loginGoogleThunk = createAsyncThunk('users/google-login', async (credential: TokenResponse) => {
+  const tokenRes = await axios.post('/api/auth/google-login', credential);
   const token = tokenRes.data as UserAccessToken;
   if (!token || tokenRes.status !== 201) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,7 +40,7 @@ export const logoutThunk = createAsyncThunk<unknown, void, { state: RootState }>
 
 export const getMe = createAsyncThunk<UserDto, void, { state: RootState }>('users/me', async (_, thunkApi) => {
   const userAccessToken = thunkApi.getState().user;
-  const res = await axios.get(`/api/users/${userAccessToken?.user?.id}`, {
+  const res = await axios.get('/api/auth/me', {
     headers: { Authorization: `Bearer ${userAccessToken?.token}` },
   });
 
@@ -49,14 +61,25 @@ export const updateMe = createAsyncThunk<UserDto, UpdateUserRequestDto, { state:
 );
 
 const slice = createSlice({
-  name: 'test',
+  name: 'user',
   initialState: {} as UserAccessToken,
-  reducers: {},
+  reducers: {
+    cleanUpToken: (state) => {
+      state = {};
+      return state;
+    },
+  },
   extraReducers(builder) {
     builder.addCase(loginThunk.fulfilled, (state, action) => {
       Object.assign(state, action.payload);
       return state;
     });
+
+    builder.addCase(loginGoogleThunk.fulfilled, (state, action) => {
+      Object.assign(state, action.payload);
+      return state;
+    });
+
     builder.addCase(logoutThunk.fulfilled, (state, action) => {
       state = {};
       return state;
@@ -80,3 +103,5 @@ const slice = createSlice({
 });
 
 export const userReducer = slice.reducer;
+
+export const { cleanUpToken } = slice.actions;

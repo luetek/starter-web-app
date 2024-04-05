@@ -7,6 +7,7 @@ import axios from 'axios';
 import { UserEntity } from './entities/user.entity';
 import { UserPasswordEntity } from './entities/user-password.entity';
 import { UserAuthProviderEntity } from './entities/user-auth-provider.entity';
+import { ReqLogger } from '../logger/req-logger';
 
 @Injectable()
 export class UserService {
@@ -16,8 +17,11 @@ export class UserService {
     @InjectRepository(UserPasswordEntity)
     private userPasswordsRepository: Repository<UserPasswordEntity>,
     @InjectRepository(UserAuthProviderEntity)
-    private userAuthProviderRepository: Repository<UserAuthProviderEntity>
-  ) {}
+    private userAuthProviderRepository: Repository<UserAuthProviderEntity>,
+    private logger: ReqLogger
+  ) {
+    this.logger.setContext(UserService.name);
+  }
 
   async updateUser(updateUserDto: UpdateUserRequestDto, id: number) {
     const user = await this.usersRepository.findOne({ where: { id } });
@@ -34,6 +38,7 @@ export class UserService {
     }
     const userPasswordSaved = await this.userPasswordsRepository.save(userPassword);
     userSaved.userPassword = userPasswordSaved;
+    delete userPasswordSaved.user;
     return userSaved;
   }
 
@@ -42,7 +47,7 @@ export class UserService {
     user.firstName = createUserDto.firstName;
     user.lastName = createUserDto.lastName;
     user.primaryEmail = createUserDto.primaryEmail;
-    user.status = 'CREATED';
+    user.status = 'ACTIVE';
     const userSaved = await this.usersRepository.save(user);
 
     const userPassword = new UserPasswordEntity();
@@ -53,6 +58,7 @@ export class UserService {
     userPassword.failedPasswordCount = 0;
     const userPasswordSaved = await this.userPasswordsRepository.save(userPassword);
     userSaved.userPassword = userPasswordSaved;
+    delete userPasswordSaved.user;
     return userSaved;
   }
 
@@ -77,8 +83,9 @@ export class UserService {
     const userAuthProvider = new UserAuthProviderEntity();
     userAuthProvider.providerId = profile.id;
     userAuthProvider.provider = 'GOOGLE';
-    await this.userAuthProviderRepository.save(userAuthProvider);
-
+    userAuthProvider.user = userSaved;
+    const providerEntity = await this.userAuthProviderRepository.save(userAuthProvider);
+    this.logger.log(` provider entity = ${JSON.stringify(providerEntity)}`);
     return userSaved;
   }
 
