@@ -47,7 +47,7 @@ export class UserService {
     user.firstName = createUserDto.firstName;
     user.lastName = createUserDto.lastName;
     user.primaryEmail = createUserDto.primaryEmail;
-    user.status = 'ACTIVE';
+    user.status = 'CREATED';
     const userSaved = await this.usersRepository.save(user);
 
     const userPassword = new UserPasswordEntity();

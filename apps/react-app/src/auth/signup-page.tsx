@@ -41,6 +41,7 @@ export function SignUpPage() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<CreateUserRequestDto>({
     defaultValues: new CreateUserRequestDto(),
@@ -49,7 +50,7 @@ export function SignUpPage() {
   const [apiError, setApiError] = useState<string>();
   const [apiMessage, setApiMessage] = useState<string>();
   const captchaRef = useRef<Recaptcha>();
-
+  const password = watch('password');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const submitHandler = async (createUserDto: CreateUserRequestDto, event: any) => {
     event.preventDefault();
@@ -135,7 +136,10 @@ export function SignUpPage() {
 
           <Form.Group className="mb-3 col-sm" controlId="createUser.repassword">
             <Form.Label>Re-enter Password</Form.Label>
-            <Form.Control type="password" {...register('reenterPassword')} />
+            <Form.Control
+              type="password"
+              {...register('reenterPassword', { validate: (value) => password === value })}
+            />
             {errors.reenterPassword && <span>{errors.reenterPassword.message}</span>}
           </Form.Group>
         </div>
