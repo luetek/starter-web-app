@@ -57,7 +57,7 @@ describe('Auth Acceptance/E2E Tests', () => {
       primaryEmail: user.primaryEmail,
     });
     const res2 = await request(app.getHttpServer())
-      .delete(`/auth/user-access-tokens/${res.body.token}`)
+      .delete(`/auth/user-access-tokens/${res.body.id}`)
       .set('Authorization', `Bearer ${res.body.token}`);
     expect(res2.status).toBe(200);
     expect(await userAccessTokensRepository.count()).toBe(0);

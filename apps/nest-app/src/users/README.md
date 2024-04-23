@@ -17,13 +17,9 @@ npm install supertest  --save-dev
 - [Request Dto Validation](https://docs.nestjs.com/techniques/validation) functionality is added. This enables http api throwing 400 `Bad Request` error if the dto contains validation errors.
 
 - [Dto AutoMapper](https://automapperts.netlify.app/docs/nestjs) We want to map Entity to Dto when we are sending an api response. We will have fields in entity which are internal and we dont want to leak them to user. Auto mapper patterns make that task easy.
-
 - Added User module with create user controller. See [user.http](./user.http) for api example which can be run using http client vscode extension
-
 - Added acceptance test for api [tests](./user.controller.spec.ts). I will not be writing both Unit Test and Acceptance Tests. Will be adding unit tests when a cetain scenario cannot be tested using E2E tests. This provide a good enough tradeoff.
-
 - Added nest-changes for Google captha. We have disabled it for now in test and development.
-
 - Added google auth changes to fetch data from google to create a User Account. In this scenario not username/ password is created for user.
 
 ## Authentication
@@ -34,6 +30,11 @@ npm i -S cache-manager
 
 ```
 
-- Added api for user/passowrd login
-
+- Added api for user/password login
 - Added api for google login
+- Added profile page with update functionality
+- Account lock after 5 password failures.
+- logout functionality
+- Api authentication using jwt token
+- Jwt token is stored in DB allowing us to invalidate it by deleting form db.
+- jwt token are cached to improve performance and latency of api calls

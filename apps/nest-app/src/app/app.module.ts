@@ -6,10 +6,13 @@ import { classes } from '@automapper/classes';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
+import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from '../logger/logger.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { UserModule } from '../users/user.module';
+import { StorageModule } from '../storage/storage.module';
+import { AppConfigModule } from '../app-config/app-config.module';
 
 @Module({
   imports: [
@@ -46,8 +49,11 @@ import { UserModule } from '../users/user.module';
     AutomapperModule.forRoot({
       strategyInitializer: classes(),
     }),
+    ScheduleModule.forRoot(),
     LoggerModule,
+    AppConfigModule,
     UserModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
