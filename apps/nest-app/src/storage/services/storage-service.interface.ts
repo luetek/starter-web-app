@@ -3,6 +3,10 @@ import { RootFolderEntity } from '../entities/root-folder.entity';
 import { FileEntity } from '../entities/file.entity';
 import { FolderEntity } from '../entities/folder.entity';
 
+export function calulateFileHash(fileEntity: FileEntity): string {
+  return `${fileEntity.checksum}-${fileEntity.fileSize}`;
+}
+
 export interface ScanResponse {
   outFiles: FileEntity[];
   outFolders: FolderEntity[];

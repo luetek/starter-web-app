@@ -15,7 +15,7 @@ import path from 'path';
 import { Injectable } from '@nestjs/common';
 import crypto from 'node:crypto';
 import { RootFolderEntity } from '../entities/root-folder.entity';
-import { StorageService } from './storage-service.interface';
+import { StorageService, calulateFileHash } from './storage-service.interface';
 import { FolderEntity } from '../entities/folder.entity';
 import { FileEntity } from '../entities/file.entity';
 
@@ -84,7 +84,6 @@ export class FileSystemService implements StorageService {
       const subItems = await fs.promises.readdir(path.join(rootFolder.url, item.url));
       outFolders.push(item);
 
-      const currentFolderFiles: FileEntity[] = [];
       for (let i = 0; i < subItems.length; i += 1) {
         const newFile = subItems[i];
         const fullPathNewFile = path.join(rootFolder.url, item.url, newFile);
@@ -107,19 +106,19 @@ export class FileSystemService implements StorageService {
           const fileReadStream = fs.createReadStream(path.join(rootFolder.url, fileEntity.url));
           // eslint-disable-next-line no-await-in-loop
           fileEntity.checksum = await generateChecksum(fileReadStream);
-          fileEntity.status = checksumSet.has(this.calulateFileHash(fileEntity))
+          fileEntity.status = checksumSet.has(calulateFileHash(fileEntity))
             ? FileStatus.DUPLICATE
             : FileStatus.UPTODATE;
-          checksumSet.add(this.calulateFileHash(fileEntity));
+          checksumSet.add(calulateFileHash(fileEntity));
           // TODO:: Fix this.
           fileEntity.fileType = FileType.UNKNOWN;
           fileEntity.fileSize = stats.size;
           fileEntity.updatedAt = stats.mtime;
           fileEntity.createdAt = stats.ctime;
 
-          const fileFound = checksumSizeFilesMap.has(this.calulateFileHash(fileEntity));
+          const fileFound = checksumSizeFilesMap.has(calulateFileHash(fileEntity));
           if (fileFound) {
-            const oldEntity = checksumSizeFilesMap.get(this.calulateFileHash(fileEntity));
+            const oldEntity = checksumSizeFilesMap.get(calulateFileHash(fileEntity));
             fileEntity.id = oldEntity.id;
             // if name change then it is a move operation
             if (oldEntity.url !== fileEntity.url) {
@@ -135,29 +134,22 @@ export class FileSystemService implements StorageService {
             changeEvents.push(new FileAddedEvent(fileEntity));
           }
           outFiles.push(fileEntity);
-          currentFolderFiles.push(fileEntity);
         }
-        item.files = currentFolderFiles;
       }
-
-      // Mark the untouched files/folder for delettion
-      checksumSizeFilesMap.forEach((fileEn) => {
-        // eslint-disable-next-line no-param-reassign
-        fileEn.status = FileStatus.DELETED;
-        outFiles.push(fileEn);
-        changeEvents.push(new FileDeletedEvent(fileEn));
-      });
-
-      urlFolderMap.forEach((folderEn) => {
-        outFolders.push(folderEn);
-        changeEvents.push(new FolderDeletedEvent(folderEn));
-      });
     }
 
-    return { outFiles, outFolders, changeEvents };
-  }
+    // Mark the untouched files/folder for delettion
+    checksumSizeFilesMap.forEach((fileEn) => {
+      // eslint-disable-next-line no-param-reassign
+      fileEn.status = FileStatus.DELETED;
+      outFiles.push(fileEn);
+      changeEvents.push(new FileDeletedEvent(fileEn));
+    });
 
-  private calulateFileHash(fileEntity: FileEntity): string {
-    return `${fileEntity.checksum}-${fileEntity.fileSize}`;
+    urlFolderMap.forEach((folderEn) => {
+      outFolders.push(folderEn);
+      changeEvents.push(new FolderDeletedEvent(folderEn));
+    });
+    return { outFiles, outFolders, changeEvents };
   }
 }
