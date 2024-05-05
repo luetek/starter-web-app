@@ -10,6 +10,7 @@ import { S3Service } from './services/s3-service';
 import { StorageService } from './services/storage-service.interface';
 import { RootFolderEntity } from './entities/root-folder.entity';
 import { FileEntity } from './entities/file.entity';
+import { StoragePublicationService } from './storage-publication.service';
 
 @Injectable()
 export class FolderService {
@@ -24,8 +25,10 @@ export class FolderService {
     private rootFoldersRepository: Repository<RootFolderEntity>,
     @InjectRepository(FileEntity)
     private filesRepository: Repository<FileEntity>,
+    private storagePulicationService: StoragePublicationService,
     fileSystemService: FileSystemService,
     s3Service: S3Service,
+
     private logger: ReqLogger
   ) {
     this.logger.setContext(FolderService.name);
@@ -51,13 +54,21 @@ export class FolderService {
     // and what if some of them are deleted/renamed etc.
     // We can read all the exisitng files and folder and pass it to the storage service.
     const rootFolder = await this.rootFoldersRepository.findOne({ where: { id } });
+    if (!rootFolder.readOnly) throw new Error('Folder is not readOnly');
+    const foldersExisting = await this.foldersRepository.find({ where: { root: rootFolder } });
+    const filesExisting = await this.filesRepository.find({ where: { root: rootFolder } });
+
     this.logger.log(JSON.stringify(rootFolder));
     const storageService = this.serviceMap.get(rootFolder.folderType);
-    const items = await storageService.scan(rootFolder);
-    this.logger.log(JSON.stringify(items.outFolders[1]));
+    const items = await storageService.scan(rootFolder, foldersExisting, filesExisting);
+
     const folders = await this.foldersRepository.save(items.outFolders);
     const files = await this.filesRepository.save(items.outFiles);
 
+    // Publish the events
+    items.changeEvents.forEach((event) => {
+      this.storagePulicationService.publish(event);
+    });
     return { folders, files };
   }
 }

@@ -7,9 +7,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { IFile, FileType } from '@luetek/common-models';
+import { IFile, FileType, FileStatus } from '@luetek/common-models';
 import { AutoMap } from '@automapper/classes';
 import { FolderEntity } from './folder.entity';
+import { RootFolderEntity } from './root-folder.entity';
 
 @Entity()
 export class FileEntity implements IFile {
@@ -24,6 +25,10 @@ export class FileEntity implements IFile {
   @ManyToOne(() => FolderEntity)
   @JoinColumn()
   parent: FolderEntity;
+
+  @ManyToOne(() => RootFolderEntity)
+  @JoinColumn()
+  root: RootFolderEntity;
 
   @AutoMap()
   @Column()
@@ -44,8 +49,9 @@ export class FileEntity implements IFile {
   @Column()
   fileSize: number;
 
-  // @Column()
-  // checksum: number;
+  @AutoMap()
+  @Column()
+  checksum: string;
 
   @AutoMap()
   @CreateDateColumn()
@@ -54,4 +60,6 @@ export class FileEntity implements IFile {
   @AutoMap()
   @UpdateDateColumn()
   updatedAt: Date; // Last updated date
+
+  status: FileStatus;
 }

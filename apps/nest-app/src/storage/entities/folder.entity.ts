@@ -1,4 +1,4 @@
-import { Folder } from '@luetek/common-models';
+import { Folder, IFile } from '@luetek/common-models';
 import {
   Column,
   CreateDateColumn,
@@ -32,6 +32,10 @@ export class FolderEntity implements Folder {
 
   @OneToMany(() => FolderEntity, (f) => f.parent, { nullable: true })
   children: FolderEntity[];
+
+  // Use string to avoid cyclic dependency
+  @OneToMany('FileEntity', 'parent', { nullable: true })
+  files: IFile[];
 
   @ManyToOne(() => FolderEntity, (f) => f.children)
   @JoinColumn()

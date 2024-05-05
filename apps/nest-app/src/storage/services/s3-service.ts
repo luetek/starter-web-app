@@ -34,7 +34,7 @@ export class S3Service implements StorageService {
     return folder;
   }
 
-  public async scan(rootFolder: RootFolderEntity) {
+  public async scan(rootFolder: RootFolderEntity, folderEntities: FolderEntity[], fileEntities: FileEntity[]) {
     // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/s3/
     const Delimiter = '/';
     const params = { Bucket: rootFolder.url, Prefix: '', Delimiter, parent: null };
@@ -66,11 +66,16 @@ export class S3Service implements StorageService {
         fileEntity.parent = folderEntity;
         fileEntity.fileSize = file.Size;
         fileEntity.url = file.Key;
+        fileEntity.root = rootFolder;
+        fileEntity.updatedAt = file.LastModified;
+        fileEntity.createdAt = file.LastModified;
+        fileEntity.checksum = file.ETag;
         fileEntity.name = file.Key.split(Delimiter).pop();
+        // TODO:: Fix this.
         fileEntity.fileType = FileType.UNKNOWN;
         return fileEntity;
       });
-
+      folderEntity.files = files;
       outFiles.push(...files);
     }
 
