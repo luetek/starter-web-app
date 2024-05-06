@@ -4,7 +4,7 @@ import { ReqLogger } from '../logger/req-logger';
 
 @Injectable()
 export class StoragePublicationService {
-  handlers: StorageChangeHandler[];
+  handlers: StorageChangeHandler[] = [];
 
   constructor(private logger: ReqLogger) {
     this.logger.setContext(StoragePublicationService.name);

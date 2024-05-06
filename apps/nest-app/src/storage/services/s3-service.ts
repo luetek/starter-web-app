@@ -133,7 +133,7 @@ export class S3Service implements StorageService {
     }
 
     // Mark the untouched files/folder for delettion
-    checksumSizeFilesMap.forEach((fileEn) => {
+    urlFilesMap.forEach((fileEn) => {
       // eslint-disable-next-line no-param-reassign
       fileEn.status = FileStatus.DELETED;
       outFiles.push(fileEn);

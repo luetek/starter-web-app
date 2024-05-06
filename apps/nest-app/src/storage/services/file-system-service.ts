@@ -8,6 +8,7 @@ import {
   FileType,
   FolderAddedEvent,
   FolderDeletedEvent,
+  FolderStatus,
   StorageChangeEvent,
 } from '@luetek/common-models';
 import fs, { constants } from 'fs';
@@ -18,6 +19,7 @@ import { RootFolderEntity } from '../entities/root-folder.entity';
 import { StorageService, calulateFileHash } from './storage-service.interface';
 import { FolderEntity } from '../entities/folder.entity';
 import { FileEntity } from '../entities/file.entity';
+import { ReqLogger } from '../../logger/req-logger';
 
 function generateChecksum(readStream: fs.ReadStream) {
   const createHash = crypto.createHash('md5');
@@ -33,6 +35,10 @@ function generateChecksum(readStream: fs.ReadStream) {
 
 @Injectable()
 export class FileSystemService implements StorageService {
+  constructor(private logger: ReqLogger) {
+    this.logger.setContext(FileSystemService.name);
+  }
+
   public async createRootFolderEntity(createRequest: CreateRootFolderRequestDto) {
     const pathNormalized = path.normalize(createRequest.folderPath);
     await fs.promises.access(pathNormalized, constants.R_OK);
@@ -55,8 +61,9 @@ export class FileSystemService implements StorageService {
     folder.name = rootFolder.name;
     folder.url = '.';
     folder.parent = null;
+    folder.status = FolderStatus.UPTODATE;
     folder.root = rootFolder;
-
+    this.logger.log(`Scanning Starting ${JSON.stringify(rootFolder)}`);
     const checksumSizeFilesMap = new Map<string, FileEntity>(
       fileEntities.map((fileEntity) => [`${fileEntity.checksum}-${fileEntity.fileSize}`, fileEntity])
     );
@@ -69,6 +76,9 @@ export class FileSystemService implements StorageService {
 
     const urlFilesMap = new Map<string, FileEntity>(fileEntities.map((fileEntity) => [fileEntity.url, fileEntity]));
 
+    this.logger.log(
+      `checksumSizesFileMap ${checksumSizeFilesMap.size} urlFolderMap ${urlFolderMap.size}  urlFilesMap ${urlFilesMap.size}`
+    );
     const folders = [folder];
 
     while (folders.length > 0) {
@@ -78,11 +88,14 @@ export class FileSystemService implements StorageService {
         item.id = urlFolderMap.get(item.url).id;
         urlFolderMap.delete(item.url);
       } else {
+        this.logger.log(`folder Event - New  ${item}`);
         changeEvents.push(new FolderAddedEvent(item));
       }
       // eslint-disable-next-line no-await-in-loop
       const subItems = await fs.promises.readdir(path.join(rootFolder.url, item.url));
       outFolders.push(item);
+
+      this.logger.log(`folder Poped  ${item}`);
 
       for (let i = 0; i < subItems.length; i += 1) {
         const newFile = subItems[i];
@@ -95,6 +108,7 @@ export class FileSystemService implements StorageService {
           subFolder.name = newFile;
           subFolder.url = path.join(item.url, newFile);
           subFolder.parent = item;
+          subFolder.status = FolderStatus.UPTODATE;
           subFolder.root = rootFolder;
           folders.push(subFolder);
         } else {
@@ -115,22 +129,24 @@ export class FileSystemService implements StorageService {
           fileEntity.fileSize = stats.size;
           fileEntity.updatedAt = stats.mtime;
           fileEntity.createdAt = stats.ctime;
-
           const fileFound = checksumSizeFilesMap.has(calulateFileHash(fileEntity));
           if (fileFound) {
             const oldEntity = checksumSizeFilesMap.get(calulateFileHash(fileEntity));
             fileEntity.id = oldEntity.id;
             // if name change then it is a move operation
             if (oldEntity.url !== fileEntity.url) {
+              this.logger.log(`file Entity Event - Renamed  ${fileEntity}`);
               changeEvents.push(new FileRenameEvent(oldEntity, fileEntity));
             }
             urlFilesMap.delete(oldEntity.url);
           } else if (urlFilesMap.has(fileEntity.url)) {
             // Its an update operation
+            this.logger.log(`file Entity Event - Modified  ${fileEntity}`);
             changeEvents.push(new FileModifiedEvent(fileEntity));
             urlFilesMap.delete(fileEntity.url);
           } else {
             // Its a  new file add operation
+            this.logger.log(`file Entity Event - New  ${fileEntity}`);
             changeEvents.push(new FileAddedEvent(fileEntity));
           }
           outFiles.push(fileEntity);
@@ -139,15 +155,19 @@ export class FileSystemService implements StorageService {
     }
 
     // Mark the untouched files/folder for delettion
-    checksumSizeFilesMap.forEach((fileEn) => {
+    urlFilesMap.forEach((fileEn) => {
       // eslint-disable-next-line no-param-reassign
       fileEn.status = FileStatus.DELETED;
+      this.logger.log(`file Entity Event - Deleted ${fileEn}`);
       outFiles.push(fileEn);
       changeEvents.push(new FileDeletedEvent(fileEn));
     });
 
     urlFolderMap.forEach((folderEn) => {
       outFolders.push(folderEn);
+      this.logger.log(`folder Event - Deleted  ${folderEn}`);
+      // eslint-disable-next-line no-param-reassign
+      folderEn.status = FolderStatus.DELETED;
       changeEvents.push(new FolderDeletedEvent(folderEn));
     });
     return { outFiles, outFolders, changeEvents };

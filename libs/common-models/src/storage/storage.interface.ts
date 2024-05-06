@@ -10,6 +10,11 @@ export enum FileStatus {
   DUPLICATE,
   UPTODATE,
 }
+
+export enum FolderStatus {
+  DELETED,
+  UPTODATE,
+}
 export enum FolderType {
   FILE_SYSTEM = 'FILE_SYSTEM',
   S3 = 'S3',
@@ -34,12 +39,12 @@ export interface IFile {
 }
 
 export enum StorageEventType {
-  FILE_RENAME,
-  FILE_MODIFIED,
-  FILE_ADDED,
-  FILE_DELETED,
-  FOLDER_ADDED,
-  FOLDER_DELETED,
+  FILE_RENAME = 'FILE_RENAME',
+  FILE_MODIFIED = 'FILE_MODIFIED',
+  FILE_ADDED = 'FILE_ADDED',
+  FILE_DELETED = 'FILE_DELETED',
+  FOLDER_ADDED = 'FOLDER_ADDED',
+  FOLDER_DELETED = 'FOLDER_DELETED',
 }
 export interface StorageChangeEvent {
   type: StorageEventType;

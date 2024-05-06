@@ -1,4 +1,4 @@
-import { Folder } from '@luetek/common-models';
+import { Folder, FolderStatus } from '@luetek/common-models';
 import {
   Column,
   CreateDateColumn,
@@ -37,6 +37,10 @@ export class FolderEntity implements Folder {
   @JoinColumn()
   parent: FolderEntity;
 
+  @AutoMap()
+  @Column({ type: 'integer' })
+  rootId: number;
+
   @ManyToOne(() => RootFolderEntity)
   @JoinColumn()
   root: RootFolderEntity;
@@ -48,4 +52,12 @@ export class FolderEntity implements Folder {
   @AutoMap()
   @UpdateDateColumn()
   updatedAt: Date; // Last updated date
+
+  @AutoMap()
+  @Column({ type: 'simple-enum' })
+  status: FolderStatus;
+
+  toString(): string {
+    return `id=${this.id}, url=${this.url} root=${this.rootId} parent=${this.parentId} status=${this.status}`;
+  }
 }

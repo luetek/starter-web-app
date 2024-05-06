@@ -22,6 +22,10 @@ export class FileEntity implements IFile {
   @Column({ type: 'integer' })
   parentId: number;
 
+  @AutoMap()
+  @Column({ type: 'integer' })
+  rootId: number;
+
   @ManyToOne(() => FolderEntity)
   @JoinColumn()
   parent: FolderEntity;
@@ -61,5 +65,11 @@ export class FileEntity implements IFile {
   @UpdateDateColumn()
   updatedAt: Date; // Last updated date
 
+  @AutoMap()
+  @Column({ type: 'simple-enum' })
   status: FileStatus;
+
+  toString(): string {
+    return `id=${this.id}, url=${this.url} root=${this.rootId} parent=${this.parentId} size=${this.fileSize} checksum=${this.checksum} status=${this.status}`;
+  }
 }

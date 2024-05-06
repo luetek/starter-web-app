@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateRootFolderRequestDto, FolderType } from '@luetek/common-models';
-import { S3Client } from '@aws-sdk/client-s3';
+import { CreateRootFolderRequestDto, FolderStatus, FolderType } from '@luetek/common-models';
 import { FolderEntity } from './entities/folder.entity';
 import { ReqLogger } from '../logger/req-logger';
 import { FileSystemService } from './services/file-system-service';
@@ -11,11 +10,10 @@ import { StorageService } from './services/storage-service.interface';
 import { RootFolderEntity } from './entities/root-folder.entity';
 import { FileEntity } from './entities/file.entity';
 import { StoragePublicationService } from './storage-publication.service';
+import { RootFolderDetailReponseEntity } from './dtos/root-folder-detail-response.entity';
 
 @Injectable()
 export class FolderService {
-  private client: S3Client;
-
   private serviceMap: Map<FolderType, StorageService> = new Map();
 
   constructor(
@@ -43,6 +41,15 @@ export class FolderService {
     return items;
   }
 
+  async findOne(rootId: number) {
+    const folders = await this.foldersRepository.find({ where: { rootId } });
+    const files = await this.filesRepository.find({ where: { rootId } });
+    const res = new RootFolderDetailReponseEntity();
+    res.files = files;
+    res.folders = folders;
+    return res;
+  }
+
   async create(createRequest: CreateRootFolderRequestDto) {
     const storageService = this.serviceMap.get(createRequest.folderType);
     const rootFolderEntity = await storageService.createRootFolderEntity(createRequest);
@@ -62,13 +69,19 @@ export class FolderService {
     const storageService = this.serviceMap.get(rootFolder.folderType);
     const items = await storageService.scan(rootFolder, foldersExisting, filesExisting);
 
-    const folders = await this.foldersRepository.save(items.outFolders);
+    const folders = await this.foldersRepository.save(
+      items.outFolders.filter((folder) => folder.status !== FolderStatus.DELETED)
+    );
     const files = await this.filesRepository.save(items.outFiles);
-
+    const foldersToBeDelted = items.outFolders.filter((folder) => folder.status === FolderStatus.DELETED);
+    if (foldersToBeDelted.length > 0) await this.foldersRepository.delete(foldersToBeDelted);
     // Publish the events
     items.changeEvents.forEach((event) => {
       this.storagePulicationService.publish(event);
     });
-    return { folders, files };
+    const res = new RootFolderDetailReponseEntity();
+    res.files = files;
+    res.folders = folders;
+    return res;
   }
 }
