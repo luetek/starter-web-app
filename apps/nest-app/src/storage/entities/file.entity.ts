@@ -65,7 +65,7 @@ export class FileEntity implements IFile {
   @UpdateDateColumn()
   updatedAt: Date; // Last updated date
 
-  @AutoMap()
+  @AutoMap(() => String)
   @Column({ type: 'simple-enum' })
   status: FileStatus;
 

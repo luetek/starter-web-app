@@ -9,6 +9,7 @@ import {
   FileType,
   FolderAddedEvent,
   FolderDeletedEvent,
+  FolderStatus,
   StorageChangeEvent,
 } from '@luetek/common-models';
 import { Inject, Injectable } from '@nestjs/common';
@@ -77,6 +78,7 @@ export class S3Service implements StorageService {
       folderEntity.name = item.Prefix.substring(0, item.Prefix.length - 1)
         .split(Delimiter)
         .pop();
+      folderEntity.status = FolderStatus.UPTODATE;
       folderEntity.parent = prefixMap.get(item.parent);
       if (urlFolderMap.has(folderEntity.url)) {
         folderEntity.id = urlFolderMap.get(folderEntity.url).id;
@@ -141,6 +143,8 @@ export class S3Service implements StorageService {
     });
 
     urlFolderMap.forEach((folderEn) => {
+      // eslint-disable-next-line no-param-reassign
+      folderEn.status = FolderStatus.DELETED;
       outFolders.push(folderEn);
       changeEvents.push(new FolderDeletedEvent(folderEn));
     });

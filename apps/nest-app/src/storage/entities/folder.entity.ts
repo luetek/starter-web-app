@@ -53,7 +53,7 @@ export class FolderEntity implements Folder {
   @UpdateDateColumn()
   updatedAt: Date; // Last updated date
 
-  @AutoMap()
+  @AutoMap(() => String)
   @Column({ type: 'simple-enum' })
   status: FolderStatus;
 

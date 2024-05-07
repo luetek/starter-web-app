@@ -27,7 +27,7 @@ export class FolderDto implements Folder {
   @AutoMap()
   parentId!: number;
 
-  @AutoMap()
+  @AutoMap(() => String)
   status: FolderStatus;
 }
 
@@ -47,6 +47,6 @@ export class FileDto implements IFile {
   @AutoMap()
   parentId!: number;
 
-  @AutoMap()
+  @AutoMap(() => String)
   status: FileStatus;
 }

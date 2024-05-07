@@ -6,14 +6,14 @@ export enum FileType {
 }
 
 export enum FileStatus {
-  DELETED,
-  DUPLICATE,
-  UPTODATE,
+  DELETED = 'DELETED',
+  DUPLICATE = 'DUPLICATE',
+  UPTODATE = 'UPTODATE',
 }
 
 export enum FolderStatus {
-  DELETED,
-  UPTODATE,
+  DELETED = 'DELETED',
+  UPTODATE = 'UPTODATE',
 }
 export enum FolderType {
   FILE_SYSTEM = 'FILE_SYSTEM',
