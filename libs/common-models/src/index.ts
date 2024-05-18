@@ -3,3 +3,5 @@ export * from './users/user.dto';
 
 export * from './storage/storage.interface';
 export * from './storage/storage.dto';
+
+export * from './activity-collection/activity-collection-json-schema';

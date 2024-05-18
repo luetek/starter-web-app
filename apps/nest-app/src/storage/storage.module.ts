@@ -12,11 +12,19 @@ import { FileSystemService } from './services/file-system-service';
 import { S3Service } from './services/s3-service';
 import { StorageAutoMapperProfile } from './storage-auto-mapper.profile';
 import { StoragePublicationService } from './storage-publication.service';
+import { StorageStreamingService } from './storage-streaming.service';
 
 @Module({
   imports: [LoggerModule, AppConfigModule, TypeOrmModule.forFeature([FolderEntity, FileEntity, RootFolderEntity])],
   controllers: [FolderController],
-  providers: [FolderService, S3Service, FileSystemService, StorageAutoMapperProfile, StoragePublicationService],
-  exports: [FolderService, StoragePublicationService],
+  providers: [
+    FolderService,
+    S3Service,
+    FileSystemService,
+    StorageAutoMapperProfile,
+    StoragePublicationService,
+    StorageStreamingService,
+  ],
+  exports: [FolderService, StoragePublicationService, StorageStreamingService],
 })
 export class StorageModule {}

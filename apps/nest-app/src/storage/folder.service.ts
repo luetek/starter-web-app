@@ -76,9 +76,11 @@ export class FolderService {
     const foldersToBeDelted = items.outFolders.filter((folder) => folder.status === FolderStatus.DELETED);
     if (foldersToBeDelted.length > 0) await this.foldersRepository.delete(foldersToBeDelted);
     // Publish the events
-    items.changeEvents.forEach((event) => {
-      this.storagePulicationService.publish(event);
-    });
+    await Promise.all(
+      items.changeEvents.map((event) => {
+        return this.storagePulicationService.publish(event);
+      })
+    );
     const res = new RootFolderDetailReponseEntity();
     res.files = files;
     res.folders = folders;

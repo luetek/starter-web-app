@@ -94,5 +94,5 @@ export class FolderDeletedEvent implements StorageChangeEvent {
 }
 
 export interface StorageChangeHandler {
-  handleChange(event: StorageChangeEvent);
+  handleChange(event: StorageChangeEvent): Promise<void>;
 }

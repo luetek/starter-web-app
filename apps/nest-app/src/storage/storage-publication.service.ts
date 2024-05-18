@@ -22,10 +22,12 @@ export class StoragePublicationService {
     }
   }
 
-  publish(event: StorageChangeEvent) {
+  async publish(event: StorageChangeEvent) {
     this.logger.log(JSON.stringify(event));
-    this.handlers.forEach((handler) => {
-      handler.handleChange(event);
-    });
+    await Promise.all(
+      this.handlers.map(async (handler) => {
+        return handler.handleChange(event);
+      })
+    );
   }
 }

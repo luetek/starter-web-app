@@ -1,4 +1,4 @@
-import { HeadBucketCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand, HeadBucketCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import {
   CreateRootFolderRequestDto,
   FileAddedEvent,
@@ -13,6 +13,10 @@ import {
   StorageChangeEvent,
 } from '@luetek/common-models';
 import { Inject, Injectable } from '@nestjs/common';
+import { ReadableWebToNodeStream } from 'readable-web-to-node-stream';
+import { Readable } from 'readable-stream';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { StorageService, calulateFileHash } from './storage-service.interface';
 import { RootFolderEntity } from '../entities/root-folder.entity';
 import { ReqLogger } from '../../logger/req-logger';
@@ -24,6 +28,8 @@ export class S3Service implements StorageService {
   private client: S3Client;
 
   constructor(
+    @InjectRepository(FileEntity)
+    private filesRepository: Repository<FileEntity>,
     @Inject('S3CLIENT') s3Client: S3Client,
     private logger: ReqLogger
   ) {
@@ -151,5 +157,19 @@ export class S3Service implements StorageService {
 
     this.logger.log(JSON.stringify({ outFiles, outFolders }));
     return { outFiles, outFolders, changeEvents };
+  }
+
+  async fetchAsStream(file: FileEntity): Promise<Readable> {
+    const command = new GetObjectCommand({
+      Bucket: file.root.url,
+      Key: file.url,
+    });
+    const res = await this.client.send(command);
+    return new ReadableWebToNodeStream(res.Body.transformToWebStream());
+  }
+
+  async findByRelativeUrl(parentFolderEntity: FolderEntity, relativeFileUrl): Promise<FileEntity> {
+    const fileUrl = parentFolderEntity.url + relativeFileUrl;
+    return this.filesRepository.findOne({ where: { url: fileUrl, root: parentFolderEntity.root } });
   }
 }

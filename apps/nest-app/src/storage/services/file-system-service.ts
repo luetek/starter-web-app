@@ -15,6 +15,9 @@ import fs, { constants } from 'fs';
 import path from 'path';
 import { Injectable } from '@nestjs/common';
 import crypto from 'node:crypto';
+import { Readable } from 'readable-stream';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { RootFolderEntity } from '../entities/root-folder.entity';
 import { StorageService, calulateFileHash } from './storage-service.interface';
 import { FolderEntity } from '../entities/folder.entity';
@@ -35,7 +38,11 @@ function generateChecksum(readStream: fs.ReadStream) {
 
 @Injectable()
 export class FileSystemService implements StorageService {
-  constructor(private logger: ReqLogger) {
+  constructor(
+    @InjectRepository(FileEntity)
+    private filesRepository: Repository<FileEntity>,
+    private logger: ReqLogger
+  ) {
     this.logger.setContext(FileSystemService.name);
   }
 
@@ -171,5 +178,14 @@ export class FileSystemService implements StorageService {
       changeEvents.push(new FolderDeletedEvent(folderEn));
     });
     return { outFiles, outFolders, changeEvents };
+  }
+
+  async fetchAsStream(file: FileEntity): Promise<Readable> {
+    return fs.createReadStream(file.url);
+  }
+
+  async findByRelativeUrl(parentFolderEntity: FolderEntity, relativeFileUrl): Promise<FileEntity> {
+    const fileUrl = path.join(parentFolderEntity.url, relativeFileUrl);
+    return this.filesRepository.findOne({ where: { url: fileUrl, root: parentFolderEntity.root } });
   }
 }
