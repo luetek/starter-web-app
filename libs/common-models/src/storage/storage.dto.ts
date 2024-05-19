@@ -47,6 +47,9 @@ export class FileDto implements IFile {
   @AutoMap()
   parentId!: number;
 
+  @AutoMap()
+  parent: FolderDto;
+
   @AutoMap(() => String)
   status: FileStatus;
 }

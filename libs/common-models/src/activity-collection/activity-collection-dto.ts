@@ -1,8 +1,8 @@
 import { AutoMap } from '@automapper/classes';
-import { ActivityCollectionStatus } from '@luetek/common-models';
-import { FileEntity } from '../../storage/entities/file.entity';
+import { FileDto } from '../storage/storage.dto';
+import { ActivityCollectionStatus } from './activity-collection-common';
 
-export class ActivityCollectionJsonEntity {
+export class ActivityCollectionDto {
   @AutoMap()
   id: string;
 
@@ -10,7 +10,7 @@ export class ActivityCollectionJsonEntity {
   title: string;
 
   @AutoMap()
-  descriptionFile: FileEntity;
+  descriptionFile: FileDto;
 
   @AutoMap()
   keywords: string[];
@@ -19,7 +19,7 @@ export class ActivityCollectionJsonEntity {
   authors: string[];
 
   @AutoMap()
-  mappedFile: FileEntity;
+  mappedFile: FileDto;
 
   @AutoMap()
   status: ActivityCollectionStatus;

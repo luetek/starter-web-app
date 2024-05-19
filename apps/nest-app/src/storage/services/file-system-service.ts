@@ -181,7 +181,7 @@ export class FileSystemService implements StorageService {
   }
 
   async fetchAsStream(file: FileEntity): Promise<Readable> {
-    return fs.createReadStream(file.url);
+    return fs.createReadStream(path.join(file.root.url, file.url));
   }
 
   async findByRelativeUrl(parentFolderEntity: FolderEntity, relativeFileUrl): Promise<FileEntity> {

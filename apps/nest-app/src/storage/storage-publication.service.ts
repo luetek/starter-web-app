@@ -11,8 +11,9 @@ export class StoragePublicationService {
   }
 
   register(handler: StorageChangeHandler) {
-    if (this.handlers.some((h) => h === handler)) return;
+    // if (this.handlers.some((h) => h === handler)) return;
     this.handlers.push(handler);
+    this.logger.log(`Handler Added count = ${this.handlers.length}`);
   }
 
   unregister(handler: StorageChangeHandler) {
@@ -23,7 +24,7 @@ export class StoragePublicationService {
   }
 
   async publish(event: StorageChangeEvent) {
-    this.logger.log(JSON.stringify(event));
+    this.logger.log(`Publishing to ${this.handlers.length} handlers, event =  ${JSON.stringify(event)}`);
     await Promise.all(
       this.handlers.map(async (handler) => {
         return handler.handleChange(event);

@@ -39,6 +39,7 @@ export class ActivityCollectionListernerFsListener implements StorageChangeHandl
   async handleFileAdded(event: FileAddedEvent) {
     const { file } = event;
     const fileEntity = file as FileEntity;
+    this.logger.log(`File Added Event Handler called ${file.name}`);
     if (file.name.endsWith('.json')) {
       const readableStream = await this.storageStreamingService.fetchAsStream(fileEntity);
       const jsonData = await streamToString(readableStream);
@@ -55,6 +56,7 @@ export class ActivityCollectionListernerFsListener implements StorageChangeHandl
   }
 
   async handleChange(event: StorageChangeEvent) {
+    this.logger.log(`File Added Event Handler called ${event.type}`);
     switch (true) {
       case event instanceof FileAddedEvent:
         await this.handleFileAdded(event);
