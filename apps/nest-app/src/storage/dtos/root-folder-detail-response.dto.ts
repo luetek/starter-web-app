@@ -1,7 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { FileDto, FolderDto } from '@luetek/common-models';
 
-export class ScanReponseDto {
+export class RootFolderDetailReponseDto {
   @AutoMap(() => [FileDto])
   files!: FileDto[];
 

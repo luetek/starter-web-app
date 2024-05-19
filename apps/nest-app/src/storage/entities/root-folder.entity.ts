@@ -1,9 +1,9 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { FolderType } from '@luetek/common-models';
 
 @Entity()
 export class RootFolderEntity {
-  @PrimaryColumn({ name: 'id' })
+  @PrimaryGeneratedColumn({ name: 'id' })
   id: number;
 
   @Column()

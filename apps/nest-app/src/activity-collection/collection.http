@@ -1,0 +1,5 @@
+### activity-collections findAll api
+
+GET http://localhost:3000/api/activity-collections HTTP/1.1
+Content-Type: application/json
+

@@ -1,0 +1,8 @@
+{
+  "title": "test collection",
+  "id": "test-collection-1",
+  "type": "activity-collection",
+  "descriptionFile": "desc.md",
+  "keywords": ["test", "programming"],
+  "authors": ["deepakk87", "aarticc88"]
+}

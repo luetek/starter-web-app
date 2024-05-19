@@ -7,9 +7,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { IFile, FileType } from '@luetek/common-models';
+import { IFile, FileType, FileStatus } from '@luetek/common-models';
 import { AutoMap } from '@automapper/classes';
 import { FolderEntity } from './folder.entity';
+import { RootFolderEntity } from './root-folder.entity';
 
 @Entity()
 export class FileEntity implements IFile {
@@ -21,9 +22,17 @@ export class FileEntity implements IFile {
   @Column({ type: 'integer' })
   parentId: number;
 
+  @AutoMap()
+  @Column({ type: 'integer' })
+  rootId: number;
+
   @ManyToOne(() => FolderEntity)
   @JoinColumn()
   parent: FolderEntity;
+
+  @ManyToOne(() => RootFolderEntity)
+  @JoinColumn()
+  root: RootFolderEntity;
 
   @AutoMap()
   @Column()
@@ -44,8 +53,9 @@ export class FileEntity implements IFile {
   @Column()
   fileSize: number;
 
-  // @Column()
-  // checksum: number;
+  @AutoMap()
+  @Column()
+  checksum: string;
 
   @AutoMap()
   @CreateDateColumn()
@@ -54,4 +64,12 @@ export class FileEntity implements IFile {
   @AutoMap()
   @UpdateDateColumn()
   updatedAt: Date; // Last updated date
+
+  @AutoMap(() => String)
+  @Column({ type: 'simple-enum' })
+  status: FileStatus;
+
+  toString(): string {
+    return `id=${this.id}, url=${this.url} root=${this.rootId} parent=${this.parentId} size=${this.fileSize} checksum=${this.checksum} status=${this.status}`;
+  }
 }

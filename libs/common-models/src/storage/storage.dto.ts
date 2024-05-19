@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 import { AutoMap } from '@automapper/classes';
-import { FileType, Folder, FolderType, IFile } from './storage.interface';
+import { FileStatus, FileType, Folder, FolderStatus, FolderType, IFile } from './storage.interface';
 
 export class CreateRootFolderRequestDto {
   @IsNotEmpty()
@@ -26,6 +26,9 @@ export class FolderDto implements Folder {
 
   @AutoMap()
   parentId!: number;
+
+  @AutoMap(() => String)
+  status: FolderStatus;
 }
 
 export class FileDto implements IFile {
@@ -43,4 +46,10 @@ export class FileDto implements IFile {
 
   @AutoMap()
   parentId!: number;
+
+  @AutoMap()
+  parent: FolderDto;
+
+  @AutoMap(() => String)
+  status: FileStatus;
 }

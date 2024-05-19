@@ -2,8 +2,8 @@ import { Body, Controller, Get, Param, Post, UseInterceptors } from '@nestjs/com
 import { CreateRootFolderRequestDto } from '@luetek/common-models';
 import { MapInterceptor } from '@automapper/nestjs';
 import { FolderService } from './folder.service';
-import { ScanReponseEntity } from './dtos/scan-response.entity';
-import { ScanReponseDto } from './dtos/scan-response.dto';
+import { RootFolderDetailReponseEntity } from './dtos/root-folder-detail-response.entity';
+import { RootFolderDetailReponseDto } from './dtos/root-folder-detail-response.dto';
 
 @Controller('folders')
 export class FolderController {
@@ -19,8 +19,14 @@ export class FolderController {
     return this.folderService.findAll();
   }
 
-  @UseInterceptors(MapInterceptor(ScanReponseEntity, ScanReponseDto))
-  @Get('scan/:id')
+  @UseInterceptors(MapInterceptor(RootFolderDetailReponseEntity, RootFolderDetailReponseDto))
+  @Get(':id')
+  async findOneSubfolders(@Param('id') id: number) {
+    return this.folderService.findOne(id);
+  }
+
+  @UseInterceptors(MapInterceptor(RootFolderDetailReponseEntity, RootFolderDetailReponseDto))
+  @Get(':id/scan')
   async scan(@Param('id') id: number) {
     return this.folderService.scan(id);
   }
