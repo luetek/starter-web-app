@@ -3,6 +3,7 @@ import storage from 'redux-persist/lib/storage';
 import { useDispatch } from 'react-redux';
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import { userReducer } from '../auth/user-slice';
+import { storageReducer } from '../manage/storage-slice';
 
 const persistConfig = {
   key: 'root',
@@ -10,7 +11,7 @@ const persistConfig = {
 };
 
 const persistedReducer = persistReducer(persistConfig, userReducer);
-const rootReducer = combineReducers({ user: persistedReducer });
+const rootReducer = combineReducers({ user: persistedReducer, storage: storageReducer });
 
 export type RootState = ReturnType<typeof rootReducer>;
 export const store = configureStore({

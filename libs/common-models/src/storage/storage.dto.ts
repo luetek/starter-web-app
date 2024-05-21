@@ -14,6 +14,23 @@ export class CreateRootFolderRequestDto {
   readOnly!: boolean;
 }
 
+export class RootFolderDto {
+  @AutoMap()
+  id!: number;
+
+  @AutoMap()
+  name!: string;
+
+  @AutoMap()
+  url!: string;
+
+  @AutoMap()
+  folderType!: FolderType;
+
+  @AutoMap()
+  readOnly!: boolean;
+}
+
 export class FolderDto implements Folder {
   @AutoMap()
   id!: number;
@@ -27,13 +44,16 @@ export class FolderDto implements Folder {
   @AutoMap()
   parentId!: number;
 
+  @AutoMap()
+  rootId!: number;
+
   @AutoMap(() => String)
-  status: FolderStatus;
+  status!: FolderStatus;
 }
 
 export class FileDto implements IFile {
   @AutoMap()
-  fileType: FileType;
+  fileType!: FileType;
 
   @AutoMap()
   id!: number;
@@ -48,8 +68,16 @@ export class FileDto implements IFile {
   parentId!: number;
 
   @AutoMap()
-  parent: FolderDto;
+  parent!: FolderDto;
 
   @AutoMap(() => String)
-  status: FileStatus;
+  status!: FileStatus;
+}
+
+export class RootFolderDetailReponseDto {
+  @AutoMap(() => [FileDto])
+  files!: FileDto[];
+
+  @AutoMap(() => [FolderDto])
+  folders!: FolderDto[];
 }
