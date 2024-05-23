@@ -15,10 +15,7 @@
         "baseHref": "/",
         "main": "apps/react-app/src/main.tsx",
         "tsConfig": "apps/react-app/tsconfig.app.json",
-        "assets": [
-          "apps/react-app/src/favicon.ico",
-          "apps/react-app/src/assets"
-        ],
+        "assets": ["apps/react-app/src/favicon.ico", "apps/react-app/src/assets"],
         "styles": ["apps/react-app/src/styles.scss"],
         "scripts": [],
         "webpackConfig": "apps/react-app/webpack.config.js"
@@ -27,7 +24,7 @@
         "development": {
           "extractLicenses": false,
           "optimization": false,
-          "sourceMap": true,
+          "sourceMap": false,
           "vendorChunk": true
         },
         "production": {

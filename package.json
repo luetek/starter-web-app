@@ -25,6 +25,7 @@
     "@nestlab/google-recaptcha": "^3.7.0",
     "@react-oauth/google": "^0.12.1",
     "@reduxjs/toolkit": "^2.2.3",
+    "@uiw/react-markdown-editor": "^6.1.1",
     "axios": "^1.6.0",
     "bcrypt": "^5.1.1",
     "bootstrap": "^5.3.3",

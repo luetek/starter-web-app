@@ -1,15 +1,18 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { FileDto, FolderDto, RootFolderDetailReponseDto, RootFolderDto } from '@luetek/common-models';
-import { Tree } from 'react-arborist';
+import { Tree, NodeRendererProps } from 'react-arborist';
+import { Link, useNavigate } from 'react-router-dom';
 import { RootState, useAppDispatch } from '../store';
-import { getRootFolderDetails, getRootFolders } from './storage-slice';
+import { getRootFolderDetails, getRootFolders, setSelectedFolder } from './storage-slice';
 
 interface StorageNode {
   type: 'RootFolder' | 'Folder' | 'File';
   name: string;
   id: string;
-  data: RootFolderDto | FolderDto | FileDto;
+  data: FolderDto | FileDto;
 }
 const getChildren = (rootFolderDtail: RootFolderDetailReponseDto, parentFolder: FolderDto): StorageNode[] => {
   if (!rootFolderDtail || !parentFolder) return [];
@@ -38,6 +41,46 @@ const getChildren = (rootFolderDtail: RootFolderDetailReponseDto, parentFolder: 
 
   return [...folderNodes, ...fileNodes];
 };
+
+function FileNode(props: NodeRendererProps<StorageNode>) {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { node } = props;
+
+  const onCreateResourceClickHandler = async (folder: FolderDto, resource: string) => {
+    dispatch(setSelectedFolder(folder));
+    navigate(`${resource}/create`);
+  };
+
+  if (node.data.type === 'File')
+    return (
+      <Link style={{ textDecoration: 'none', marginLeft: node.level * 10 }} to={`${node.data.data.id}/edit`}>
+        {node.data.name}
+      </Link>
+    );
+
+  return (
+    <>
+      <span style={{ marginLeft: node.level * 10 }} onClick={() => node.toggle()}>
+        {node.data.name}
+      </span>
+      <button
+        type="button"
+        style={{ display: 'inline' }}
+        onClick={() => onCreateResourceClickHandler(node.data.data as FolderDto, 'markdown')}
+      >
+        New Md
+      </button>
+      <button
+        type="button"
+        style={{ display: 'inline' }}
+        onClick={() => onCreateResourceClickHandler(node.data.data as FolderDto, 'activity-collection')}
+      >
+        New Col
+      </button>
+    </>
+  );
+}
 export function StorageManagerView() {
   const dispatch = useAppDispatch();
   const [treeData, setTreeData] = useState<StorageNode[]>([]);
@@ -63,7 +106,7 @@ export function StorageManagerView() {
         id: `root-${rootFolder.id}`,
         name: rootFolder.name,
         type: 'RootFolder',
-        data: rootFolder,
+        data: startFolder,
         children: startFolder ? getChildren(details, startFolder) : null,
       } as StorageNode;
     });
@@ -72,7 +115,9 @@ export function StorageManagerView() {
 
   return (
     <div>
-      <Tree data={treeData} />
+      <Tree data={treeData} disableDrag disableEdit disableMultiSelection>
+        {FileNode}
+      </Tree>
     </div>
   );
 }

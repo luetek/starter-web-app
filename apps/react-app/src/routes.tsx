@@ -6,13 +6,20 @@ import { LoginPage } from './auth/login-page';
 import { LogoutPage } from './auth/logout-page';
 import { ProfilePage } from './auth/profile-page';
 import { ManagePage } from './pages/manage';
+import { ResourceEdit } from './manage/resource-edit';
+import { MarkdownEdit } from './markdown/markdown-edit';
+import { ActivityCollectionEdit } from './activity-collection/activity-collection-edit';
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       <Route path="/" index element={<Home />} />
       <Route path="home" element={<Home />} />
-      <Route path="manage" element={<ManagePage />} />
+      <Route path="manage" element={<ManagePage />}>
+        <Route path=":id/edit" element={<ResourceEdit />} />
+        <Route path="markdown/create" element={<MarkdownEdit />} />
+        <Route path="activity-collection/create" element={<ActivityCollectionEdit />} />
+      </Route>
       <Route path="signup" element={<SignUpPage />} />
       <Route path="login" element={<LoginPage />} />
       <Route path="logout" element={<LogoutPage />} />

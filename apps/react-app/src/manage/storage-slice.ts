@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
-import { RootFolderDetailReponseDto, RootFolderDto } from '@luetek/common-models';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { Folder, FolderDto, RootFolderDetailReponseDto, RootFolderDto } from '@luetek/common-models';
+import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { type RootState } from '../store';
 
@@ -34,12 +34,19 @@ export class StorageState {
   rootFolders!: RootFolderDto[];
 
   folderDetails!: RootFolderDetailReponseDto[];
+
+  selectedFolder!: FolderDto | null;
 }
 
 const slice = createSlice({
   name: 'storage',
-  initialState: { rootFolders: [], folderDetails: [] } as StorageState,
-  reducers: {},
+  initialState: { rootFolders: [], folderDetails: [], selectedFolder: null } as StorageState,
+  reducers: {
+    setSelectedFolder: (state, payload: PayloadAction<FolderDto>) => {
+      state.selectedFolder = payload.payload;
+      return state;
+    },
+  },
   extraReducers(builder) {
     builder.addCase(getRootFolders.fulfilled, (state, action) => {
       state.rootFolders = action.payload;
@@ -54,3 +61,4 @@ const slice = createSlice({
 });
 
 export const storageReducer = slice.reducer;
+export const { setSelectedFolder } = slice.actions;
