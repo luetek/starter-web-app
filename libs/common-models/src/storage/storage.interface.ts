@@ -50,7 +50,11 @@ export interface StorageChangeEvent {
   type: StorageEventType;
 }
 
-export class FileRenameEvent implements StorageChangeEvent {
+export interface FileChangeEvent extends StorageChangeEvent {
+  readonly file: IFile;
+}
+
+export class FileRenameEvent implements FileChangeEvent {
   constructor(
     readonly old: IFile,
     readonly file: IFile,
@@ -58,21 +62,21 @@ export class FileRenameEvent implements StorageChangeEvent {
   ) {}
 }
 
-export class FileModifiedEvent implements StorageChangeEvent {
+export class FileModifiedEvent implements FileChangeEvent {
   constructor(
     readonly file: IFile,
     readonly type = StorageEventType.FILE_MODIFIED
   ) {}
 }
 
-export class FileAddedEvent implements StorageChangeEvent {
+export class FileAddedEvent implements FileChangeEvent {
   constructor(
     readonly file: IFile,
     readonly type = StorageEventType.FILE_ADDED
   ) {}
 }
 
-export class FileDeletedEvent implements StorageChangeEvent {
+export class FileDeletedEvent implements FileChangeEvent {
   constructor(
     readonly file: IFile,
     readonly type = StorageEventType.FILE_DELETED
@@ -93,6 +97,25 @@ export class FolderDeletedEvent implements StorageChangeEvent {
   ) {}
 }
 
+export interface FileBasedEntity {
+  getMappedFile(): IFile;
+
+  getFolder(): Folder;
+}
+
 export interface StorageChangeHandler {
   handleChange(event: StorageChangeEvent): Promise<void>;
+}
+
+export interface StorageEntityChangeHandler {
+  // Return true if you want this handler to be applied based on file name
+  handleFile(fileName: string): boolean;
+  entityAdded(entity: FileBasedEntity): void;
+  entityRemoved(entity: FileBasedEntity): void;
+  entityUpdated(entity: FileBasedEntity): void;
+  entityMoved(entity: FileBasedEntity): void;
+
+  // Serialize and deserialize methods
+  serialize(): string;
+  deserialize(str: string): FileBasedEntity;
 }

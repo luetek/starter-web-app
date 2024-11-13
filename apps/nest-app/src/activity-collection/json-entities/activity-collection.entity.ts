@@ -1,8 +1,9 @@
 import { AutoMap } from '@automapper/classes';
 import { ActivityCollectionStatus } from '@luetek/common-models';
 import { FileEntity } from '../../storage/entities/file.entity';
+import { JsonEntity } from '../../storage/entities/json-entity';
 
-export class ActivityCollectionJsonEntity {
+export class ActivityCollectionJsonEntity extends JsonEntity {
   @AutoMap()
   id: string;
 
@@ -23,4 +24,12 @@ export class ActivityCollectionJsonEntity {
 
   @AutoMap()
   status: ActivityCollectionStatus;
+
+  serialize(): string {
+    throw new Error('Method not implemented.');
+  }
+
+  deserialize(): JsonEntity {
+    throw new Error('Method not implemented.');
+  }
 }
