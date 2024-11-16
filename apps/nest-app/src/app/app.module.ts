@@ -14,6 +14,7 @@ import { UserModule } from '../users/user.module';
 import { StorageModule } from '../storage/storage.module';
 import { AppConfigModule } from '../app-config/app-config.module';
 import { ActivityCollectionModule } from '../activity-collection/activity-collection.module';
+import { StoragePathModule } from '../storage-path/storage-path.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { ActivityCollectionModule } from '../activity-collection/activity-collec
     UserModule,
     StorageModule,
     ActivityCollectionModule,
+    StoragePathModule,
   ],
   controllers: [AppController],
   providers: [AppService],

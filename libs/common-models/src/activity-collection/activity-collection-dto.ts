@@ -4,23 +4,23 @@ import { ActivityCollectionStatus } from './activity-collection-common';
 
 export class ActivityCollectionDto {
   @AutoMap()
-  id: string;
+  id!: string;
 
   @AutoMap()
-  title: string;
+  title!: string;
 
   @AutoMap()
-  descriptionFile: FileDto;
+  descriptionFile!: FileDto;
 
   @AutoMap()
-  keywords: string[];
+  keywords!: string[];
 
   @AutoMap()
-  authors: string[];
+  authors!: string[];
 
   @AutoMap()
-  mappedFile: FileDto;
+  mappedFile!: FileDto;
 
   @AutoMap()
-  status: ActivityCollectionStatus;
+  status!: ActivityCollectionStatus;
 }

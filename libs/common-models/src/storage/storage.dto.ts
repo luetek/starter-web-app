@@ -28,12 +28,12 @@ export class FolderDto implements Folder {
   parentId!: number;
 
   @AutoMap(() => String)
-  status: FolderStatus;
+  status!: FolderStatus;
 }
 
 export class FileDto implements IFile {
   @AutoMap()
-  fileType: FileType;
+  fileType!: FileType;
 
   @AutoMap()
   id!: number;
@@ -48,8 +48,8 @@ export class FileDto implements IFile {
   parentId!: number;
 
   @AutoMap()
-  parent: FolderDto;
+  parent!: FolderDto;
 
   @AutoMap(() => String)
-  status: FileStatus;
+  status!: FileStatus;
 }

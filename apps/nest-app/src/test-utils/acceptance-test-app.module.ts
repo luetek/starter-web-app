@@ -9,6 +9,8 @@ import { randomUUID } from 'crypto';
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
 import { LoggerModule } from '../logger/logger.module';
 import { UserModule } from '../users/user.module';
+import { StoragePathModule } from '../storage-path/storage-path.module';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
   imports: [
@@ -37,7 +39,8 @@ import { UserModule } from '../users/user.module';
           type: 'sqlite',
           autoLoadEntities: true,
           synchronize: true,
-          database: ':memory:',
+          // database: ':memory:',
+          database: 'unit-test.db',
           logging: ['error'],
         };
       },
@@ -48,6 +51,8 @@ import { UserModule } from '../users/user.module';
     }),
     // Project specific modules
     UserModule,
+    StoragePathModule,
+    StorageModule,
   ],
   controllers: [],
   providers: [],
