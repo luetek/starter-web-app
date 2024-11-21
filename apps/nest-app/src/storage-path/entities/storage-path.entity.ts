@@ -10,13 +10,20 @@ import {
   TreeParent,
 } from 'typeorm';
 import { AutoMap } from '@automapper/classes';
+import { StoragePath, StorageType } from '@luetek/common-models';
 import { Length, Matches } from 'class-validator';
-import { StorageType } from './common';
 
+/**
+ * Tree materialiazed-path did not support inheritance properly.
+ * Let assume admin create the folder as he feels fit.
+ * Inside the folder he she will create file which will be stored both in DB as well as file.
+ * for backup purposes.
+ *
+ */
 @Entity()
 @Index('file_path_unique', ['name', 'parentId'], { unique: true })
 @Tree('materialized-path')
-export class StoragePathEntity {
+export class StoragePathEntity implements StoragePath {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -49,8 +56,6 @@ export class StoragePathEntity {
   updateCounters() {
     const name = this.storageType === StorageType.FOLDER ? `${this.name}/` : this.name;
     const parentPathUrl = this.parent ? this.parent.pathUrl : '/';
-
     this.pathUrl = parentPathUrl + name;
-    console.log(this.pathUrl);
   }
 }

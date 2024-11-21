@@ -28,7 +28,6 @@ describe('Users Acceptance/E2E Tests', () => {
     const root = new StoragePathEntity();
     root.name = 'accounts';
     root.storageType = StorageType.FOLDER;
-    console.log(root);
     const savedRoot = await storagePathRepository.save(root);
 
     const userAccount = new StoragePathEntity();

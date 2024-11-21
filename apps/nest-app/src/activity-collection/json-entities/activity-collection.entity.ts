@@ -1,5 +1,4 @@
 import { AutoMap } from '@automapper/classes';
-import { ActivityCollectionStatus } from '@luetek/common-models';
 import { FileEntity } from '../../storage/entities/file.entity';
 
 export class ActivityCollectionJsonEntity {
@@ -20,7 +19,4 @@ export class ActivityCollectionJsonEntity {
 
   @AutoMap()
   mappedFile: FileEntity;
-
-  @AutoMap()
-  status: ActivityCollectionStatus;
 }

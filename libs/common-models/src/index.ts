@@ -4,6 +4,9 @@ export * from './users/user.dto';
 export * from './storage/storage.interface';
 export * from './storage/storage.dto';
 
-export * from './activity-collection/activity-collection-common';
-export * from './activity-collection/activity-collection-json-schema';
-export * from './activity-collection/activity-collection-dto';
+export * from './activity/common';
+export * from './activity/activity.interface';
+export * from './activity/activity-json.model';
+export * from './activity/activity.dto';
+
+export * from './storage-path/common.interface';

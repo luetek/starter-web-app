@@ -1,10 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  FileAddedEvent,
-  StorageChangeEvent,
-  StorageChangeHandler,
-  deserializeActivityCollection,
-} from '@luetek/common-models';
+import { FileAddedEvent, StorageChangeEvent, StorageChangeHandler } from '@luetek/common-models';
 import { Readable } from 'readable-stream';
 import { StoragePublicationService } from '../storage/storage-publication.service';
 import { ReqLogger } from '../logger/req-logger';
@@ -43,7 +38,8 @@ export class ActivityCollectionListernerFsListener implements StorageChangeHandl
     if (file.name.endsWith('.json')) {
       const readableStream = await this.storageStreamingService.fetchAsStream(fileEntity);
       const jsonData = await streamToString(readableStream);
-      const obj = deserializeActivityCollection(jsonData);
+      // TODO:: Deeleete
+      const obj = JSON.parse(jsonData);
       if (!obj) return; // skip
       const jsonEntity = new ActivityCollectionJsonEntity();
       jsonEntity.id = obj.id;

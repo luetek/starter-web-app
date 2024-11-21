@@ -2,15 +2,15 @@ import { Body, Controller, Get, Param, Post, UseInterceptors } from '@nestjs/com
 import { CreateRootFolderRequestDto } from '@luetek/common-models';
 import { MapInterceptor } from '@automapper/nestjs';
 import { StoragePathService } from './storage-path.service';
-import { CreateCollectionDto } from './dtos/create-collection.dto';
+import { CreateFolderRequestDto } from './dtos/create-folder-request.dto';
 
 @Controller('storage-v2')
 export class StorageV2Controller {
   constructor(private storageService: StoragePathService) {}
 
-  @Post()
-  async create(@Body() createRequest: CreateCollectionDto) {
-    return this.storageService.create(createRequest);
+  @Post('folders')
+  async createFolder(@Body() createRequest: CreateFolderRequestDto) {
+    return this.storageService.createFolder(createRequest);
   }
 
   @Get()
