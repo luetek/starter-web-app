@@ -4,7 +4,7 @@ import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { StorageType } from '@luetek/common-models';
+import { ProgrammingActivityWithStdioCheck, ReadingActivity, StorageType } from '@luetek/common-models';
 import { instanceToPlain } from 'class-transformer';
 import { AcceptanceTestAppModule } from '../test-utils/acceptance-test-app.module';
 import { StoragePathEntity } from '../storage-path/entities/storage-path.entity';
@@ -73,6 +73,7 @@ describe('Activity Collection Persistence Tests', () => {
     collection.parent = savedRoot;
     collection.readableId = 'python-deepdive';
     collection.title = 'Python Deepdive';
+
     collection.sections = [
       { sectionId: 1, title: 'introduction' },
       { sectionId: 2, title: 'getting-started' },
@@ -90,6 +91,11 @@ describe('Activity Collection Persistence Tests', () => {
     activity1.orderId = 1;
     activity1.keywords = ['python'];
 
+    const activitySpec = new ReadingActivity();
+    activitySpec.fileFormat = 'md';
+    activitySpec.files = ['abc.md'];
+    activity1.activitySpec = activitySpec;
+
     const activity1Saved = await activityReposity.save(activity1);
 
     const activity2 = new ActivityEntity();
@@ -101,18 +107,25 @@ describe('Activity Collection Persistence Tests', () => {
     activity2.sectionId = 2;
     activity2.orderId = 2;
     activity2.keywords = ['python'];
+    const activitySpec2 = new ProgrammingActivityWithStdioCheck();
+    activitySpec2.checkerSrcMainFile = 'test-main.py';
+    activitySpec2.descriptionFile = 'desc.md';
+    activitySpec2.languagesSupported = 'python';
+    activitySpec2.testInputFiles = ['test1.txt', 'test2.txt'];
+    activity2.activitySpec = activitySpec2;
 
     const activity2Saved = await activityReposity.save(activity2);
 
-    const plainObj1 = instanceToPlain(activity1Saved);
-    const plainObj2 = instanceToPlain(activity2Saved);
-    console.log(plainObj1);
-    console.log(plainObj2);
+    const activity1Reloaded = await activityReposity.findOne({ where: { id: activity1Saved.id } });
+    expect(activity1Reloaded.activitySpec).toBeInstanceOf(ReadingActivity);
 
-    expect(plainObj1).toBeDefined();
-    expect(plainObj1.title).toBe(activity1.title);
-    expect(plainObj2).toBeDefined();
-    expect(plainObj2.title).toBe(activity2.title);
+    const activity2Reloaded = await activityReposity.findOne({ where: { id: activity2Saved.id } });
+    expect(activity2Reloaded.activitySpec).toBeInstanceOf(ProgrammingActivityWithStdioCheck);
+
+    // const plainObj1 = instanceToPlain(activity1Saved);
+    // const plainObj2 = instanceToPlain(activity2Saved);
+    // console.log(plainObj1);
+    // console.log(plainObj2);
   });
 
   afterAll(async () => {

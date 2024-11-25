@@ -3,12 +3,20 @@ import { IsEnum } from 'class-validator';
 import { ActivitySpec, ActivityType } from './activity.interface';
 
 export class ActivitySpecMetadata implements ActivitySpec {
+  constructor(type: ActivityType) {
+    this.type = type;
+  }
+
   @AutoMap()
   @IsEnum(ActivityType)
-  type!: ActivityType;
+  readonly type: ActivityType;
 }
 
 export class ProgrammingActivityWithStdioCheck extends ActivitySpecMetadata {
+  constructor() {
+    super(ActivityType.PROGRAMMING_ACTIVITY_STDIO_CHECK);
+  }
+
   @AutoMap()
   inputSrcMainFile!: string;
 
@@ -26,6 +34,10 @@ export class ProgrammingActivityWithStdioCheck extends ActivitySpecMetadata {
 }
 
 export class ReadingActivity extends ActivitySpecMetadata {
+  constructor() {
+    super(ActivityType.READING_ACTIVITY);
+  }
+
   @AutoMap()
   fileFormat!: string;
 

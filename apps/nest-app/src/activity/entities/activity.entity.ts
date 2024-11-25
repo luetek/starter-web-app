@@ -1,9 +1,37 @@
 /* eslint-disable import/no-cycle */
-import { Activity, ActivitySpecMetadata } from '@luetek/common-models';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Activity,
+  ActivitySpecMetadata,
+  ActivityType,
+  ProgrammingActivityWithStdioCheck,
+  ReadingActivity,
+} from '@luetek/common-models';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, ValueTransformer } from 'typeorm';
 import { AutoMap } from '@automapper/classes';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ActivityCollectionEntity } from './activity-collection.entity';
 import { StoragePathEntity } from '../../storage-path/entities/storage-path.entity';
+
+const activitySpecTransformer: ValueTransformer = {
+  /*
+  Used to marshal data when writing to the database.
+  */
+  to: (value: ActivitySpecMetadata): string => {
+    return JSON.stringify(instanceToPlain(value));
+  } /**
+
+ /**
+  * Used to unmarshal data when reading from the database.
+  */,
+  from: (value: string): ActivitySpecMetadata => {
+    const plainObj = JSON.parse(value) as ActivitySpecMetadata;
+    if (plainObj.type === ActivityType.PROGRAMMING_ACTIVITY_STDIO_CHECK)
+      return plainToInstance(ProgrammingActivityWithStdioCheck, plainObj);
+    if (plainObj.type === ActivityType.READING_ACTIVITY) return plainToInstance(ReadingActivity, plainObj);
+
+    throw new Error('Unable to parse');
+  },
+};
 
 @Entity()
 export class ActivityEntity implements Activity {
@@ -40,7 +68,7 @@ export class ActivityEntity implements Activity {
   collectionId: number;
 
   @AutoMap(() => ActivitySpecMetadata)
-  @Column({ type: 'simple-json', nullable: true })
+  @Column({ type: 'varchar', length: 512, nullable: false, transformer: activitySpecTransformer })
   activitySpec: ActivitySpecMetadata;
 
   @AutoMap()

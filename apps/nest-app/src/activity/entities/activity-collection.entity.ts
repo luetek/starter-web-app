@@ -1,7 +1,7 @@
 /* eslint-disable import/no-cycle */
 /* eslint-disable @nx/enforce-module-boundaries */
 import { ActivityCollection, CollectionSection } from '@luetek/common-models';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AutoMap } from '@automapper/classes';
 
 import { ActivityEntity } from './activity.entity';
@@ -25,8 +25,9 @@ export class ActivityCollectionEntity implements ActivityCollection {
   @Column()
   description: string;
 
+  // In a given folder there can be only one Collection
   @AutoMap()
-  @ManyToOne(() => StoragePathEntity)
+  @OneToOne(() => StoragePathEntity)
   @JoinColumn({ name: 'parentId' })
   parent: StoragePathEntity;
 
