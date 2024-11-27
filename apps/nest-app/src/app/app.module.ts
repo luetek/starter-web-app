@@ -11,9 +11,7 @@ import { LoggerModule } from '../logger/logger.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { UserModule } from '../users/user.module';
-import { StorageModule } from '../storage/storage.module';
 import { AppConfigModule } from '../app-config/app-config.module';
-import { ActivityCollectionModule } from '../activity-collection/activity-collection.module';
 import { StoragePathModule } from '../storage-path/storage-path.module';
 
 @Module({
@@ -55,8 +53,6 @@ import { StoragePathModule } from '../storage-path/storage-path.module';
     LoggerModule,
     AppConfigModule,
     UserModule,
-    StorageModule,
-    ActivityCollectionModule,
     StoragePathModule,
   ],
   controllers: [AppController],

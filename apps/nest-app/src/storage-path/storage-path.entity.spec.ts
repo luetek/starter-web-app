@@ -4,11 +4,11 @@ import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { StorageType } from '@luetek/common-models';
 import { AcceptanceTestAppModule } from '../test-utils/acceptance-test-app.module';
 import { StoragePathEntity } from './entities/storage-path.entity';
-import { StorageType } from './entities/common';
 
-describe('Users Acceptance/E2E Tests', () => {
+describe('StoragePath persistence tests', () => {
   let app: INestApplication;
   let storagePathRepository: Repository<StoragePathEntity>;
 

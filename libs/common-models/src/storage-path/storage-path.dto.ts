@@ -1,5 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import { StoragePath, StorageType } from './common.interface';
+import { PaginationMeta } from '../paginate/paginate.dto';
 
 export class StoragePathDto implements StoragePath {
   @AutoMap()
@@ -24,4 +25,12 @@ export class StoragePathDto implements StoragePath {
   // Optional
   @AutoMap()
   parent: StoragePathDto;
+}
+
+export class PaginatedStoragePathDto {
+  @AutoMap(() => [StoragePathDto])
+  data!: StoragePathDto[];
+
+  @AutoMap(() => PaginationMeta)
+  meta!: PaginationMeta;
 }

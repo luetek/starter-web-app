@@ -10,7 +10,6 @@ import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
 import { LoggerModule } from '../logger/logger.module';
 import { UserModule } from '../users/user.module';
 import { StoragePathModule } from '../storage-path/storage-path.module';
-import { StorageModule } from '../storage/storage.module';
 import { ActivityModule } from '../activity/activity.module';
 
 @Module({
@@ -53,7 +52,6 @@ import { ActivityModule } from '../activity/activity.module';
     // Project specific modules
     UserModule,
     StoragePathModule,
-    StorageModule,
     ActivityModule,
   ],
   controllers: [],

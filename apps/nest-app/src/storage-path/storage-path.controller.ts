@@ -1,11 +1,11 @@
-import { Body, Controller, Get, Param, Post, UseInterceptors } from '@nestjs/common';
-import { CreateRootFolderRequestDto } from '@luetek/common-models';
-import { MapInterceptor } from '@automapper/nestjs';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import { PaginatedStoragePathDto } from '@luetek/common-models';
 import { StoragePathService } from './storage-path.service';
 import { CreateFolderRequestDto } from './dtos/create-folder-request.dto';
 
-@Controller('storage-v2')
-export class StorageV2Controller {
+@Controller('storage-paths')
+export class StoragePathController {
   constructor(private storageService: StoragePathService) {}
 
   @Post('folders')
@@ -14,7 +14,7 @@ export class StorageV2Controller {
   }
 
   @Get()
-  async findAll() {
-    return this.storageService.findAll();
+  async findAll(@Paginate() query: PaginateQuery): Promise<PaginatedStoragePathDto> {
+    return this.storageService.findAll(query);
   }
 }

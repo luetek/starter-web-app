@@ -1,5 +1,3 @@
-import * as bcrypt from 'bcrypt';
-import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';

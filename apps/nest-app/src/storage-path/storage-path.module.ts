@@ -4,13 +4,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from '../logger/logger.module';
 import { AppConfigModule } from '../app-config/app-config.module';
 import { StoragePathEntity } from './entities/storage-path.entity';
-import { StorageV2Controller } from './storage-path.controller';
+import { StoragePathController } from './storage-path.controller';
 import { StoragePathService } from './storage-path.service';
+import { StoragePathAutoMapperProfile } from './storage-path-auto-mapper.profile';
 
 @Module({
   imports: [LoggerModule, AppConfigModule, TypeOrmModule.forFeature([StoragePathEntity])],
-  controllers: [StorageV2Controller],
-  providers: [StoragePathService],
+  controllers: [StoragePathController],
+  providers: [StoragePathService, StoragePathAutoMapperProfile],
   exports: [],
 })
 export class StoragePathModule {}
