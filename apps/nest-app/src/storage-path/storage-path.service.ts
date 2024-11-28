@@ -1,7 +1,7 @@
 import { Injectable, UseInterceptors } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { PaginatedStoragePathDto, StorageType } from '@luetek/common-models';
+import { Repository, TreeRepository } from 'typeorm';
+import { PaginatedStoragePathDto, StoragePathDto, StorageType } from '@luetek/common-models';
 import { MapInterceptor } from '@automapper/nestjs';
 import { FilterOperator, FilterSuffix, paginate, PaginateQuery } from 'nestjs-paginate';
 import { ReqLogger } from '../logger/req-logger';
@@ -11,11 +11,15 @@ import { PaginatedStoragePathEntity } from './entities/storage-path-paginated.en
 
 @Injectable()
 export class StoragePathService {
+  private storagePathTreeRepository: TreeRepository<StoragePathEntity>;
+
   constructor(
     private logger: ReqLogger,
     @InjectRepository(StoragePathEntity)
     private storagePathRepository: Repository<StoragePathEntity>
-  ) {}
+  ) {
+    this.storagePathTreeRepository = storagePathRepository.manager.getTreeRepository(StoragePathEntity);
+  }
 
   // TODO:: Authorization needed
   async createFolder(createRequest: CreateFolderRequestDto) {
@@ -43,5 +47,11 @@ export class StoragePathService {
     });
 
     return paginatedData;
+  }
+
+  @UseInterceptors(MapInterceptor(StoragePathEntity, StoragePathDto))
+  async findDetails(id: number): Promise<StoragePathDto> {
+    const en = await this.storagePathRepository.findOne({ where: { id } });
+    return this.storagePathTreeRepository.findDescendantsTree(en);
   }
 }

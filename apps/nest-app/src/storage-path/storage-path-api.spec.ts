@@ -3,11 +3,11 @@ import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PaginatedStoragePathDto, StorageType } from '@luetek/common-models';
+import { PaginatedStoragePathDto, StoragePathDto, StorageType } from '@luetek/common-models';
 import { AcceptanceTestAppModule } from '../test-utils/acceptance-test-app.module';
 import { StoragePathEntity } from './entities/storage-path.entity';
 
-describe('StoragePath Acceptance/E2E Tests', () => {
+describe('StoragePath Api/Acceptance/E2E Tests', () => {
   let app: INestApplication;
   let storagePathRepository: Repository<StoragePathEntity>;
 
@@ -80,6 +80,25 @@ describe('StoragePath Acceptance/E2E Tests', () => {
     expect(paginatedRes.meta.currentPage).toBe(1);
     expect(paginatedRes.meta.totalPages).toBe(1);
     expect(paginatedRes.meta.itemsPerPage).toBe(20);
+  });
+
+  it('GET /storage-paths/:id/tree-details', async () => {
+    const res = await request(app.getHttpServer()).get('/storage-paths?filter.pathUrl=/accounts/').expect(200);
+    const paginatedRes = res.body as PaginatedStoragePathDto;
+    expect(paginatedRes.data.length).toBe(1);
+
+    const res2 = await request(app.getHttpServer())
+      .get(`/storage-paths/${paginatedRes.data[0].id}/tree-details`)
+      .expect(200);
+    const pr = res2.body as StoragePathDto;
+    expect(pr.name).toBe('accounts');
+    expect(pr.pathUrl).toBe('/accounts/');
+    expect(pr.children.length).toBe(1);
+    expect(pr.children[0].name).toBe('deepakk87');
+    expect(pr.children[0].pathUrl).toBe('/accounts/deepakk87/');
+    expect(pr.children[0].children.length).toBe(1);
+    expect(pr.children[0].children[0].name).toBe('js.json');
+    expect(pr.children[0].children[0].pathUrl).toBe('/accounts/deepakk87/js.json');
   });
 
   afterAll(async () => {

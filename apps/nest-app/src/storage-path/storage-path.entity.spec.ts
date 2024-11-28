@@ -1,5 +1,3 @@
-import * as bcrypt from 'bcrypt';
-import request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -24,7 +22,7 @@ describe('StoragePath persistence tests', () => {
     await storagePathRepository.clear();
   });
 
-  it('create file and folder usecases - happy case scenario', async () => {
+  it('create file and folder usecases and test tree view - happy case scenario', async () => {
     const root = new StoragePathEntity();
     root.name = 'accounts';
     root.storageType = StorageType.FOLDER;
@@ -46,6 +44,14 @@ describe('StoragePath persistence tests', () => {
     const treeRepository = storagePathRepository.manager.getTreeRepository(StoragePathEntity);
     const profile = await storagePathRepository.findOne({ where: { pathUrl: '/accounts/' } });
     const pr = await treeRepository.findDescendantsTree(profile);
+    expect(pr.name).toBe('accounts');
+    expect(pr.pathUrl).toBe('/accounts/');
+    expect(pr.children.length).toBe(1);
+    expect(pr.children[0].name).toBe('deepakk87');
+    expect(pr.children[0].pathUrl).toBe('/accounts/deepakk87/');
+    expect(pr.children[0].children.length).toBe(1);
+    expect(pr.children[0].children[0].name).toBe('js.json');
+    expect(pr.children[0].children[0].pathUrl).toBe('/accounts/deepakk87/js.json');
   });
 
   afterAll(async () => {

@@ -1,25 +1,10 @@
 ## Storage
 
-The goal of the storage modules is for persiting file data either in file system, aws s3 storage or github.
+The goal of the storage-path modules is for storing enties in db in the form of files and directories. These can be persisted to s3 or file system. This modules is only responsible storing the tree structure in db and making queries.
 
-The file system can be readonly too. In which case we will just scan it and run our system.
+Another aspect is we can built autorization based on the tree access. If you have access to parent then you will have to all the childs too.
 
-There will be two types of files which are of our concern.
+These entities may or may not be backed by files/folders. But in our case we will have objects which will have metadata along with many files associated with the object.
 
 - Resources like md files, videos, audio, pdf etc
 - Metadata files like activity-collection, post, programming activity etc
-
-Optional Env needed for S3
-
-```bash
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_DEFAULT_REGION=
-```
-
-Features
-
-- Mark a root folder for access via the app
-- Mark a s3 bucket for access via the app
-- scan the root folder for syncing. See [folders.http](./folders.http) for api example which can be run using http client vscode extension.
-- Added a publication service for notifying event to other services.
