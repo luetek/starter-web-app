@@ -7,6 +7,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
 import { ScheduleModule } from '@nestjs/schedule';
+import { MulterModule } from '@nestjs/platform-express';
+import multer from 'multer';
 import { LoggerModule } from '../logger/logger.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
@@ -48,6 +50,17 @@ import { StoragePathModule } from '../storage-path/storage-path.module';
     }),
     AutomapperModule.forRoot({
       strategyInitializer: classes(),
+    }),
+    MulterModule.registerAsync({
+      useFactory: () => {
+        return {
+          storage: multer.memoryStorage(),
+          limits: {
+            fileSize: 10 * 1024 * 1024, // 10 MB max size
+            files: 10, // One file max
+          },
+        };
+      },
     }),
     ScheduleModule.forRoot(),
     LoggerModule,

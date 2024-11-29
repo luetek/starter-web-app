@@ -11,6 +11,7 @@ import { LoggerModule } from '../logger/logger.module';
 import { UserModule } from '../users/user.module';
 import { StoragePathModule } from '../storage-path/storage-path.module';
 import { ActivityModule } from '../activity/activity.module';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { ActivityModule } from '../activity/activity.module';
     // Project specific modules
     UserModule,
     StoragePathModule,
+    StorageModule,
     ActivityModule,
   ],
   controllers: [],

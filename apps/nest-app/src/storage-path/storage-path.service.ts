@@ -5,7 +5,7 @@ import { PaginatedStoragePathDto, StoragePathDto, StorageType } from '@luetek/co
 import { MapInterceptor } from '@automapper/nestjs';
 import { FilterOperator, FilterSuffix, paginate, PaginateQuery } from 'nestjs-paginate';
 import { ReqLogger } from '../logger/req-logger';
-import { CreateFolderRequestDto } from './dtos/create-folder-request.dto';
+import { CreateFolderRequestDto } from '../storage/dtos/create-folder-request.dto';
 import { StoragePathEntity } from './entities/storage-path.entity';
 import { PaginatedStoragePathEntity } from './entities/storage-path-paginated.entity';
 

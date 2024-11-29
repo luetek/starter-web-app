@@ -1,3 +1,4 @@
+import path from 'path';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { S3Client } from '@aws-sdk/client-s3';
@@ -20,7 +21,18 @@ import { LoggerModule } from '../logger/logger.module';
       },
       inject: [ConfigService],
     },
+    {
+      provide: 'ROOT_FS_DIR',
+      useFactory: async (configService: ConfigService) => {
+        if (!configService.get('ROOT_FS_DIR')) {
+          return process.cwd();
+        }
+        const rootDir = configService.get('ROOT_FS_DIR');
+        return path.isAbsolute(rootDir) ? rootDir : path.join(process.cwd(), rootDir);
+      },
+      inject: [ConfigService],
+    },
   ],
-  exports: ['S3CLIENT'],
+  exports: ['S3CLIENT', 'ROOT_FS_DIR'],
 })
 export class AppConfigModule {}

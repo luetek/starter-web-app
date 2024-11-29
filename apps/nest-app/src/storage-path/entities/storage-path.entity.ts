@@ -32,6 +32,12 @@ export class StoragePathEntity implements StoragePath {
   @Column()
   name: string;
 
+  @Column({ nullable: true })
+  size: number;
+
+  @Column({ nullable: true })
+  mimeType: string;
+
   @Column({ readonly: true })
   pathUrl: string;
 
