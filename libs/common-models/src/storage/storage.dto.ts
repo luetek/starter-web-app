@@ -1,55 +1,9 @@
-import { IsNotEmpty } from 'class-validator';
-import { AutoMap } from '@automapper/classes';
-import { FileStatus, FileType, Folder, FolderStatus, FolderType, IFile } from './storage.interface';
+/**
+ * As long as we have permission to create folder/files in parent folder we should be good to go.
+ */
 
-export class CreateRootFolderRequestDto {
-  @IsNotEmpty()
-  folderPath!: string;
+export class CreateFolderRequestDto {
+  parentId: number;
 
-  @IsNotEmpty()
-  folderName!: string;
-
-  folderType!: FolderType;
-
-  readOnly!: boolean;
-}
-
-export class FolderDto implements Folder {
-  @AutoMap()
-  id!: number;
-
-  @AutoMap()
-  name!: string;
-
-  @AutoMap()
-  url!: string;
-
-  @AutoMap()
-  parentId!: number;
-
-  @AutoMap(() => String)
-  status!: FolderStatus;
-}
-
-export class FileDto implements IFile {
-  @AutoMap()
-  fileType!: FileType;
-
-  @AutoMap()
-  id!: number;
-
-  @AutoMap()
-  name!: string;
-
-  @AutoMap()
-  url!: string;
-
-  @AutoMap()
-  parentId!: number;
-
-  @AutoMap()
-  parent!: FolderDto;
-
-  @AutoMap(() => String)
-  status!: FileStatus;
+  name: string;
 }

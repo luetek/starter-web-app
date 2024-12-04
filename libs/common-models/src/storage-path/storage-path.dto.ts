@@ -19,11 +19,10 @@ export class StoragePathDto implements StoragePath {
   storageType: StorageType;
 
   // Optional
-  @AutoMap()
+  @AutoMap(() => [StoragePathDto])
   children: StoragePathDto[];
 
   // Optional
-  @AutoMap()
   parent: StoragePathDto;
 }
 

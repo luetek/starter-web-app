@@ -4,10 +4,10 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProgrammingActivityWithStdioCheck, ReadingActivity, StorageType } from '@luetek/common-models';
 import { instanceToPlain } from 'class-transformer';
-import { AcceptanceTestAppModule } from '../test-utils/acceptance-test-app.module';
 import { StoragePathEntity } from '../storage-path/entities/storage-path.entity';
 import { ActivityCollectionEntity } from './entities/activity-collection.entity';
 import { ActivityEntity } from './entities/activity.entity';
+import { AcceptanceTestAppModule } from '../test-utils/acceptance-test-app.module';
 
 describe('Activity Collection Persistence Tests', () => {
   let app: INestApplication;

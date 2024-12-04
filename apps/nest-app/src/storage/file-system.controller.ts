@@ -1,10 +1,9 @@
 import { Body, Controller, Get, Param, Post, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { StoragePathDto } from '@luetek/common-models';
+import { CreateFolderRequestDto, StoragePathDto } from '@luetek/common-models';
 import { Express } from 'express';
 import { ReqLogger } from '../logger/req-logger';
 import { FileSystemService } from './file-system.service';
-import { CreateFolderRequestDto } from './dtos/create-folder-request.dto';
 
 // https://stackoverflow.com/questions/59097119/using-multer-diskstorage-with-typescript
 import 'multer';

@@ -10,6 +10,6 @@ import { FileSystemService } from './file-system.service';
   imports: [LoggerModule, AppConfigModule, TypeOrmModule.forFeature([StoragePathEntity])],
   controllers: [FileSystemController],
   providers: [FileSystemService],
-  exports: [],
+  exports: [FileSystemService],
 })
 export class StorageModule {}

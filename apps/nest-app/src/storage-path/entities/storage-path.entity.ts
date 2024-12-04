@@ -25,22 +25,28 @@ import { Length, Matches } from 'class-validator';
 @Tree('materialized-path')
 export class StoragePathEntity implements StoragePath {
   @PrimaryGeneratedColumn()
+  @AutoMap()
   id: number;
 
+  @AutoMap()
   @Matches(/([a-z]|[0-9][.][-])+/)
   @Length(4, 32)
   @Column()
   name: string;
 
+  @AutoMap()
   @Column({ nullable: true })
   size: number;
 
+  @AutoMap()
   @Column({ nullable: true })
   mimeType: string;
 
+  @AutoMap()
   @Column({ readonly: true })
   pathUrl: string;
 
+  @AutoMap()
   @Column({ readonly: true, nullable: true })
   parentId: number;
 
@@ -51,6 +57,7 @@ export class StoragePathEntity implements StoragePath {
   })
   storageType: StorageType;
 
+  @AutoMap(() => [StoragePathEntity])
   @TreeChildren()
   children: StoragePathEntity[];
 

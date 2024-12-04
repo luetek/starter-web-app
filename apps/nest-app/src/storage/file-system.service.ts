@@ -1,19 +1,22 @@
 import fs from 'fs';
 import crypto from 'node:crypto';
 import path from 'path';
-import { Inject, Injectable, UseInterceptors } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Readable } from 'stream';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { StoragePathDto, StorageType } from '@luetek/common-models';
-import { MapInterceptor } from '@automapper/nestjs';
+import { CreateFolderRequestDto, StoragePathDto, StorageType } from '@luetek/common-models';
+import { InjectMapper } from '@automapper/nestjs';
+import { pipeline } from 'node:stream/promises';
+import { instanceToPlain } from 'class-transformer';
+import { Mapper } from '@automapper/core';
 import { StoragePathEntity } from '../storage-path/entities/storage-path.entity';
-import { CreateFolderRequestDto } from './dtos/create-folder-request.dto';
 import { FileStreamDto } from './dtos/file-stream-dto';
 
 @Injectable()
 export class FileSystemService {
   constructor(
+    @InjectMapper() private mapper: Mapper,
     @InjectRepository(StoragePathEntity)
     private storagePathRepository: Repository<StoragePathEntity>,
     @Inject('ROOT_FS_DIR') private rootDir: string
@@ -31,20 +34,29 @@ export class FileSystemService {
     });
   }
 
-  @UseInterceptors(MapInterceptor(StoragePathEntity, StoragePathDto))
   async createDirectory(createFolderRequest: CreateFolderRequestDto): Promise<StoragePathDto> {
     const id = createFolderRequest.parentId;
-    const parentEntity = id ? await this.storagePathRepository.findOne({ where: { id } }) : null;
-    const parentPath = parentEntity ? parentEntity.pathUrl : '.';
+    const parentEntity = await this.storagePathRepository.findOneOrFail({ where: { id } });
+    const parentPath = parentEntity.pathUrl;
     await fs.promises.mkdir(path.join(this.rootDir, parentPath, createFolderRequest.name), { recursive: true });
     const folderEntity = new StoragePathEntity();
     folderEntity.name = createFolderRequest.name;
     folderEntity.parent = parentEntity;
     folderEntity.storageType = StorageType.FOLDER;
-    return this.storagePathRepository.save(folderEntity);
+    const res = await this.storagePathRepository.save(folderEntity);
+    return this.mapper.map(res, StoragePathEntity, StoragePathDto);
   }
 
-  @UseInterceptors(MapInterceptor(StoragePathEntity, StoragePathDto))
+  async createRootDirectory(name: string): Promise<StoragePathDto> {
+    await fs.promises.mkdir(path.join(this.rootDir, name), { recursive: true });
+    const folderEntity = new StoragePathEntity();
+    folderEntity.name = name;
+    folderEntity.parent = null;
+    folderEntity.storageType = StorageType.FOLDER;
+    const res = await this.storagePathRepository.save(folderEntity);
+    return this.mapper.map(res, StoragePathEntity, StoragePathDto);
+  }
+
   async upload(file: Express.Multer.File, id: number): Promise<StoragePathDto> {
     const parentEntity = await this.storagePathRepository.findOne({ where: { id } });
     const fileEntity = new StoragePathEntity();
@@ -63,7 +75,8 @@ export class FileSystemService {
     }
     this.generateChecksumAndWriteToFile(stream, path.join(parentEntity.pathUrl, file.originalname));
 
-    return this.storagePathRepository.save(storage);
+    const res = await this.storagePathRepository.save(storage);
+    return this.mapper.map(res, StoragePathEntity, StoragePathDto);
   }
 
   async fetchAsStream(parentId: number, relativeFilePath: string): Promise<FileStreamDto> {
@@ -75,5 +88,21 @@ export class FileSystemService {
       mimeType: entity.mimeType,
       name: entity.name,
     };
+  }
+
+  async saveAsJson(parentFolderId: number, fileName: string, JsonOvj: any): Promise<StoragePathDto> {
+    const parentEntity = await this.storagePathRepository.findOneOrFail({ where: { id: parentFolderId } });
+    const fileEntity = new StoragePathEntity();
+    fileEntity.parent = parentEntity;
+    fileEntity.name = fileName;
+    fileEntity.mimeType = 'application/json';
+    fileEntity.storageType = StorageType.FILE;
+    const str = JSON.stringify(instanceToPlain(JsonOvj));
+    fileEntity.size = str.length;
+    const pathUrl = path.join(parentEntity.pathUrl, fileName);
+    const stream = fs.createWriteStream(path.join(this.rootDir, pathUrl), { encoding: 'utf-8' });
+    await pipeline(Readable.from(str), stream);
+    const res = await this.storagePathRepository.save(fileEntity);
+    return this.mapper.map(res, StoragePathEntity, StoragePathDto);
   }
 }

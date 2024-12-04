@@ -4,11 +4,10 @@ import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { StoragePathDto } from '@luetek/common-models';
+import { CreateFolderRequestDto, StoragePathDto } from '@luetek/common-models';
 import { Readable } from 'typeorm/platform/PlatformTools';
 import { AcceptanceTestAppModule } from '../test-utils/acceptance-test-app.module';
 import { StoragePathEntity } from '../storage-path/entities/storage-path.entity';
-import { CreateFolderRequestDto } from './dtos/create-folder-request.dto';
 import { FileSystemService } from './file-system.service';
 
 describe('Storage Api/Acceptance/E2E Tests', () => {
@@ -31,10 +30,7 @@ describe('Storage Api/Acceptance/E2E Tests', () => {
     await storagePathRepository.clear();
     fs.rmSync(rootDir, { recursive: true, force: true });
     // Init data for tests
-    const req = new CreateFolderRequestDto();
-    req.parentId = null;
-    req.name = 'accounts';
-    parentFolder = await fileSystemService.createDirectory(req);
+    parentFolder = await fileSystemService.createRootDirectory('accounts');
     const fileContent = 'Hello There!!!';
     const file: Express.Multer.File = {
       buffer: null,

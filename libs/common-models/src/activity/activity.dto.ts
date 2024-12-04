@@ -19,6 +19,7 @@ export class ActivityDto implements Activity {
   @AutoMap(() => StoragePathDto)
   parent!: StoragePathDto;
 
+  // See entity for persistence to db
   @Type(() => ActivitySpecMetadata, {
     discriminator: {
       property: 'type',
@@ -44,9 +45,29 @@ export class ActivityDto implements Activity {
   sectionId!: number;
 }
 
+export class CreateActivityCollectionRequestDto {
+  @AutoMap()
+  readableId: string;
+
+  @AutoMap()
+  title: string;
+
+  @AutoMap()
+  description: string;
+
+  @AutoMap()
+  keywords: string[];
+
+  @AutoMap()
+  authors: string[];
+}
+
 export class ActivityCollectionDto implements ActivityCollection {
   @AutoMap()
   id!: number;
+
+  @AutoMap()
+  readableId: string;
 
   @AutoMap()
   title!: string;
@@ -54,16 +75,22 @@ export class ActivityCollectionDto implements ActivityCollection {
   @AutoMap()
   description!: string;
 
+  // In a given folder there can be only one Collection
+  @AutoMap()
+  parent: StoragePathDto;
+
   @AutoMap(() => [ActivityDto])
   activities!: ActivityDto[];
 
+  @AutoMap(() => [String])
   @AutoMap()
   authors!: string[];
 
+  @AutoMap(() => [String])
   @AutoMap()
   keywords!: string[];
 
-  @AutoMap()
+  @AutoMap(() => [CollectionSection])
   sections!: CollectionSection[];
 }
 

@@ -1,16 +1,18 @@
-import { Controller, Get, UseInterceptors } from '@nestjs/common';
-import { MapInterceptor } from '@automapper/nestjs';
-import { ActivityCollectionDto } from '@luetek/common-models';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { CreateActivityCollectionRequestDto } from '@luetek/common-models';
 import { ActivityCollectionService } from './activity-collection-service';
-import { ActivityCollectionJsonEntity } from './json-entities/activity-collection.entity';
 
 @Controller('activity-collections')
 export class ActivityCollectionController {
   constructor(private activityCollectionService: ActivityCollectionService) {}
 
   @Get()
-  @UseInterceptors(MapInterceptor(ActivityCollectionJsonEntity, ActivityCollectionDto, { isArray: true }))
-  findAll() {
+  async findAll() {
     return this.activityCollectionService.findAll();
+  }
+
+  @Post()
+  create(@Body() createReq: CreateActivityCollectionRequestDto) {
+    return this.activityCollectionService.create(createReq);
   }
 }

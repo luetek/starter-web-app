@@ -6,6 +6,8 @@ export * from './paginate/paginate.dto';
 export * from './storage-path/common.interface';
 export * from './storage-path/storage-path.dto';
 
+export * from './storage/storage.dto';
+
 export * from './activity/common';
 export * from './activity/activity.interface';
 export * from './activity/activity-spec-metadata';

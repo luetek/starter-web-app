@@ -6,7 +6,7 @@ import {
   ProgrammingActivityWithStdioCheck,
   ReadingActivity,
 } from '@luetek/common-models';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, ValueTransformer } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, ValueTransformer } from 'typeorm';
 import { AutoMap } from '@automapper/classes';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ActivityCollectionEntity } from './activity-collection.entity';
@@ -34,13 +34,14 @@ const activitySpecTransformer: ValueTransformer = {
 };
 
 @Entity()
+@Index('readable_id_UNIQUE', ['readableId', 'collectionId'], { unique: true })
 export class ActivityEntity implements Activity {
   @AutoMap()
   @PrimaryGeneratedColumn()
   id: number;
 
   @AutoMap()
-  @Column({ unique: true })
+  @Column({ name: 'readableId', unique: true })
   readableId: string;
 
   @AutoMap()
@@ -71,9 +72,11 @@ export class ActivityEntity implements Activity {
   @Column({ type: 'varchar', length: 512, nullable: false, transformer: activitySpecTransformer })
   activitySpec: ActivitySpecMetadata;
 
-  @AutoMap()
   @Column({ type: 'simple-array' })
   keywords: string[];
+
+  @Column({ type: 'simple-array' })
+  authors: string[];
 
   @AutoMap()
   @Column({ type: 'int' })

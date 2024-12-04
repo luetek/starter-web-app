@@ -9,7 +9,6 @@ import { StoragePathEntity } from '../../storage-path/entities/storage-path.enti
 
 @Entity()
 export class ActivityCollectionEntity implements ActivityCollection {
-  @AutoMap()
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -26,7 +25,7 @@ export class ActivityCollectionEntity implements ActivityCollection {
   description: string;
 
   // In a given folder there can be only one Collection
-  @AutoMap()
+  @AutoMap(() => StoragePathEntity)
   @OneToOne(() => StoragePathEntity)
   @JoinColumn({ name: 'parentId' })
   parent: StoragePathEntity;
@@ -35,15 +34,14 @@ export class ActivityCollectionEntity implements ActivityCollection {
   @OneToMany(() => ActivityEntity, (activity) => activity.collection)
   activities: ActivityEntity[];
 
-  @AutoMap()
+  @AutoMap(() => [String])
   @Column({ type: 'simple-array' })
   keywords: string[];
 
-  @AutoMap()
+  @AutoMap(() => [String])
   @Column({ type: 'simple-array' })
   authors: string[];
 
-  @AutoMap()
   @Column({ type: 'simple-json' })
   sections: CollectionSection[];
 }

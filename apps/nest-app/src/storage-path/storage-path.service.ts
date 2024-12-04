@@ -1,11 +1,11 @@
-import { Injectable, UseInterceptors } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, TreeRepository } from 'typeorm';
-import { PaginatedStoragePathDto, StoragePathDto, StorageType } from '@luetek/common-models';
-import { MapInterceptor } from '@automapper/nestjs';
+import { CreateFolderRequestDto, PaginatedStoragePathDto, StoragePathDto, StorageType } from '@luetek/common-models';
+import { InjectMapper } from '@automapper/nestjs';
 import { FilterOperator, FilterSuffix, paginate, PaginateQuery } from 'nestjs-paginate';
+import { Mapper } from '@automapper/core';
 import { ReqLogger } from '../logger/req-logger';
-import { CreateFolderRequestDto } from '../storage/dtos/create-folder-request.dto';
 import { StoragePathEntity } from './entities/storage-path.entity';
 import { PaginatedStoragePathEntity } from './entities/storage-path-paginated.entity';
 
@@ -15,6 +15,7 @@ export class StoragePathService {
 
   constructor(
     private logger: ReqLogger,
+    @InjectMapper() private mapper: Mapper,
     @InjectRepository(StoragePathEntity)
     private storagePathRepository: Repository<StoragePathEntity>
   ) {
@@ -30,7 +31,6 @@ export class StoragePathService {
     return this.storagePathRepository.save(folderEntity);
   }
 
-  @UseInterceptors(MapInterceptor(PaginatedStoragePathEntity, PaginatedStoragePathDto))
   async findAll(query: PaginateQuery): Promise<PaginatedStoragePathDto> {
     const paginatedData = await paginate(query, this.storagePathRepository, {
       sortableColumns: ['name', 'pathUrl'],
@@ -46,12 +46,12 @@ export class StoragePathService {
       },
     });
 
-    return paginatedData;
+    return this.mapper.map(paginatedData, PaginatedStoragePathEntity, PaginatedStoragePathDto);
   }
 
-  @UseInterceptors(MapInterceptor(StoragePathEntity, StoragePathDto))
   async findDetails(id: number): Promise<StoragePathDto> {
     const en = await this.storagePathRepository.findOne({ where: { id } });
-    return this.storagePathTreeRepository.findDescendantsTree(en);
+    const resEn = await this.storagePathTreeRepository.findDescendantsTree(en);
+    return this.mapper.map(resEn, StoragePathEntity, StoragePathDto);
   }
 }
