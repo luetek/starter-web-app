@@ -9,6 +9,7 @@ import { StoragePathEntity } from '../../storage-path/entities/storage-path.enti
 
 @Entity()
 export class ActivityCollectionEntity implements ActivityCollection {
+  @AutoMap()
   @PrimaryGeneratedColumn()
   id: number;
 

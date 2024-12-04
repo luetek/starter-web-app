@@ -1,8 +1,8 @@
 import { DataSource, EntitySubscriberInterface, InsertEvent, Repository, UpdateEvent } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
-import { CreateFolderRequestDto, StoragePathDto } from '@luetek/common-models';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { CreateFolderRequestDto } from '@luetek/common-models';
+import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { ActivityCollectionEntity } from './entities/activity-collection.entity';
 import { FileSystemService } from '../storage/file-system.service';

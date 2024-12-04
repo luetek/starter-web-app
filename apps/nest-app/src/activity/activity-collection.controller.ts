@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { CreateActivityCollectionRequestDto } from '@luetek/common-models';
+import { BadRequestException, Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { ActivityCollectionDto, CreateActivityCollectionRequestDto } from '@luetek/common-models';
 import { ActivityCollectionService } from './activity-collection-service';
 
 @Controller('activity-collections')
@@ -14,5 +14,12 @@ export class ActivityCollectionController {
   @Post()
   create(@Body() createReq: CreateActivityCollectionRequestDto) {
     return this.activityCollectionService.create(createReq);
+  }
+
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updateReq: ActivityCollectionDto) {
+    if (updateReq.id !== parseInt(id, 10))
+      throw new BadRequestException(`param id = ${id} not mataching with data id = ${updateReq.id}`);
+    return this.activityCollectionService.update(updateReq);
   }
 }

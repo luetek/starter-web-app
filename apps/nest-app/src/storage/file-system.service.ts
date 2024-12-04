@@ -90,6 +90,7 @@ export class FileSystemService {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async saveAsJson(parentFolderId: number, fileName: string, JsonOvj: any): Promise<StoragePathDto> {
     const parentEntity = await this.storagePathRepository.findOneOrFail({ where: { id: parentFolderId } });
     const fileEntity = new StoragePathEntity();
@@ -97,7 +98,7 @@ export class FileSystemService {
     fileEntity.name = fileName;
     fileEntity.mimeType = 'application/json';
     fileEntity.storageType = StorageType.FILE;
-    const str = JSON.stringify(instanceToPlain(JsonOvj));
+    const str = JSON.stringify(instanceToPlain(JsonOvj), null, 4);
     fileEntity.size = str.length;
     const pathUrl = path.join(parentEntity.pathUrl, fileName);
     const stream = fs.createWriteStream(path.join(this.rootDir, pathUrl), { encoding: 'utf-8' });

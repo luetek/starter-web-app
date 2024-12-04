@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { ActivityCollectionDto, CreateActivityCollectionRequestDto } from '@luetek/common-models';
@@ -33,6 +33,19 @@ export class ActivityCollectionService {
     collection.sections = [];
     this.logger.log(`create request recieved ${JSON.stringify(collection)}`);
     const res = await this.activityCollectionRepository.save(collection);
+    return this.mapper.map(res, ActivityCollectionEntity, ActivityCollectionDto);
+  }
+
+  async update(updateReq: ActivityCollectionDto) {
+    const collection = await this.activityCollectionRepository.findOneOrFail({ where: { id: updateReq.id } });
+    if (updateReq.readableId !== collection.readableId) {
+      throw new BadRequestException('readableId is readOnly');
+    }
+    // eslint-disable-next-line no-param-reassign
+    updateReq.parent = collection.parent;
+    // eslint-disable-next-line no-param-reassign
+    updateReq.activities = collection.activities;
+    const res = await this.activityCollectionRepository.save(updateReq);
     return this.mapper.map(res, ActivityCollectionEntity, ActivityCollectionDto);
   }
 
