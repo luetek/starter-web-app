@@ -75,9 +75,6 @@ export class ActivityEntity implements Activity {
   @Column({ type: 'simple-array' })
   keywords: string[];
 
-  @Column({ type: 'simple-array' })
-  authors: string[];
-
   @AutoMap()
   @Column({ type: 'int' })
   orderId: number;

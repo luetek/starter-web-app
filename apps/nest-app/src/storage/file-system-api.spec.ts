@@ -87,6 +87,7 @@ describe('Storage Api/Acceptance/E2E Tests', () => {
     expect(content).toBe('Hello There!!!');
   });
   afterAll(async () => {
+    await storagePathRepository.clear();
     await app.close();
   });
 });

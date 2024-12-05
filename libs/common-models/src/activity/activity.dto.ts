@@ -6,9 +6,48 @@ import { CollectionSection } from './common';
 import { StoragePathDto } from '../storage-path/storage-path.dto';
 import { ActivitySpecMetadata, ProgrammingActivityWithStdioCheck, ReadingActivity } from './activity-spec-metadata';
 
+export class CreateActivityRequestDto {
+  @AutoMap()
+  title!: string;
+
+  @AutoMap()
+  readableId: string;
+
+  @AutoMap()
+  description!: string;
+
+  // See entity for persistence to db
+  @Type(() => ActivitySpecMetadata, {
+    discriminator: {
+      property: 'type',
+      subTypes: [
+        { value: ProgrammingActivityWithStdioCheck, name: ActivityType.READING_ACTIVITY },
+        { value: ReadingActivity, name: ActivityType.READING_ACTIVITY },
+      ],
+    },
+  })
+  @AutoMap(() => ActivitySpecMetadata)
+  activitySpec!: ActivitySpecMetadata;
+
+  @AutoMap()
+  keywords!: string[];
+
+  @AutoMap()
+  collectionId!: number;
+
+  @AutoMap()
+  orderId!: number;
+
+  @AutoMap()
+  sectionId!: number;
+}
+
 export class ActivityDto implements Activity {
   @AutoMap()
   id!: number;
+
+  @AutoMap()
+  readableId: string;
 
   @AutoMap()
   title!: string;

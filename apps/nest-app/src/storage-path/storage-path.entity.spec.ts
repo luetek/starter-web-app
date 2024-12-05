@@ -55,6 +55,7 @@ describe('StoragePath persistence tests', () => {
   });
 
   afterAll(async () => {
+    await storagePathRepository.clear();
     await app.close();
   });
 });

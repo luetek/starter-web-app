@@ -112,6 +112,8 @@ describe('Activity Collection Api/Acceptance/E2E Tests', () => {
   });
 
   afterAll(async () => {
+    await activityCollectionRepository.clear();
+    await storagePathRepository.clear();
     await app.close();
   });
 });

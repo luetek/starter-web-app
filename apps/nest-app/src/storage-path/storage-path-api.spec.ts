@@ -6,21 +6,24 @@ import { Repository } from 'typeorm';
 import { PaginatedStoragePathDto, StoragePathDto, StorageType } from '@luetek/common-models';
 import { AcceptanceTestAppModule } from '../test-utils/acceptance-test-app.module';
 import { StoragePathEntity } from './entities/storage-path.entity';
+import { ActivityCollectionEntity } from '../activity/entities/activity-collection.entity';
 
 describe('StoragePath Api/Acceptance/E2E Tests', () => {
   let app: INestApplication;
   let storagePathRepository: Repository<StoragePathEntity>;
-
+  let activityCollectionRepository: Repository<ActivityCollectionEntity>;
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AcceptanceTestAppModule],
     }).compile();
     app = moduleRef.createNestApplication();
     storagePathRepository = app.get<Repository<StoragePathEntity>>(getRepositoryToken(StoragePathEntity));
-
+    activityCollectionRepository = app.get<Repository<ActivityCollectionEntity>>(
+      getRepositoryToken(ActivityCollectionEntity)
+    );
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
-
+    await activityCollectionRepository.clear();
     await storagePathRepository.clear();
     // Init data for tests
     const root = new StoragePathEntity();
@@ -102,6 +105,8 @@ describe('StoragePath Api/Acceptance/E2E Tests', () => {
   });
 
   afterAll(async () => {
+    await activityCollectionRepository.clear();
+    await storagePathRepository.clear();
     await app.close();
   });
 });

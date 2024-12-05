@@ -1,10 +1,18 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
-import { ActivityCollectionDto, CreateActivityCollectionRequestDto } from '@luetek/common-models';
+import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import {
+  ActivityCollectionDto,
+  CreateActivityCollectionRequestDto,
+  CreateActivityRequestDto,
+} from '@luetek/common-models';
 import { ActivityCollectionService } from './activity-collection-service';
+import { ActivityService } from './activity.service';
 
 @Controller('activity-collections')
 export class ActivityCollectionController {
-  constructor(private activityCollectionService: ActivityCollectionService) {}
+  constructor(
+    private activityCollectionService: ActivityCollectionService,
+    private activityService: ActivityService
+  ) {}
 
   @Get()
   async findAll() {
@@ -21,5 +29,22 @@ export class ActivityCollectionController {
     if (updateReq.id !== parseInt(id, 10))
       throw new BadRequestException(`param id = ${id} not mataching with data id = ${updateReq.id}`);
     return this.activityCollectionService.update(updateReq);
+  }
+
+  /**
+   * Activity Section of controller
+   */
+
+  @Post(':collectionId/activities')
+  createActivity(
+    @Param('collectionId', ParseIntPipe) collectionId: number,
+    @Body() createReq: CreateActivityRequestDto
+  ) {
+    this.activityService.create(collectionId, createReq);
+  }
+
+  @Get(':collectionId/activities')
+  findAllActivities(@Param('collectionId', ParseIntPipe) collectionId: number) {
+    return this.activityService.findAll(collectionId);
   }
 }

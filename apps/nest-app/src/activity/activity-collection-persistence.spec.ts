@@ -127,6 +127,9 @@ describe('Activity Collection Persistence Tests', () => {
   });
 
   afterAll(async () => {
+    await activityReposity.clear();
+    await activityCollectionRepository.clear();
+    await storagePathRepository.clear();
     await app.close();
   });
 });
