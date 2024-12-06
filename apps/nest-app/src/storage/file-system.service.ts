@@ -43,6 +43,12 @@ export class FileSystemService {
     folderEntity.name = createFolderRequest.name;
     folderEntity.parent = parentEntity;
     folderEntity.storageType = StorageType.FOLDER;
+    const existing = await this.storagePathRepository.findOne({
+      where: { parent: parentEntity, name: createFolderRequest.name },
+    });
+    if (existing) {
+      return this.mapper.map(existing, StoragePathEntity, StoragePathDto);
+    }
     const res = await this.storagePathRepository.save(folderEntity);
     return this.mapper.map(res, StoragePathEntity, StoragePathDto);
   }
@@ -53,6 +59,12 @@ export class FileSystemService {
     folderEntity.name = name;
     folderEntity.parent = null;
     folderEntity.storageType = StorageType.FOLDER;
+    const existing = await this.storagePathRepository.findOne({
+      where: { parent: null, name },
+    });
+    if (existing) {
+      return this.mapper.map(existing, StoragePathEntity, StoragePathDto);
+    }
     const res = await this.storagePathRepository.save(folderEntity);
     return this.mapper.map(res, StoragePathEntity, StoragePathDto);
   }

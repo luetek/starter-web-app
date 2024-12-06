@@ -52,8 +52,12 @@ export class ActivityEntity implements Activity {
   @Column()
   description: string;
 
-  // Parent folder for the activity
   @AutoMap()
+  @Column({ name: 'parentId' })
+  parentId: number;
+
+  // Parent folder for the activity
+  @AutoMap(() => StoragePathEntity)
   @ManyToOne(() => StoragePathEntity)
   @JoinColumn({ name: 'parentId' })
   parent: StoragePathEntity;
@@ -68,10 +72,18 @@ export class ActivityEntity implements Activity {
   @Column({ name: 'collectionId' })
   collectionId: number;
 
+  @AutoMap()
+  @Column({
+    enum: ActivityType,
+    nullable: false,
+  })
+  type: ActivityType;
+
   @AutoMap(() => ActivitySpecMetadata)
   @Column({ type: 'varchar', length: 512, nullable: false, transformer: activitySpecTransformer })
   activitySpec: ActivitySpecMetadata;
 
+  @AutoMap(() => [String])
   @Column({ type: 'simple-array' })
   keywords: string[];
 

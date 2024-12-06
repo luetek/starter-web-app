@@ -17,16 +17,15 @@ export class ActivityJson {
   @AutoMap()
   description!: string;
 
+  @AutoMap()
+  type: ActivityType;
+
   // See entity for persistence to db
-  @Type(() => ActivitySpecMetadata, {
-    discriminator: {
-      property: 'type',
-      subTypes: [
-        { value: ProgrammingActivityWithStdioCheck, name: ActivityType.READING_ACTIVITY },
-        { value: ReadingActivity, name: ActivityType.READING_ACTIVITY },
-      ],
-    },
-  })
+  @Type((opts) =>
+    opts.object.type === ActivityType.PROGRAMMING_ACTIVITY_STDIO_CHECK
+      ? ProgrammingActivityWithStdioCheck
+      : ReadingActivity
+  )
   @AutoMap(() => ActivitySpecMetadata)
   activitySpec!: ActivitySpecMetadata;
 

@@ -16,16 +16,15 @@ export class CreateActivityRequestDto {
   @AutoMap()
   description!: string;
 
+  @AutoMap()
+  type: ActivityType;
+
   // See entity for persistence to db
-  @Type(() => ActivitySpecMetadata, {
-    discriminator: {
-      property: 'type',
-      subTypes: [
-        { value: ProgrammingActivityWithStdioCheck, name: ActivityType.READING_ACTIVITY },
-        { value: ReadingActivity, name: ActivityType.READING_ACTIVITY },
-      ],
-    },
-  })
+  @Type((opts) =>
+    opts.object.type === ActivityType.PROGRAMMING_ACTIVITY_STDIO_CHECK
+      ? ProgrammingActivityWithStdioCheck
+      : ReadingActivity
+  )
   @AutoMap(() => ActivitySpecMetadata)
   activitySpec!: ActivitySpecMetadata;
 
@@ -58,20 +57,19 @@ export class ActivityDto implements Activity {
   @AutoMap(() => StoragePathDto)
   parent!: StoragePathDto;
 
+  @AutoMap()
+  type: ActivityType;
+
   // See entity for persistence to db
-  @Type(() => ActivitySpecMetadata, {
-    discriminator: {
-      property: 'type',
-      subTypes: [
-        { value: ProgrammingActivityWithStdioCheck, name: ActivityType.READING_ACTIVITY },
-        { value: ReadingActivity, name: ActivityType.READING_ACTIVITY },
-      ],
-    },
-  })
+  @Type((opts) =>
+    opts.object.type === ActivityType.PROGRAMMING_ACTIVITY_STDIO_CHECK
+      ? ProgrammingActivityWithStdioCheck
+      : ReadingActivity
+  )
   @AutoMap(() => ActivitySpecMetadata)
   activitySpec!: ActivitySpecMetadata;
 
-  @AutoMap()
+  @AutoMap(() => [String])
   keywords!: string[];
 
   @AutoMap()

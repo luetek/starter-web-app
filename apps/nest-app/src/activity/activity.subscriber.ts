@@ -6,7 +6,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { ActivityCollectionEntity } from './entities/activity-collection.entity';
 import { FileSystemService } from '../storage/file-system.service';
-import { ActivityCollectionJson } from './json-models/activity-collection.json';
 import { StoragePathEntity } from '../storage-path/entities/storage-path.entity';
 import { ReqLogger } from '../logger/req-logger';
 import { ActivityEntity } from './entities/activity.entity';
@@ -29,6 +28,7 @@ export class ActivitySubscriber implements EntitySubscriberInterface<ActivityEnt
     private logger: ReqLogger
   ) {
     dataSource.subscribers.push(this);
+    this.logger.setContext(ActivitySubscriber.name);
   }
 
   // TODO:: In the future maybe we want collection on a per user basis. In such scenario we need to have account folder for each user.
@@ -47,11 +47,16 @@ export class ActivitySubscriber implements EntitySubscriberInterface<ActivityEnt
     this.logger.log(`Before Activity Inserted : ${event.entity.readableId}`);
     const { entity } = event;
     const JsonOvj = this.mapper.map(event.entity, ActivityEntity, ActivityJson);
+    this.logger.log(`json obj ${JSON.stringify(JsonOvj)}`);
     const { collection } = event.entity;
-
+    const collectionEntity = await this.activityCollectionRepository.findOneOrFail({
+      where: { id: collection.id },
+      relations: ['parent'],
+    });
+    this.logger.log(`collectionEntity ${JSON.stringify(collectionEntity)}`);
     const createActivityFolderRequest = new CreateFolderRequestDto();
     createActivityFolderRequest.name = 'activities';
-    createActivityFolderRequest.parentId = collection.parent.id;
+    createActivityFolderRequest.parentId = collectionEntity.parent.id;
     const activityFolder = await this.fileSystemService.createDirectory(createActivityFolderRequest);
 
     const createFolderRequest = new CreateFolderRequestDto();

@@ -1,4 +1,14 @@
-import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   ActivityCollectionDto,
   CreateActivityCollectionRequestDto,
@@ -36,15 +46,15 @@ export class ActivityCollectionController {
    */
 
   @Post(':collectionId/activities')
-  createActivity(
+  async createActivity(
     @Param('collectionId', ParseIntPipe) collectionId: number,
-    @Body() createReq: CreateActivityRequestDto
+    @Body(new ValidationPipe()) createReq: CreateActivityRequestDto
   ) {
-    this.activityService.create(collectionId, createReq);
+    return this.activityService.create(collectionId, createReq);
   }
 
   @Get(':collectionId/activities')
-  findAllActivities(@Param('collectionId', ParseIntPipe) collectionId: number) {
+  async findAllActivities(@Param('collectionId', ParseIntPipe) collectionId: number) {
     return this.activityService.findAll(collectionId);
   }
 }

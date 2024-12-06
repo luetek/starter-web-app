@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
-import { ActivityCollectionDto, ActivityDto, CreateActivityRequestDto } from '@luetek/common-models';
+import { ActivityDto, CreateActivityRequestDto } from '@luetek/common-models';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Mapper } from '@automapper/core';
 import { ReqLogger } from '../logger/req-logger';
@@ -37,14 +37,15 @@ export class ActivityService {
     activity.readableId = createReq.readableId;
     activity.sectionId = createReq.sectionId; // TODO:: Validate this.
     activity.title = createReq.title;
-    this.logger.log(`create request recieved ${JSON.stringify(activity)}`);
+    activity.type = createReq.type;
+
+    this.logger.log(`create request recieved ${JSON.stringify(createReq)}`);
     const res = await this.activityRepository.save(activity);
     return this.mapper.map(res, ActivityEntity, ActivityDto);
   }
 
   async findAll(collectionId: number): Promise<ActivityDto[]> {
-    const parent = await this.activityCollectionRepository.findOneOrFail({ where: { id: collectionId } });
-    const res = await this.activityRepository.find({ where: { parent } });
+    const res = await this.activityRepository.find({ where: { collectionId }, relations: ['parent'] });
     return this.mapper.mapArray(res, ActivityEntity, ActivityDto);
   }
 }

@@ -41,5 +41,6 @@ export class ReadingActivity extends ActivitySpecMetadata {
   @AutoMap()
   fileFormat!: string;
 
+  @AutoMap()
   files: string[];
 }

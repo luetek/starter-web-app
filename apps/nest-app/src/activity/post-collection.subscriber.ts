@@ -25,6 +25,7 @@ export class ActivityCollectionSubscriber implements EntitySubscriberInterface<A
     private logger: ReqLogger
   ) {
     dataSource.subscribers.push(this);
+    this.logger.setContext(ActivityCollectionSubscriber.name);
   }
 
   // TODO:: In the future maybe we want collection on a per user basis. In such scenario we need to have account folder for each user.
@@ -43,6 +44,7 @@ export class ActivityCollectionSubscriber implements EntitySubscriberInterface<A
     this.logger.log(`Before ActivityCollection Inserted : ${event.entity.readableId}`);
     const { entity } = event;
     const JsonOvj = this.mapper.map(event.entity, ActivityCollectionEntity, ActivityCollectionJson);
+
     const collectionFolder = await this.fileSystemService.createRootDirectory('collections');
     const createFolderRequest = new CreateFolderRequestDto();
     createFolderRequest.name = event.entity.readableId;
