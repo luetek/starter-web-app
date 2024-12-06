@@ -107,6 +107,8 @@ describe('Users Acceptance/E2E Tests', () => {
   });
 
   afterAll(async () => {
+    await userPasswordsRepository.clear();
+    await usersRepository.clear();
     await app.close();
   });
 });

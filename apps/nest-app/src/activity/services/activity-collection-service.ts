@@ -4,8 +4,8 @@ import { InjectMapper } from '@automapper/nestjs';
 import { ActivityCollectionDto, CreateActivityCollectionRequestDto } from '@luetek/common-models';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Mapper } from '@automapper/core';
-import { ReqLogger } from '../logger/req-logger';
-import { ActivityCollectionEntity } from './entities/activity-collection.entity';
+import { ReqLogger } from '../../logger/req-logger';
+import { ActivityCollectionEntity } from '../entities/activity-collection.entity';
 
 /**
  * Service is only responsible for storing data in db. Other action will happen based on the event subscriber.

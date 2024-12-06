@@ -2,12 +2,12 @@ import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProgrammingActivityWithStdioCheck, ReadingActivity, StorageType } from '@luetek/common-models';
+import { ActivityType, ProgrammingActivityWithStdioCheck, ReadingActivity, StorageType } from '@luetek/common-models';
 import { instanceToPlain } from 'class-transformer';
-import { StoragePathEntity } from '../storage-path/entities/storage-path.entity';
-import { ActivityCollectionEntity } from './entities/activity-collection.entity';
-import { ActivityEntity } from './entities/activity.entity';
-import { AcceptanceTestAppModule } from '../test-utils/acceptance-test-app.module';
+import { StoragePathEntity } from '../../storage-path/entities/storage-path.entity';
+import { ActivityCollectionEntity } from '../entities/activity-collection.entity';
+import { ActivityEntity } from '../entities/activity.entity';
+import { AcceptanceTestAppModule } from '../../test-utils/acceptance-test-app.module';
 
 describe('Activity Collection Persistence Tests', () => {
   let app: INestApplication;
@@ -93,6 +93,7 @@ describe('Activity Collection Persistence Tests', () => {
     activitySpec.fileFormat = 'md';
     activitySpec.files = ['abc.md'];
     activity1.activitySpec = activitySpec;
+    activity1.type = ActivityType.READING_ACTIVITY;
 
     const activity1Saved = await activityReposity.save(activity1);
 
@@ -110,6 +111,7 @@ describe('Activity Collection Persistence Tests', () => {
     activitySpec2.descriptionFile = 'desc.md';
     activitySpec2.languagesSupported = 'python';
     activitySpec2.testInputFiles = ['test1.txt', 'test2.txt'];
+    activity2.type = ActivityType.PROGRAMMING_ACTIVITY_STDIO_CHECK;
     activity2.activitySpec = activitySpec2;
 
     const activity2Saved = await activityReposity.save(activity2);

@@ -4,9 +4,9 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PaginatedStoragePathDto, StoragePathDto, StorageType } from '@luetek/common-models';
-import { AcceptanceTestAppModule } from '../test-utils/acceptance-test-app.module';
-import { StoragePathEntity } from './entities/storage-path.entity';
-import { ActivityCollectionEntity } from '../activity/entities/activity-collection.entity';
+import { AcceptanceTestAppModule } from '../../test-utils/acceptance-test-app.module';
+import { StoragePathEntity } from '../entities/storage-path.entity';
+import { ActivityCollectionEntity } from '../../activity/entities/activity-collection.entity';
 
 describe('StoragePath Api/Acceptance/E2E Tests', () => {
   let app: INestApplication;

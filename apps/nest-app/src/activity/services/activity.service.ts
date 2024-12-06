@@ -4,9 +4,9 @@ import { InjectMapper } from '@automapper/nestjs';
 import { ActivityDto, CreateActivityRequestDto } from '@luetek/common-models';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Mapper } from '@automapper/core';
-import { ReqLogger } from '../logger/req-logger';
-import { ActivityCollectionEntity } from './entities/activity-collection.entity';
-import { ActivityEntity } from './entities/activity.entity';
+import { ActivityCollectionEntity } from '../entities/activity-collection.entity';
+import { ActivityEntity } from '../entities/activity.entity';
+import { ReqLogger } from '../../logger/req-logger';
 
 /**
  * Service is only responsible for storing data in db. Other action will happen based on the event subscriber.
@@ -40,6 +40,19 @@ export class ActivityService {
     activity.type = createReq.type;
 
     this.logger.log(`create request recieved ${JSON.stringify(createReq)}`);
+    const res = await this.activityRepository.save(activity);
+    return this.mapper.map(res, ActivityEntity, ActivityDto);
+  }
+
+  async update(collectionId: number, id: number, updateReq: ActivityDto) {
+    const activity = await this.activityRepository.findOneOrFail({ where: { id, collectionId } });
+    activity.activitySpec = updateReq.activitySpec;
+    activity.description = updateReq.description;
+    activity.keywords = updateReq.keywords;
+    activity.orderId = updateReq.orderId;
+    activity.readableId = updateReq.readableId;
+    activity.sectionId = updateReq.sectionId;
+    activity.title = updateReq.title;
     const res = await this.activityRepository.save(activity);
     return this.mapper.map(res, ActivityEntity, ActivityDto);
   }

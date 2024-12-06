@@ -14,12 +14,12 @@ import {
   ReadingActivity,
 } from '@luetek/common-models';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
-import { AcceptanceTestAppModule } from '../test-utils/acceptance-test-app.module';
-import { StoragePathEntity } from '../storage-path/entities/storage-path.entity';
-import { ActivityCollectionEntity } from './entities/activity-collection.entity';
-import { FileSystemService } from '../storage/file-system.service';
-import { ActivityJson } from './json-models/activity.json';
-import { ActivityEntity } from './entities/activity.entity';
+import { AcceptanceTestAppModule } from '../../test-utils/acceptance-test-app.module';
+import { StoragePathEntity } from '../../storage-path/entities/storage-path.entity';
+import { ActivityCollectionEntity } from '../entities/activity-collection.entity';
+import { FileSystemService } from '../../storage/file-system.service';
+import { ActivityJson } from '../json-models/activity.json';
+import { ActivityEntity } from '../entities/activity.entity';
 
 describe('Activity Api/Acceptance/E2E Tests', () => {
   let app: INestApplication;

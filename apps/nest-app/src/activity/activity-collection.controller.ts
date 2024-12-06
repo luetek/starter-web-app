@@ -11,11 +11,12 @@ import {
 } from '@nestjs/common';
 import {
   ActivityCollectionDto,
+  ActivityDto,
   CreateActivityCollectionRequestDto,
   CreateActivityRequestDto,
 } from '@luetek/common-models';
-import { ActivityCollectionService } from './activity-collection-service';
-import { ActivityService } from './activity.service';
+import { ActivityCollectionService } from './services/activity-collection-service';
+import { ActivityService } from './services/activity.service';
 
 @Controller('activity-collections')
 export class ActivityCollectionController {
@@ -51,6 +52,15 @@ export class ActivityCollectionController {
     @Body(new ValidationPipe()) createReq: CreateActivityRequestDto
   ) {
     return this.activityService.create(collectionId, createReq);
+  }
+
+  @Put(':collectionId/activities/:id')
+  async updateActivity(
+    @Param('collectionId', ParseIntPipe) collectionId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body(new ValidationPipe()) updateReq: ActivityDto
+  ) {
+    return this.activityService.update(collectionId, id, updateReq);
   }
 
   @Get(':collectionId/activities')

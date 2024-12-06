@@ -7,11 +7,11 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ActivityCollectionDto, CreateActivityCollectionRequestDto } from '@luetek/common-models';
 import { plainToInstance } from 'class-transformer';
-import { AcceptanceTestAppModule } from '../test-utils/acceptance-test-app.module';
-import { StoragePathEntity } from '../storage-path/entities/storage-path.entity';
-import { ActivityCollectionEntity } from './entities/activity-collection.entity';
-import { FileSystemService } from '../storage/file-system.service';
-import { ActivityCollectionJson } from './json-models/activity-collection.json';
+import { AcceptanceTestAppModule } from '../../test-utils/acceptance-test-app.module';
+import { StoragePathEntity } from '../../storage-path/entities/storage-path.entity';
+import { ActivityCollectionEntity } from '../entities/activity-collection.entity';
+import { FileSystemService } from '../../storage/file-system.service';
+import { ActivityCollectionJson } from '../json-models/activity-collection.json';
 
 describe('Activity Collection Api/Acceptance/E2E Tests', () => {
   let app: INestApplication;

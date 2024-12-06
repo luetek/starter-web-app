@@ -4,11 +4,11 @@ import { Mapper } from '@automapper/core';
 import { CreateFolderRequestDto } from '@luetek/common-models';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { ActivityCollectionEntity } from './entities/activity-collection.entity';
-import { FileSystemService } from '../storage/file-system.service';
-import { ActivityCollectionJson } from './json-models/activity-collection.json';
-import { StoragePathEntity } from '../storage-path/entities/storage-path.entity';
-import { ReqLogger } from '../logger/req-logger';
+import { ActivityCollectionEntity } from '../entities/activity-collection.entity';
+import { FileSystemService } from '../../storage/file-system.service';
+import { ActivityCollectionJson } from '../json-models/activity-collection.json';
+import { StoragePathEntity } from '../../storage-path/entities/storage-path.entity';
+import { ReqLogger } from '../../logger/req-logger';
 /**
  * Event subscriber is responsible to making file structure changes based on event along with backuping data in json files.
  *
