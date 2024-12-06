@@ -37,7 +37,10 @@ export class ActivityCollectionService {
   }
 
   async update(updateReq: ActivityCollectionDto) {
-    const collection = await this.activityCollectionRepository.findOneOrFail({ where: { id: updateReq.id } });
+    const collection = await this.activityCollectionRepository.findOneOrFail({
+      where: { id: updateReq.id },
+      relations: ['parent'],
+    });
     if (updateReq.readableId !== collection.readableId) {
       throw new BadRequestException('readableId is readOnly');
     }

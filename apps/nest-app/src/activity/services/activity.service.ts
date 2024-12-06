@@ -45,7 +45,11 @@ export class ActivityService {
   }
 
   async update(collectionId: number, id: number, updateReq: ActivityDto) {
-    const activity = await this.activityRepository.findOneOrFail({ where: { id, collectionId } });
+    this.logger.log(`update request recieved ${JSON.stringify(updateReq)}`);
+    const activity = await this.activityRepository.findOneOrFail({
+      where: { id, collectionId },
+      relations: ['parent'],
+    });
     activity.activitySpec = updateReq.activitySpec;
     activity.description = updateReq.description;
     activity.keywords = updateReq.keywords;
@@ -53,6 +57,7 @@ export class ActivityService {
     activity.readableId = updateReq.readableId;
     activity.sectionId = updateReq.sectionId;
     activity.title = updateReq.title;
+
     const res = await this.activityRepository.save(activity);
     return this.mapper.map(res, ActivityEntity, ActivityDto);
   }

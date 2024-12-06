@@ -137,6 +137,44 @@ describe('Activity Api/Acceptance/E2E Tests', () => {
     expect(activity.type).toBe(ActivityType.READING_ACTIVITY);
   });
 
+  it('PUT /activity-collections/:collectionId/activities/:id', async () => {
+    const updateDto = new ActivityDto();
+    updateDto.id = act.id;
+    updateDto.activitySpec = act.activitySpec;
+    updateDto.collectionId = act.collectionId;
+    updateDto.description = 'Very long Intro to Python';
+    updateDto.keywords = act.keywords;
+    updateDto.orderId = act.orderId;
+    updateDto.parent = act.parent;
+    updateDto.readableId = act.readableId;
+    updateDto.sectionId = act.sectionId;
+    updateDto.title = act.title;
+    updateDto.type = act.type;
+
+    const res = await request(app.getHttpServer())
+      .put(`/activity-collections/${actCol.id}/activities/${act.id}`)
+      .send(updateDto)
+      .expect(200);
+    const activity = res.body as ActivityDto;
+    expect(activity.readableId).toBe(act.readableId);
+    expect(activity.parent).toBeDefined();
+    expect(activity.parent.pathUrl).toBe('/collections/python-guide/activities/introduction/');
+    expect(activity.description).toEqual(updateDto.description);
+    expect(activity.title).toEqual(act.title);
+    expect(activity.keywords).toEqual(expect.arrayContaining(act.keywords));
+    expect(activity.activitySpec.type).toBe(ActivityType.READING_ACTIVITY);
+    expect(activity.type).toBe(ActivityType.READING_ACTIVITY);
+
+    const resObj = await fileSystemService.fetchAsStream(activity.parent.id, 'activity.json');
+    const jsonStr = await text(resObj.stream);
+
+    const actDes = plainToInstance(ActivityJson, JSON.parse(jsonStr));
+    expect(actDes.readableId).toBe(updateDto.readableId);
+    expect(actDes.description).toEqual(updateDto.description);
+    expect(actDes.title).toEqual(updateDto.title);
+    expect(actDes.keywords).toEqual(expect.arrayContaining(updateDto.keywords));
+  });
+
   afterAll(async () => {
     await activityRepository.clear();
     await activityCollectionRepository.clear();

@@ -105,7 +105,10 @@ export class FileSystemService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async saveAsJson(parentFolderId: number, fileName: string, JsonOvj: any): Promise<StoragePathDto> {
     const parentEntity = await this.storagePathRepository.findOneOrFail({ where: { id: parentFolderId } });
-    const fileEntity = new StoragePathEntity();
+    const fileEntitySaved = await this.storagePathRepository.findOne({
+      where: { name: fileName, parentId: parentFolderId },
+    });
+    const fileEntity = fileEntitySaved || new StoragePathEntity();
     fileEntity.parent = parentEntity;
     fileEntity.name = fileName;
     fileEntity.mimeType = 'application/json';

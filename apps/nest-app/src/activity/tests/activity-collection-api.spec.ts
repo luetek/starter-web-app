@@ -109,6 +109,15 @@ describe('Activity Collection Api/Acceptance/E2E Tests', () => {
     expect(col.title).toBe('Python Guide');
     expect(col.readableId).toBe('python-guide');
     expect(col.description).toBe(putReq.description);
+
+    const resObj = await fileSystemService.fetchAsStream(col.parent.id, 'collection.json');
+    const jsonStr = await text(resObj.stream);
+
+    const actCollection = plainToInstance(ActivityCollectionJson, JSON.parse(jsonStr));
+    expect(actCollection.readableId).toBe(putReq.readableId);
+
+    expect(actCollection.description).toEqual(putReq.description);
+    expect(actCollection.title).toEqual(putReq.title);
   });
 
   afterAll(async () => {

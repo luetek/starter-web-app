@@ -56,6 +56,10 @@ export class ActivityCollectionSubscriber implements EntitySubscriberInterface<A
   }
 
   async beforeUpdate(event: UpdateEvent<ActivityCollectionEntity>) {
-    this.logger.log(`After ActivityCollection Inserted : ${event.entity}`);
+    this.logger.log(`Before ActivityCollection updated : ${event.entity.readableId}`);
+    const { entity } = event;
+    const JsonOvj = this.mapper.map(event.entity, ActivityCollectionEntity, ActivityCollectionJson);
+    this.logger.log(`entity: ${JSON.stringify(event.entity)}`);
+    await this.fileSystemService.saveAsJson(entity.parent.id, 'collection.json', JsonOvj);
   }
 }
