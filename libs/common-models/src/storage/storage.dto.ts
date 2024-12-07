@@ -3,7 +3,7 @@
  */
 
 export class CreateFolderRequestDto {
-  parentId: number;
+  parentId!: number;
 
-  name: string;
+  name!: string;
 }

@@ -52,6 +52,7 @@ export class StoragePathEntity implements StoragePath {
 
   @AutoMap()
   @Column({
+    type: 'simple-enum',
     enum: StorageType,
     nullable: false,
   })

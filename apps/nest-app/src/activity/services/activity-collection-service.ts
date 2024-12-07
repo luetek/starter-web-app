@@ -36,6 +36,11 @@ export class ActivityCollectionService {
     return this.mapper.map(res, ActivityCollectionEntity, ActivityCollectionDto);
   }
 
+  async findOne(id: number) {
+    const res = await this.activityCollectionRepository.findOneOrFail({ where: { id } });
+    return this.mapper.map(res, ActivityCollectionEntity, ActivityCollectionDto);
+  }
+
   async update(updateReq: ActivityCollectionDto) {
     const collection = await this.activityCollectionRepository.findOneOrFail({
       where: { id: updateReq.id },

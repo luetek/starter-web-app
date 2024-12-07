@@ -30,7 +30,7 @@ export class ProgrammingActivityWithStdioCheck extends ActivitySpecMetadata {
   checkerSrcMainFile!: string;
 
   @AutoMap()
-  testInputFiles: string[];
+  testInputFiles!: string[];
 }
 
 export class ReadingActivity extends ActivitySpecMetadata {
@@ -42,5 +42,5 @@ export class ReadingActivity extends ActivitySpecMetadata {
   fileFormat!: string;
 
   @AutoMap()
-  files: string[];
+  files!: string[];
 }

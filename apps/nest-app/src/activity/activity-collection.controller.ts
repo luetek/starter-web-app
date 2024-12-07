@@ -25,6 +25,7 @@ export class ActivityCollectionController {
     private activityService: ActivityService
   ) {}
 
+  // TODO:: Pagination when we have enough data.
   @Get()
   async findAll() {
     return this.activityCollectionService.findAll();
@@ -33,6 +34,11 @@ export class ActivityCollectionController {
   @Post()
   create(@Body() createReq: CreateActivityCollectionRequestDto) {
     return this.activityCollectionService.create(createReq);
+  }
+
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.activityCollectionService.findOne(id);
   }
 
   @Put(':id')

@@ -11,17 +11,17 @@ export class CreateActivityRequestDto {
   title!: string;
 
   @AutoMap()
-  readableId: string;
+  readableId!: string;
 
   @AutoMap()
   description!: string;
 
   @AutoMap()
-  type: ActivityType;
+  type!: ActivityType;
 
   // See entity for persistence to db
   @Type((opts) =>
-    opts.object.type === ActivityType.PROGRAMMING_ACTIVITY_STDIO_CHECK
+    opts?.object?.type === ActivityType.PROGRAMMING_ACTIVITY_STDIO_CHECK
       ? ProgrammingActivityWithStdioCheck
       : ReadingActivity
   )
@@ -46,7 +46,7 @@ export class ActivityDto implements Activity {
   id!: number;
 
   @AutoMap()
-  readableId: string;
+  readableId!: string;
 
   @AutoMap()
   title!: string;
@@ -58,11 +58,11 @@ export class ActivityDto implements Activity {
   parent!: StoragePathDto;
 
   @AutoMap()
-  type: ActivityType;
+  type!: ActivityType;
 
   // See entity for persistence to db
   @Type((opts) =>
-    opts.object.type === ActivityType.PROGRAMMING_ACTIVITY_STDIO_CHECK
+    opts?.object?.type === ActivityType.PROGRAMMING_ACTIVITY_STDIO_CHECK
       ? ProgrammingActivityWithStdioCheck
       : ReadingActivity
   )
@@ -84,19 +84,19 @@ export class ActivityDto implements Activity {
 
 export class CreateActivityCollectionRequestDto {
   @AutoMap()
-  readableId: string;
+  readableId!: string;
 
   @AutoMap()
-  title: string;
+  title!: string;
 
   @AutoMap()
-  description: string;
+  description!: string;
 
   @AutoMap()
-  keywords: string[];
+  keywords!: string[];
 
   @AutoMap()
-  authors: string[];
+  authors!: string[];
 }
 
 export class ActivityCollectionDto implements ActivityCollection {
@@ -104,7 +104,7 @@ export class ActivityCollectionDto implements ActivityCollection {
   id!: number;
 
   @AutoMap()
-  readableId: string;
+  readableId!: string;
 
   @AutoMap()
   title!: string;
@@ -114,7 +114,7 @@ export class ActivityCollectionDto implements ActivityCollection {
 
   // In a given folder there can be only one Collection
   @AutoMap()
-  parent: StoragePathDto;
+  parent!: StoragePathDto;
 
   @AutoMap(() => [ActivityDto])
   activities!: ActivityDto[];

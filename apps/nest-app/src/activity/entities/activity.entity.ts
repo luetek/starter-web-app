@@ -75,6 +75,7 @@ export class ActivityEntity implements Activity {
   @AutoMap()
   @Column({
     enum: ActivityType,
+    type: 'simple-enum',
     nullable: false,
   })
   type: ActivityType;

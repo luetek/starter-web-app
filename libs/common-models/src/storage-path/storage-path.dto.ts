@@ -7,23 +7,23 @@ export class StoragePathDto implements StoragePath {
   id!: number;
 
   @AutoMap()
-  name: string;
+  name!: string;
 
   @AutoMap()
-  pathUrl: string;
+  pathUrl!: string;
 
   @AutoMap()
-  parentId: number;
+  parentId!: number;
 
   @AutoMap()
-  storageType: StorageType;
+  storageType!: StorageType;
 
   // Optional
   @AutoMap(() => [StoragePathDto])
-  children: StoragePathDto[];
+  children?: StoragePathDto[];
 
   // Optional
-  parent: StoragePathDto;
+  parent?: StoragePathDto;
 }
 
 export class PaginatedStoragePathDto {
