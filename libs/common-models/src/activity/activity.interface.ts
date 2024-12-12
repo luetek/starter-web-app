@@ -23,10 +23,6 @@ export interface Activity {
   keywords: string[];
 
   activitySpec: ActivitySpec;
-
-  orderId: number;
-
-  sectionId: number;
 }
 
 export interface ActivityCollection {

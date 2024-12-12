@@ -33,9 +33,7 @@ export class ActivityService {
     activity.activitySpec = createReq.activitySpec;
     activity.description = createReq.description;
     activity.keywords = createReq.keywords;
-    activity.orderId = createReq.orderId;
     activity.readableId = createReq.readableId;
-    activity.sectionId = createReq.sectionId; // TODO:: Validate this.
     activity.title = createReq.title;
     activity.type = createReq.type;
 
@@ -53,9 +51,7 @@ export class ActivityService {
     activity.activitySpec = updateReq.activitySpec;
     activity.description = updateReq.description;
     activity.keywords = updateReq.keywords;
-    activity.orderId = updateReq.orderId;
     activity.readableId = updateReq.readableId;
-    activity.sectionId = updateReq.sectionId;
     activity.title = updateReq.title;
 
     const res = await this.activityRepository.save(activity);

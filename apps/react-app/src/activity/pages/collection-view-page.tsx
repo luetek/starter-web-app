@@ -3,37 +3,30 @@ import Accordion from 'react-bootstrap/Accordion';
 import { ActivityDto } from '@luetek/common-models';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
-import { RootState } from '../../store';
+import { RootState, useAppDispatch } from '../../store';
 import { getActivityCollectionThunk } from '../activity-collection-slice';
 
 export function ActivityCollectionViewPage() {
-  const params = useParams();
-  const { id } = params;
-  const activityCollection = useSelector((state: RootState) => state.activityCollection);
-  useEffect(() => {
-    if (id) getActivityCollectionThunk(parseInt(id, 10));
-  }, [id]);
-  // sort section and their order
-  if (activityCollection.activities)
-    activityCollection.activities.sort((a, b) => {
-      if (a.sectionId !== b.sectionId) {
-        return a.sectionId - b.sectionId;
-      }
-      return a.orderId - b.orderId;
-    });
+  const { id } = useParams();
+  const dispatch = useAppDispatch();
 
-  const categorizedActivities: Record<string, ActivityDto[]> = {};
-  const { activities } = activityCollection;
-  const { sections } = activityCollection;
-  console.log(activityCollection);
-  // eslint-disable-next-line no-restricted-syntax
-  if (sections)
-    for (const sec of sections) {
-      const res = activities.filter((activity) => activity.sectionId === sec.sectionId);
-      categorizedActivities[sec.title] = res;
-    }
+  const activityCollection = useSelector((state: RootState) => state.activityCollection.current);
+  useEffect(() => {
+    if (id) dispatch(getActivityCollectionThunk(parseInt(id, 10)));
+  }, [dispatch, id]);
 
   if (!activityCollection) return <div>Loading ...</div>;
+
+  const idToActivityMap: Record<number, ActivityDto> = {};
+  const { activities } = activityCollection;
+  const activitySection = activityCollection.sections;
+
+  // eslint-disable-next-line no-restricted-syntax
+  if (activities)
+    for (const activity of activities) {
+      idToActivityMap[activity.id] = activity;
+    }
+
   return (
     <div>
       <div className="course-intro">
@@ -54,29 +47,31 @@ export function ActivityCollectionViewPage() {
       </div>
 
       <h2>Course Content</h2>
+      {!activities || activities.length === 0 ? <div> No Course Content</div> : null}
       <Accordion>
-        {Object.entries(categorizedActivities).map((entry) => {
-          const section = entry[0];
-          const sectionItems = entry[1];
+        {activitySection.map((entry) => {
+          const section = entry.title;
+          const { sectionId, orderedActivities } = entry;
+
           return (
-            <Accordion.Item eventKey={section} key={section}>
+            <Accordion.Item eventKey={sectionId.toString()} key={sectionId}>
               <Accordion.Header>{section}</Accordion.Header>
               <Accordion.Body>
-                {sectionItems.map((item) => (
-                  <Accordion key={item.id}>
-                    <Accordion.Item eventKey={item.id.toString()}>
+                {orderedActivities.map((item) => (
+                  <Accordion key={item.orderId}>
+                    <Accordion.Item eventKey={item.activityId.toString()}>
                       <Accordion.Header>
                         <span className="text-primary">
-                          {item.sectionId}.{item.orderId} &nbsp;&nbsp;&nbsp;
+                          {sectionId}.{item.orderId} &nbsp;&nbsp;&nbsp;
                         </span>
                         <Link
                           style={{ textDecoration: 'none' }}
-                          to={`/collections/${activityCollection.id}/activities/${item.id}`}
+                          to={`/collections/${activityCollection.id}/activities/${item.activityId}`}
                         >
-                          {item.title}
+                          {idToActivityMap[item.activityId].title}
                         </Link>
                       </Accordion.Header>
-                      <Accordion.Body>{item.description}</Accordion.Body>
+                      <Accordion.Body>{idToActivityMap[item.activityId].description}</Accordion.Body>
                     </Accordion.Item>
                   </Accordion>
                 ))}

@@ -87,12 +87,4 @@ export class ActivityEntity implements Activity {
   @AutoMap(() => [String])
   @Column({ type: 'simple-array' })
   keywords: string[];
-
-  @AutoMap()
-  @Column({ type: 'int' })
-  orderId: number;
-
-  @AutoMap()
-  @Column({ type: 'int' })
-  sectionId: number;
 }

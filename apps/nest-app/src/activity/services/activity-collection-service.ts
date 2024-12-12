@@ -37,7 +37,10 @@ export class ActivityCollectionService {
   }
 
   async findOne(id: number) {
-    const res = await this.activityCollectionRepository.findOneOrFail({ where: { id } });
+    const res = await this.activityCollectionRepository.findOneOrFail({
+      where: { id },
+      relations: ['activities', 'parent', 'activities.parent'],
+    });
     return this.mapper.map(res, ActivityCollectionEntity, ActivityCollectionDto);
   }
 

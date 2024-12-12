@@ -66,6 +66,7 @@ export class ActivitySubscriber implements EntitySubscriberInterface<ActivityEnt
     this.logger.log(`Folder created ${JSON.stringify(parentFolder)}`);
     entity.parent = await this.storagePathRepository.findOneOrFail({ where: { id: parentFolder.id } });
     await this.fileSystemService.saveAsJson(parentFolder.id, 'activity.json', JsonOvj);
+    this.logger.log(`Done Activity Inserted : ${event.entity.readableId}`);
   }
 
   async beforeUpdate(event: UpdateEvent<ActivityEntity>) {

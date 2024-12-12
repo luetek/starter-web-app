@@ -33,12 +33,6 @@ export class CreateActivityRequestDto {
 
   @AutoMap()
   collectionId!: number;
-
-  @AutoMap()
-  orderId!: number;
-
-  @AutoMap()
-  sectionId!: number;
 }
 
 export class ActivityDto implements Activity {
@@ -74,12 +68,6 @@ export class ActivityDto implements Activity {
 
   @AutoMap()
   collectionId!: number;
-
-  @AutoMap()
-  orderId!: number;
-
-  @AutoMap()
-  sectionId!: number;
 }
 
 export class CreateActivityCollectionRequestDto {
