@@ -69,7 +69,7 @@ export const updateActivityCollectionThunk = createAsyncThunk<
   { state: RootState }
 >('activity-collection/update', async (updateRequestDto: ActivityCollectionDto, thunkApi) => {
   const userAccessToken = thunkApi.getState().user;
-  const res = await axios.put('/api/activity-collections', updateRequestDto, {
+  const res = await axios.put(`/api/activity-collections/${updateRequestDto.id}`, updateRequestDto, {
     headers: { Authorization: `Bearer ${userAccessToken?.token}` },
   });
 

@@ -1,24 +1,9 @@
 import { AutoMap } from '@automapper/classes';
-import { IsInt, Length, Max, Min } from 'class-validator';
-
-export class OrderedActivity {
-  @AutoMap()
-  @IsInt()
-  @Min(1)
-  @Max(15)
-  orderId!: number;
-
-  @AutoMap()
-  @IsInt()
-  activityId!: number;
-}
+import { Length } from 'class-validator';
 
 export class CollectionSection {
   @AutoMap()
-  @IsInt()
-  @Min(1)
-  @Max(15)
-  sectionId!: number;
+  sectionId!: string;
 
   @AutoMap()
   @Length(8, 16)
@@ -27,6 +12,7 @@ export class CollectionSection {
   @AutoMap()
   default!: boolean;
 
+  // We are not using set as it is not ordered container.
   @AutoMap()
-  orderedActivities!: OrderedActivity[];
+  orderedActivities!: number[]; // Set of activityId list ordered
 }

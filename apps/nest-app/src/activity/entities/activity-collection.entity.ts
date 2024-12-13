@@ -43,6 +43,7 @@ export class ActivityCollectionEntity implements ActivityCollection {
   @Column({ type: 'simple-array' })
   authors: string[];
 
+  @AutoMap(() => [CollectionSection])
   @Column({ type: 'simple-json' })
   sections: CollectionSection[];
 }

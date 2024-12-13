@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import { ActivityCollectionDto, ActivityDto, CollectionSection, OrderedActivity } from '@luetek/common-models';
+import { ActivityCollectionDto, ActivityDto, CollectionSection } from '@luetek/common-models';
 import { useForm } from 'react-hook-form';
 import { useEffect, useRef, useState } from 'react';
 import { classValidatorResolver } from '@hookform/resolvers/class-validator';
@@ -18,19 +18,9 @@ import { getActivityCollectionThunk, updateActivityCollectionThunk } from '../..
 import { RootState, useAppDispatch } from '../../../store';
 
 interface SectionViewProps {
-  onActivityUpHandler: (
-    section: CollectionSection,
-    sectionIndex: number,
-    orderedActivity: OrderedActivity,
-    index: number
-  ) => void;
+  onActivityUpHandler: (section: CollectionSection, sectionIndex: number, index: number) => void;
 
-  onActivityDownHandler: (
-    section: CollectionSection,
-    sectionIndex: number,
-    orderedActivity: OrderedActivity,
-    index: number
-  ) => void;
+  onActivityDownHandler: (section: CollectionSection, sectionIndex: number, index: number) => void;
 
   section: CollectionSection;
 
@@ -45,22 +35,29 @@ function SectionView(props: SectionViewProps) {
   const { section, sectionIndex, activityMap, onActivityUpHandler, onActivityDownHandler } = props;
   return (
     <ListGroup>
-      {section.orderedActivities.map((orderedActivity, index) => {
+      {section.orderedActivities.map((activityId, index) => {
         return (
-          <ListGroup.Item key={orderedActivity.orderId} className="d-flex p-2">
-            <div className="mr-auto p-2 flex-grow-1"> {activityMap.get(orderedActivity.activityId)?.title}</div>
+          <ListGroup.Item key={activityId} className="d-flex p-2">
+            <div className="mr-auto p-2 flex-grow-1"> {activityMap.get(activityId)?.title}</div>
             <Button
               className="mx-2"
               variant="outline-primary"
-              onClick={() => onActivityUpHandler(section, sectionIndex, orderedActivity, index)}
+              onClick={(e) => {
+                e.preventDefault();
+                onActivityUpHandler(section, sectionIndex, index);
+              }}
             >
               <FontAwesomeIcon icon={faArrowUp} />
             </Button>
-            <Button className="mx-2" variant="outline-primary">
-              <FontAwesomeIcon
-                icon={faArrowDown}
-                onClick={() => onActivityDownHandler(section, sectionIndex, orderedActivity, index)}
-              />
+            <Button
+              className="mx-2"
+              variant="outline-primary"
+              onClick={(e) => {
+                e.preventDefault();
+                onActivityDownHandler(section, sectionIndex, index);
+              }}
+            >
+              <FontAwesomeIcon icon={faArrowDown} />
             </Button>
           </ListGroup.Item>
         );
@@ -83,9 +80,7 @@ function SectionListComponent(props: SectionListViewProps) {
   const activityMap = new Map(activities.map((activity) => [activity.id, activity]));
   const activitySet = new Set(activities.map((activity) => activity.id));
   sections.forEach((section) => {
-    section.orderedActivities
-      .map((activityPair) => activityPair.activityId)
-      .forEach((value) => activitySet.delete(value));
+    section.orderedActivities.forEach((value) => activitySet.delete(value));
   });
 
   const activityUnused = [...activitySet];
@@ -94,27 +89,13 @@ function SectionListComponent(props: SectionListViewProps) {
   if (!existingUnused) {
     const unUsedSection = new CollectionSection();
     unUsedSection.title = 'Unused';
-    unUsedSection.sectionId = 100;
+    // eslint-disable-next-line no-restricted-globals
+    unUsedSection.sectionId = self.crypto.randomUUID();
     unUsedSection.default = true;
-    unUsedSection.orderedActivities = [
-      ...activityUnused.map((activityId, index) => {
-        const ordAct = new OrderedActivity();
-        ordAct.orderId = index + 100; // Just some numbers which does not clash UUID will be fine too.
-        ordAct.activityId = activityId;
-        return ordAct;
-      }),
-    ];
+    unUsedSection.orderedActivities = [...activityUnused];
     sectionAll = [...sections, unUsedSection];
   } else {
-    existingUnused.orderedActivities = [
-      ...existingUnused.orderedActivities,
-      ...activityUnused.map((activityId, index) => {
-        const ordAct = new OrderedActivity();
-        ordAct.orderId = index + 100; // Just some numbers which does not clash UUID will be fine too.
-        ordAct.activityId = activityId;
-        return ordAct;
-      }),
-    ];
+    existingUnused.orderedActivities = [...existingUnused.orderedActivities, ...activityUnused];
   }
 
   const addSectionHandler = (e: any) => {
@@ -124,7 +105,8 @@ function SectionListComponent(props: SectionListViewProps) {
     if (title && title.length > 8) {
       const newSection = new CollectionSection();
       newSection.title = title;
-      newSection.sectionId = sectionAll.length + 1;
+      // eslint-disable-next-line no-restricted-globals
+      newSection.sectionId = self.crypto.randomUUID();
       newSection.orderedActivities = [];
       setSections([newSection, ...sectionAll]);
     }
@@ -152,58 +134,50 @@ function SectionListComponent(props: SectionListViewProps) {
     }
   };
 
-  const activityUpHandler = (
-    collectionSection: CollectionSection,
-    sectionIndex: number,
-    orderedActivity: OrderedActivity,
-    activityIndex: number
-  ) => {
+  const activityUpHandler = (collectionSection: CollectionSection, sectionIndex: number, activityIndex: number) => {
     // Need to move to previous section.
+    const activityId = collectionSection.orderedActivities[activityIndex];
     if (activityIndex === 0 && sectionIndex > 0) {
-      const movedFromSectionActivities = collectionSection.orderedActivities.filter((act) => act !== orderedActivity);
+      const movedFromSectionActivities = collectionSection.orderedActivities.filter((act) => act !== activityId);
       const addToSection = sectionAll[sectionIndex - 1];
-      const movedToSectionActivities = [...addToSection.orderedActivities, orderedActivity];
+      const movedToSectionActivities = [...addToSection.orderedActivities, activityId];
       const newMovedFromSection = { ...collectionSection, orderedActivities: movedFromSectionActivities };
       const newMovedToSection = { ...addToSection, orderedActivities: movedToSectionActivities };
       const newSections = [...sectionAll];
-      sectionAll[sectionIndex - 1] = newMovedToSection;
-      sectionAll[sectionIndex] = newMovedFromSection;
+      newSections[sectionIndex - 1] = newMovedToSection;
+      newSections[sectionIndex] = newMovedFromSection;
       setSections(newSections);
     } else if (activityIndex > 0) {
       // Just move item one spot up
       const nwActies = [...collectionSection.orderedActivities];
       [nwActies[activityIndex], nwActies[activityIndex - 1]] = [nwActies[activityIndex - 1], nwActies[activityIndex]]; // swap destructing assignment
       const newSection = { ...collectionSection, orderedActivities: nwActies };
-      sectionAll[sectionIndex] = newSection;
       const newSections = [...sectionAll];
+      newSections[sectionIndex] = newSection;
       setSections(newSections);
     }
   };
 
-  const activityDownHandler = (
-    collectionSection: CollectionSection,
-    sectionIndex: number,
-    orderedActivity: OrderedActivity,
-    activityIndex: number
-  ) => {
+  const activityDownHandler = (collectionSection: CollectionSection, sectionIndex: number, activityIndex: number) => {
     // Need to move to next section.
+    const activityId = collectionSection.orderedActivities[activityIndex];
     if (activityIndex === collectionSection.orderedActivities.length - 1 && sectionIndex < sectionAll.length - 1) {
-      const movedFromSectionActivities = collectionSection.orderedActivities.filter((act) => act !== orderedActivity);
+      const movedFromSectionActivities = collectionSection.orderedActivities.filter((act) => act !== activityId);
       const addToSection = sectionAll[sectionIndex + 1];
-      const movedToSectionActivities = [...addToSection.orderedActivities, orderedActivity];
+      const movedToSectionActivities = [...addToSection.orderedActivities, activityId];
       const newMovedFromSection = { ...collectionSection, orderedActivities: movedFromSectionActivities };
       const newMovedToSection = { ...addToSection, orderedActivities: movedToSectionActivities };
       const newSections = [...sectionAll];
-      sectionAll[sectionIndex + 1] = newMovedToSection;
-      sectionAll[sectionIndex] = newMovedFromSection;
+      newSections[sectionIndex + 1] = newMovedToSection;
+      newSections[sectionIndex] = newMovedFromSection;
       setSections(newSections);
     } else if (activityIndex < collectionSection.orderedActivities.length - 1) {
       // Just move item one spot down
       const nwActies = [...collectionSection.orderedActivities];
       [nwActies[activityIndex + 1], nwActies[activityIndex]] = [nwActies[activityIndex], nwActies[activityIndex + 1]]; // swap destructing assignment
       const newSection = { ...collectionSection, orderedActivities: nwActies };
-      sections[sectionIndex] = newSection;
       const newSections = [...sections];
+      newSections[sectionIndex] = newSection;
       setSections(newSections);
     }
   };
@@ -221,11 +195,25 @@ function SectionListComponent(props: SectionListViewProps) {
             <ListGroup.Item key={section.sectionId} variant="primary">
               <div className="d-flex p-2">
                 <div className="mr-auto p-2 flex-grow-1"> {section.title}</div>
-                <Button className="mx-2" variant="outline-primary" onClick={() => onSectionUpHandler(sectionIndex)}>
+                <Button
+                  className="mx-2"
+                  variant="outline-primary"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSectionUpHandler(sectionIndex);
+                  }}
+                >
                   <FontAwesomeIcon icon={faArrowUp} />
                 </Button>
-                <Button className="mx-2" variant="outline-primary">
-                  <FontAwesomeIcon icon={faArrowDown} onClick={() => onSectionDownHandler(sectionIndex)} />
+                <Button
+                  className="mx-2"
+                  variant="outline-primary"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSectionDownHandler(sectionIndex);
+                  }}
+                >
+                  <FontAwesomeIcon icon={faArrowDown} />
                 </Button>
               </div>
               <div>
@@ -265,8 +253,6 @@ export function ActivityCollectionMetadataEditPage() {
     resolver,
   });
   const activityCollection = useSelector((state: RootState) => state.activityCollection.current);
-
-  const title = watch('title') || '';
   const authors = watch('authors') || [];
   const keywords = watch('keywords') || [];
   const sections = watch('sections') || [];
@@ -275,10 +261,6 @@ export function ActivityCollectionMetadataEditPage() {
   useEffect(() => {
     reset(activityCollection);
   }, [activityCollection, reset]);
-
-  useEffect(() => {
-    setValue('readableId', title.toLowerCase().replace(/(\s)+/g, '-'));
-  }, [title, setValue]);
 
   useEffect(() => {
     if (id) dispatch(getActivityCollectionThunk(parseInt(id, 10)));
@@ -346,7 +328,7 @@ export function ActivityCollectionMetadataEditPage() {
 
   return (
     <div className="create-activity-collection-page-form container">
-      <div className="w-100 text-center mt-2"> Create Activity Collection </div>
+      <div className="w-100 text-center mt-2"> Edit Activity Collection </div>
       <Form>
         <div className="row">
           <Form.Group className="mb-3 col-sm" controlId="createActivityCollection.title">
@@ -356,7 +338,7 @@ export function ActivityCollectionMetadataEditPage() {
           </Form.Group>
           <Form.Group className="mb-3 col-sm" controlId="createActivityCollection.readableId">
             <Form.Label>Title</Form.Label>
-            <Form.Control type="text" placeholder="" {...register('readableId')} />
+            <Form.Control type="text" readOnly placeholder="" {...register('readableId')} />
             {errors.readableId && <span>{errors.readableId.message}</span>}
           </Form.Group>
         </div>

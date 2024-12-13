@@ -52,11 +52,12 @@ export class ActivityCollectionService {
     if (updateReq.readableId !== collection.readableId) {
       throw new BadRequestException('readableId is readOnly');
     }
-    // eslint-disable-next-line no-param-reassign
-    updateReq.parent = collection.parent;
-    // eslint-disable-next-line no-param-reassign
-    updateReq.activities = collection.activities;
-    const res = await this.activityCollectionRepository.save(updateReq);
+    collection.authors = updateReq.authors;
+    collection.description = updateReq.description;
+    collection.keywords = updateReq.keywords;
+    collection.sections = updateReq.sections;
+    collection.title = updateReq.title;
+    const res = await this.activityCollectionRepository.save(collection);
     return this.mapper.map(res, ActivityCollectionEntity, ActivityCollectionDto);
   }
 

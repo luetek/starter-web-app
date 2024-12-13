@@ -57,21 +57,21 @@ export function ActivityCollectionViewPage() {
             <Accordion.Item eventKey={sectionId.toString()} key={sectionId}>
               <Accordion.Header>{section}</Accordion.Header>
               <Accordion.Body>
-                {orderedActivities.map((item) => (
-                  <Accordion key={item.orderId}>
-                    <Accordion.Item eventKey={item.activityId.toString()}>
+                {orderedActivities.map((activityId, activityIndex) => (
+                  <Accordion key={activityId}>
+                    <Accordion.Item eventKey={activityId.toString()}>
                       <Accordion.Header>
                         <span className="text-primary">
-                          {sectionId}.{item.orderId} &nbsp;&nbsp;&nbsp;
+                          {sectionId}.{activityIndex + 1} &nbsp;&nbsp;&nbsp;
                         </span>
                         <Link
                           style={{ textDecoration: 'none' }}
-                          to={`/collections/${activityCollection.id}/activities/${item.activityId}`}
+                          to={`/collections/${activityCollection.id}/activities/${activityId}`}
                         >
-                          {idToActivityMap[item.activityId].title}
+                          {idToActivityMap[activityId].title}
                         </Link>
                       </Accordion.Header>
-                      <Accordion.Body>{idToActivityMap[item.activityId].description}</Accordion.Body>
+                      <Accordion.Body>{idToActivityMap[activityId].description}</Accordion.Body>
                     </Accordion.Item>
                   </Accordion>
                 ))}
