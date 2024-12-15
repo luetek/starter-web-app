@@ -9,6 +9,8 @@ import { router } from './routes';
 import { persistor, store } from './store';
 import { cleanUpToken } from './auth/user-slice';
 
+import 'primeicons/primeicons.css';
+
 axios.interceptors.response.use(
   (response) => {
     return response;

@@ -262,6 +262,7 @@ export function ActivityCollectionMetadataEditPage() {
     reset(activityCollection);
   }, [activityCollection, reset]);
 
+  // TODO:: We should be able to remove this. Parent will load this.
   useEffect(() => {
     if (id) dispatch(getActivityCollectionThunk(parseInt(id, 10)));
   }, [dispatch, id]);

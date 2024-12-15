@@ -5,10 +5,14 @@ import { TreeNode } from 'primereact/treenode';
 import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { IconType } from 'primereact/utils';
+import { faBook, faBookOpen, faPenToSquare, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { PrimeIcons } from 'primereact/api';
 import { RootState, useAppDispatch } from '../../store';
 import { getActivityCollectionThunk } from '../activity-collection-slice';
 
 import './act-col.scss';
+import 'primeicons/primeicons.css';
 
 enum NodeType {
   COLLECTION = 'Collection',
@@ -65,16 +69,44 @@ export class SideMenuTreeNode implements TreeNode {
   expanded?: boolean | undefined;
 }
 
+const nameTemplate = (node: SideMenuTreeNode) => {
+  let icon = faBook;
+  if (node.data.type === NodeType.ACTIVITY) {
+    icon = faBookOpen;
+  }
+  return (
+    <span>
+      <FontAwesomeIcon className="mx-2" icon={icon} />
+      <span className="mx-2">{node.label}</span>
+    </span>
+  );
+};
+
 const actionTemplate = (node: SideMenuTreeNode) => {
+  const { id } = node.data;
   switch (node.data.type) {
     case NodeType.COLLECTION:
       return (
         <div>
-          <Link to="activities/create">Add Activity </Link>
+          <Link to="activities/create" className="mx-2">
+            <FontAwesomeIcon icon={faSquarePlus} />
+          </Link>
+          <Link to="" className="mx-2">
+            <FontAwesomeIcon icon={faPenToSquare} />
+          </Link>
         </div>
       );
     case NodeType.ACTIVITY:
-      return <div> Activity Action</div>;
+      return (
+        <div>
+          <Link to={`activities/${id}/files/markdown-create`} className="mx-2">
+            <FontAwesomeIcon icon={faSquarePlus} />
+          </Link>
+          <Link to={`activities/${id}/edit`} className="mx-2">
+            <FontAwesomeIcon icon={faPenToSquare} />
+          </Link>
+        </div>
+      );
   }
   throw new Error('Unknown type');
 };
@@ -98,14 +130,15 @@ export function ActivityCollectionEditPage() {
 
     root.id = activityCollection.id.toString();
     root.expanded = true;
-    root.data = { type: NodeType.COLLECTION, readableId: activityCollection.readableId };
+    root.data = { id: activityCollection.id, type: NodeType.COLLECTION, readableId: activityCollection.readableId };
     root.children = activityCollection.activities.map((activity) => {
       const node = new SideMenuTreeNode();
       node.leaf = true;
       node.id = activity.id.toString();
       node.label = activity.readableId;
+      node.icon = PrimeIcons.PENCIL;
       node.expanded = true;
-      node.data = { type: NodeType.ACTIVITY, readableId: activity.readableId };
+      node.data = { id: activity.id, type: NodeType.ACTIVITY, readableId: activity.readableId };
       return node;
     });
     setNodes([root]);
@@ -118,8 +151,7 @@ export function ActivityCollectionEditPage() {
       <div className="activity-col-container">
         <div className="activity-col-side-tree-menu">
           <TreeTable value={nodes}>
-            <Column field="readableId" header="Id" expander />
-            <Column field="type" header="Type" />
+            <Column field="readableId" header="Id" body={nameTemplate} expander />
             <Column body={actionTemplate} />
           </TreeTable>
         </div>

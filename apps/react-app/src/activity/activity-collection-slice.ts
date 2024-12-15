@@ -43,7 +43,7 @@ export const createActivityCollectionThunk = createAsyncThunk<
 });
 
 export const createActivityThunk = createAsyncThunk<ActivityDto, CreateActivityRequestDto, { state: RootState }>(
-  'activity-collection/create',
+  'activity-collection/activity/create',
   async (createRequestDto: CreateActivityRequestDto, thunkApi) => {
     const userAccessToken = thunkApi.getState().user;
     const res = await axios.post(
@@ -55,6 +55,27 @@ export const createActivityThunk = createAsyncThunk<ActivityDto, CreateActivityR
     );
 
     if (!res || res.status !== 201) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      throw new Error((res as any)?.response?.data?.message || 'Unable to save data');
+    }
+
+    return res.data as ActivityDto;
+  }
+);
+
+export const updateActivityThunk = createAsyncThunk<ActivityDto, ActivityDto, { state: RootState }>(
+  'activity-collection/activity/edit',
+  async (updateRequestDto: ActivityDto, thunkApi) => {
+    const userAccessToken = thunkApi.getState().user;
+    const res = await axios.put(
+      `/api/activity-collections/${updateRequestDto.collectionId}/activities/${updateRequestDto.id}`,
+      updateRequestDto,
+      {
+        headers: { Authorization: `Bearer ${userAccessToken?.token}` },
+      }
+    );
+
+    if (!res || res.status !== 200) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       throw new Error((res as any)?.response?.data?.message || 'Unable to save data');
     }
