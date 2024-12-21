@@ -70,16 +70,14 @@ export class FileSystemService {
   }
 
   async upload(file: Express.Multer.File, id: number): Promise<StoragePathDto> {
-    const parentEntity = await this.storagePathRepository.findOne({ where: { id } });
-    const fileEntity = new StoragePathEntity();
-    fileEntity.parent = parentEntity;
-    fileEntity.name = file.originalname;
-    fileEntity.mimeType = file.mimetype;
-    fileEntity.size = file.size;
+    console.log(file);
 
+    const parentEntity = await this.storagePathRepository.findOne({ where: { id } });
     const storage = new StoragePathEntity();
     storage.name = file.originalname;
     storage.storageType = StorageType.FILE;
+    storage.mimeType = file.mimetype;
+    storage.size = file.size;
     storage.parent = parentEntity;
     let stream = file.buffer ? Readable.from(file.buffer) : file.stream;
     if (!stream) {
