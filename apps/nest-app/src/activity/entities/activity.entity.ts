@@ -72,7 +72,7 @@ export class ActivityEntity implements Activity {
   @Column({ name: 'collectionId' })
   collectionId: number;
 
-  @AutoMap()
+  @AutoMap(() => String)
   @Column({
     enum: ActivityType,
     type: 'simple-enum',

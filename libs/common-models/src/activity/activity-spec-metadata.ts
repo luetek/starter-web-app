@@ -1,6 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { IsEnum } from 'class-validator';
 import { ActivitySpec, ActivityType } from './activity.interface';
+import { StoragePathDto } from '../storage-path/storage-path.dto';
 
 export class ActivitySpecMetadata implements ActivitySpec {
   constructor(type: ActivityType) {
@@ -39,8 +40,5 @@ export class ReadingActivity extends ActivitySpecMetadata {
   }
 
   @AutoMap()
-  fileFormat!: string;
-
-  @AutoMap()
-  files!: string[];
+  files!: StoragePathDto[];
 }

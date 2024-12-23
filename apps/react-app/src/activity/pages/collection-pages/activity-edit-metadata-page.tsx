@@ -2,7 +2,7 @@
 import { useParams } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityDto, ActivityType, ReadingActivity } from '@luetek/common-models';
+import { ActivityDto, ActivityType, ReadingActivity, StoragePathDto } from '@luetek/common-models';
 import { classValidatorResolver } from '@hookform/resolvers/class-validator';
 import { useForm } from 'react-hook-form';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -13,12 +13,29 @@ import CloseButton from 'react-bootstrap/CloseButton';
 import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '../../../store';
 import { getActivityCollectionThunk, updateActivityThunk } from '../../activity-collection-slice';
+import { FilesReorderingComponent } from '../../components/files-reordering-component';
 
 function ReadingActivityEditView(props: {
   activitySpec: ReadingActivity;
   setActivitySpecValue: (activitySpec: ReadingActivity) => void;
+  files: StoragePathDto[] | undefined;
 }) {
-  return <div> Reading Activity </div>;
+  const { activitySpec, files, setActivitySpecValue } = props;
+  const existingFilesSet = new Set(activitySpec?.files?.map((file) => file.name));
+  const existingFiles = activitySpec?.files || [];
+  const newFiles = files?.filter((file) => !existingFilesSet.has(file.name) && file.name.endsWith('.md')) || [];
+  const filesToReOrder = [...existingFiles, ...newFiles];
+  return (
+    <div>
+      <div> Reading Activity </div>
+      <FilesReorderingComponent
+        files={filesToReOrder}
+        setFiles={(ffs) => {
+          setActivitySpecValue({ files: ffs, type: ActivityType.READING_ACTIVITY });
+        }}
+      />
+    </div>
+  );
 }
 
 export function ActivityEditMetadataPage() {
@@ -142,6 +159,7 @@ export function ActivityEditMetadataPage() {
           <ReadingActivityEditView
             activitySpec={activitySpec as ReadingActivity}
             setActivitySpecValue={(spec: ReadingActivity) => setValue('activitySpec', spec)}
+            files={activity?.parent.children}
           />
         ) : null}
 

@@ -51,7 +51,7 @@ export class ActivityDto implements Activity {
   @AutoMap(() => StoragePathDto)
   parent!: StoragePathDto;
 
-  @AutoMap()
+  @AutoMap(() => String)
   type!: ActivityType;
 
   // See entity for persistence to db

@@ -5,7 +5,7 @@ import { TreeNode } from 'primereact/treenode';
 import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { IconType } from 'primereact/utils';
-import { faBook, faBookOpen, faPenToSquare, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
+import { faBook, faBookOpen, faFile, faPenToSquare, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PrimeIcons } from 'primereact/api';
 import { RootState, useAppDispatch } from '../../store';
@@ -17,6 +17,7 @@ import 'primeicons/primeicons.css';
 enum NodeType {
   COLLECTION = 'Collection',
   ACTIVITY = 'Activity',
+  FILE = 'FILE',
 }
 
 export class SideMenuTreeNode implements TreeNode {
@@ -69,10 +70,14 @@ export class SideMenuTreeNode implements TreeNode {
   expanded?: boolean | undefined;
 }
 
+// Display each type in the side menu
 const nameTemplate = (node: SideMenuTreeNode) => {
   let icon = faBook;
   if (node.data.type === NodeType.ACTIVITY) {
     icon = faBookOpen;
+  }
+  if (node.data.type === NodeType.FILE) {
+    icon = faFile;
   }
   return (
     <span>
@@ -81,9 +86,9 @@ const nameTemplate = (node: SideMenuTreeNode) => {
     </span>
   );
 };
-
+// Create action menu for each type.
 const actionTemplate = (node: SideMenuTreeNode) => {
-  const { id } = node.data;
+  const { id, parentActivityId } = node.data;
   switch (node.data.type) {
     case NodeType.COLLECTION:
       return (
@@ -103,6 +108,14 @@ const actionTemplate = (node: SideMenuTreeNode) => {
             <FontAwesomeIcon icon={faSquarePlus} />
           </Link>
           <Link to={`activities/${id}/edit`} className="mx-2">
+            <FontAwesomeIcon icon={faPenToSquare} />
+          </Link>
+        </div>
+      );
+    case NodeType.FILE:
+      return (
+        <div>
+          <Link to={`activities/${parentActivityId}/files/${id}/edit`} className="mx-2">
             <FontAwesomeIcon icon={faPenToSquare} />
           </Link>
         </div>
@@ -127,18 +140,30 @@ export function ActivityCollectionEditPage() {
     const root = new SideMenuTreeNode();
     root.leaf = false;
     root.label = activityCollection.readableId;
-
     root.id = activityCollection.id.toString();
+    root.key = root.id;
     root.expanded = true;
     root.data = { id: activityCollection.id, type: NodeType.COLLECTION, readableId: activityCollection.readableId };
     root.children = activityCollection.activities.map((activity) => {
       const node = new SideMenuTreeNode();
-      node.leaf = true;
-      node.id = activity.id.toString();
+      node.leaf = false;
+      node.id = `${activityCollection.id.toString()}-${activity.id.toString()}`;
+      node.key = node.id;
       node.label = activity.readableId;
-      node.icon = PrimeIcons.PENCIL;
       node.expanded = true;
       node.data = { id: activity.id, type: NodeType.ACTIVITY, readableId: activity.readableId };
+      node.children = activity.parent?.children
+        ?.map((file) => {
+          const fileNode = new SideMenuTreeNode();
+          fileNode.leaf = true;
+          fileNode.id = `${activityCollection.id.toString()}-${activity.id.toString()}-${file.id.toString()}`;
+          fileNode.key = fileNode.id;
+          fileNode.label = file.name;
+          fileNode.expanded = true;
+          fileNode.data = { id: file.id, type: NodeType.FILE, readableId: file.name, parentActivityId: activity.id };
+          return fileNode;
+        })
+        .filter((nn) => nn.label !== 'activity.json'); // Filter out activity.json as we will not edit it from UI
       return node;
     });
     setNodes([root]);
