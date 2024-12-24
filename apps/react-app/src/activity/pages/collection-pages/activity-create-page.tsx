@@ -45,7 +45,6 @@ export function ActivityCreatePage() {
     defaultValues: new CreateActivityRequestDto(),
     resolver,
   });
-  console.log(id);
   const [apiError, setApiError] = useState<string>();
   const [apiMessage, setApiMessage] = useState<string>();
   const title = watch('title') || '';
@@ -62,10 +61,8 @@ export function ActivityCreatePage() {
       // eslint-disable-next-line no-param-reassign
       createDto.collectionId = parseInt(id as string, 10);
       setApiMessage('Creating Activty.');
-      console.log('Creating Activity');
       const res = await dispatch(createActivityThunk(createDto)).unwrap();
       navigate(`/activity-collections/${res.collectionId}/edit`);
-      console.log('Done');
     } catch (err) {
       setApiError((err as Error).message);
     }

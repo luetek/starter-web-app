@@ -89,6 +89,22 @@ export class FileSystemService {
     return this.mapper.map(res, StoragePathEntity, StoragePathDto);
   }
 
+  async updateFileContent(file: Express.Multer.File, id: number) {
+    console.log(file);
+
+    const storage = await this.storagePathRepository.findOne({ where: { id } });
+    storage.mimeType = file.mimetype;
+    storage.size = file.size;
+    let stream = file.buffer ? Readable.from(file.buffer) : file.stream;
+    if (!stream) {
+      stream = fs.createReadStream(file.path);
+    }
+    this.generateChecksumAndWriteToFile(stream, storage.pathUrl);
+
+    const res = await this.storagePathRepository.save(storage);
+    return this.mapper.map(res, StoragePathEntity, StoragePathDto);
+  }
+
   async fetchAsStream(parentId: number, relativeFilePath: string): Promise<FileStreamDto> {
     const parentEntity = await this.storagePathRepository.findOne({ where: { id: parentId } });
     const pathUrl = path.join(parentEntity.pathUrl, relativeFilePath);

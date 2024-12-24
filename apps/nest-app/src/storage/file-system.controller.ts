@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Param, Post, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  StreamableFile,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateFolderRequestDto, StoragePathDto } from '@luetek/common-models';
 import { Express } from 'express';
@@ -26,6 +37,15 @@ export class FileSystemController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@Param('id') id: number, @UploadedFile() file: Express.Multer.File): Promise<StoragePathDto> {
     return this.fileSystemService.upload(file, id);
+  }
+
+  @Put(':id/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async updateFileContent(
+    @Param('id', ParseIntPipe) fileId: number,
+    @UploadedFile() file: Express.Multer.File
+  ): Promise<StoragePathDto> {
+    return this.fileSystemService.updateFileContent(file, fileId);
   }
 
   @Get(':id/stream/:filePath')

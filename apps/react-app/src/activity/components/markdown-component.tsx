@@ -37,6 +37,11 @@ export function MarkdownComponent(props: MarkdownComponentProps) {
   const editorOption: CherryEditorOptions = isEditor
     ? { autoSave2Textarea: true, defaultModel: 'edit&preview', showFullWidthMark: true, showSuggestList: true }
     : { defaultModel: 'previewOnly', keepDocumentScrollAfterInit: true };
+
+  useEffect(() => {
+    if (cherryInstance) cherryInstance.setMarkdown(content);
+  }, [cherryInstance, content]);
+
   useEffect(() => {
     if (!initialized.current) {
       // Use this trick to initialise only once.
@@ -44,12 +49,15 @@ export function MarkdownComponent(props: MarkdownComponentProps) {
       // https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
       initialized.current = true;
       const saveMenu = Cherry.createMenuHook('Save', {
-        onClick: () => {
+        // eslint-disable-next-line func-names, object-shorthand
+        onClick: function () {
           if (!fileName) {
             setFileNameDialog(true);
             return;
           }
-          onSave(fileName, (cherryInstance as unknown as Cherry).getMarkdown());
+
+          // eslint-disable-next-line react/no-this-in-sfc
+          onSave(fileName, this.$cherry.lastMarkdownText);
         },
       });
       // eslint-disable-next-line react-hooks/exhaustive-deps
