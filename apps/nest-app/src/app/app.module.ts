@@ -16,6 +16,7 @@ import { UserModule } from '../users/user.module';
 import { AppConfigModule } from '../app-config/app-config.module';
 import { StoragePathModule } from '../storage-path/storage-path.module';
 import { ActivityModule } from '../activity/activity.module';
+import { ProgramExecuterModule } from '../program-executer/program-executer.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { ActivityModule } from '../activity/activity.module';
     UserModule,
     StoragePathModule,
     ActivityModule,
+    ProgramExecuterModule,
   ],
   controllers: [AppController],
   providers: [AppService],

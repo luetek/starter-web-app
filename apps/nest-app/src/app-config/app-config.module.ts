@@ -2,6 +2,8 @@ import path from 'path';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { S3Client } from '@aws-sdk/client-s3';
+import fs from 'fs';
+import os from 'os';
 import { LoggerModule } from '../logger/logger.module';
 
 @Module({
@@ -32,7 +34,15 @@ import { LoggerModule } from '../logger/logger.module';
       },
       inject: [ConfigService],
     },
+    {
+      provide: 'ROOT_TEMP_DIR',
+      useFactory: async (configService: ConfigService) => {
+        const appPrefix = configService.getOrThrow('APP_NAME');
+        return fs.mkdtempSync(path.join(os.tmpdir(), appPrefix));
+      },
+      inject: [ConfigService],
+    },
   ],
-  exports: ['S3CLIENT', 'ROOT_FS_DIR'],
+  exports: ['S3CLIENT', 'ROOT_FS_DIR', 'ROOT_TEMP_DIR'],
 })
 export class AppConfigModule {}

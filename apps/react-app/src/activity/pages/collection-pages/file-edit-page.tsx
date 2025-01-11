@@ -18,6 +18,7 @@ export function FileEditPage() {
 
   const file = activity?.parent?.children?.filter((ff) => ff.id === (fileId ? parseInt(fileId, 10) : null))[0];
 
+  // TODO:: How this will work with binary data.
   useEffect(() => {
     const loadFile = async () => {
       if (file) {
@@ -31,6 +32,7 @@ export function FileEditPage() {
         console.log(str);
       }
     };
+
     loadFile();
   }, [file]);
 
