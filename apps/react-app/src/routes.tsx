@@ -11,9 +11,9 @@ import { ActivityCollectionEditPage } from './activity/pages/collection-edit-pag
 import { ActivityCollectionMetadataEditPage } from './activity/pages/collection-pages/collection-metadata-edit-page';
 import { ActivityCreatePage } from './activity/pages/collection-pages/activity-create-page';
 import { ActivityEditMetadataPage } from './activity/pages/collection-pages/activity-edit-metadata-page';
-import { MarkdownFileCreate } from './activity/pages/collection-pages/markdown-file-create';
+import { MarkdownFileCreateOrUpdate } from './activity/pages/collection-pages/markdown-file-create-or-update';
 import { FileEditPage } from './activity/pages/collection-pages/file-edit-page';
-import { ProgramFileCreate } from './activity/pages/collection-pages/program-file-create';
+import { ProgramFileCreateOrUpdate } from './activity/pages/collection-pages/program-file-create-or-update';
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -32,8 +32,11 @@ export const router = createBrowserRouter(
           <Route path="edit" index element={<ActivityCollectionMetadataEditPage />} />
           <Route path="activities/create" element={<ActivityCreatePage />} />
           <Route path="activities/:activityId/edit" element={<ActivityEditMetadataPage />} />
-          <Route path="activities/:activityId/files/markdown-create" element={<MarkdownFileCreate />} />
-          <Route path="activities/:activityId/files/program-create/:languageType" element={<ProgramFileCreate />} />
+          <Route path="activities/:activityId/files/markdown-create" element={<MarkdownFileCreateOrUpdate />} />
+          <Route
+            path="activities/:activityId/files/program-create/:languageType"
+            element={<ProgramFileCreateOrUpdate />}
+          />
           <Route path="activities/:activityId/files/:fileId/edit" element={<FileEditPage />} />
         </Route>
       </Route>

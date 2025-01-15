@@ -19,16 +19,17 @@ interface MarkdownComponentProps {
   content: string;
   isEditor: boolean;
   // eslint-disable-next-line react/require-default-props
-  name?: string;
+  fileNameRecieved?: string;
   onSave: (filename: string, content: string | undefined) => void;
+  onChange: (txt: string, html: string) => void;
 }
 
 // TODO:: Add error handling modals
 // https://github.com/tuanjs/react-cherry-markdown
 // Use the above component to build this component.
 export function MarkdownComponent(props: MarkdownComponentProps) {
-  const { parent, content, isEditor, name, onSave } = props;
-  const [fileName, setFileName] = useState(name);
+  const { parent, content, isEditor, fileNameRecieved, onSave, onChange } = props;
+  const [fileName, setFileName] = useState(fileNameRecieved);
   const [fileNameDialog, setFileNameDialog] = useState(false);
   const [cherryInstance, setCherryInstance] = useState<Cherry | null>(null);
   const initialized = useRef(false);
@@ -55,9 +56,9 @@ export function MarkdownComponent(props: MarkdownComponentProps) {
             setFileNameDialog(true);
             return;
           }
-
+          const fileNameWithExtension = fileNameRecieved || `${fileName}.md`;
           // eslint-disable-next-line react/no-this-in-sfc
-          onSave(fileName, this.$cherry.lastMarkdownText);
+          onSave(fileNameWithExtension, this.$cherry.lastMarkdownText);
         },
       });
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -104,6 +105,9 @@ export function MarkdownComponent(props: MarkdownComponentProps) {
               saveMenuName: saveMenu,
             },
             toc: false,
+          },
+          event: {
+            afterChange: onChange,
           },
           callback: {
             urlProcessor: (url, srcType) => {

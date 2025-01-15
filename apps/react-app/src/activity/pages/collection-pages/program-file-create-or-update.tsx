@@ -32,16 +32,25 @@ const langExt: Record<LanguageType, string> = {
   cpp: 'cpp',
 };
 
+function getLanguageTypeFromFileName(name: string): LanguageType {
+  const ext = name.split('.')[1];
+  if (ext === 'py') return 'python';
+
+  throw new Error(`Unknown${name}`);
+}
+
 /**
  * Create a Python program with stdio enabled only.
  */
-export function ProgramFileCreate() {
+export function ProgramFileCreateOrUpdate() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [inputData, setInputData] = useState('');
   const [outputData, setOutputData] = useState('');
   const [fileName, setFileName] = useState('');
   const [errored, setErrored] = useState(false);
+  const [languageSelected, setLanguageSelected] = useState<LanguageType | null>(null);
+
   const [runButtonDisabled, setRunButtonDisabled] = useState(false);
   const [saveButtonDisabled, setSaveButtonDisabled] = useState(false);
   const [fileNameDialog, setFileNameDialog] = useState(false);
@@ -49,9 +58,15 @@ export function ProgramFileCreate() {
   const activityCollection = useSelector((state: RootState) => state.activityCollection.current);
   const files = useSelector((state: RootState) => state.fileStorageReducer.files);
 
-  const { activityId, languageType } = useParams();
-  const tmpKey = `//tmp/${activityId}/program-file-${languageType}`;
-  const file = useMemo(
+  // FileId is available if it is an edit link
+  const { activityId, fileId, languageType } = useParams();
+
+  const tmpKey = useMemo(() => {
+    if (!fileId) return `//tmp/${activityId}/program-file-${languageType}`;
+    return `//tmp/${activityId}/fileId-${fileId}`;
+  }, [fileId, activityId, languageType]);
+
+  const fileData = useMemo(
     () =>
       files.filter((f) => f.fileName === tmpKey)[0] || {
         data: '',
@@ -61,24 +76,38 @@ export function ProgramFileCreate() {
     [files, tmpKey]
   );
 
-  if (!activityCollection || !languageType) return 'Loading';
+  const activity = activityCollection?.activities?.filter((act) => act.id === parseInt(activityId as string, 10))[0];
+  const file = activity?.parent?.children?.filter((ff) => ff.id === (fileId ? parseInt(fileId, 10) : null))[0];
 
-  const activity = activityCollection.activities.filter((act) => act.id === parseInt(activityId as string, 10))[0];
+  useEffect(() => {
+    const loadFile = async () => {
+      if (file) {
+        const res = await axios.get(`api/storage/${file?.parentId}/stream/${file?.name}`, { responseType: 'stream' });
+        let str = '';
+        const chunks = res.data;
+        for await (const chunk of chunks) {
+          str += chunk;
+        }
+        dispatch(saveFileContent({ data: str, fileName: tmpKey, lastAccessed: Date.now() }));
+        console.log(str);
+      }
+    };
+    if (file) {
+      setFileName(file.name);
+      loadFile();
+      setLanguageSelected(getLanguageTypeFromFileName(file.name));
+    }
+  }, [file, tmpKey, dispatch]);
 
-  const onSaveHandler = async (e: any) => {
-    e.preventDefault();
-    setSaveButtonDisabled(true);
-    setSaveButtonDisabled(false);
-  };
+  if (!activityCollection || !activity || !languageSelected) return 'Loading';
 
   const runProgramHandler = async (e: any) => {
     e.preventDefault();
     setRunButtonDisabled(true);
-    console.log('handler called');
     const formData = new FormData();
     // https://stackoverflow.com/questions/68841019/how-to-send-array-and-formdata-with-axios-vue/68842393#68842393
     // This works for single element need to test for arrays.
-    formData.append('sources', new Blob([file.data]), 'temp.py');
+    formData.append('sources', new Blob([fileData.data]), 'temp.py');
     formData.append('inputs', new Blob([inputData]), 'input.txt');
     formData.append('environment', 'python3');
     formData.append('mainFile', 'temp.py');
@@ -88,7 +117,6 @@ export function ProgramFileCreate() {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log(res);
       const output = res.data.outputs[0];
       const { workspaceName } = res.data;
       if (output.returnCode === 0) {
@@ -113,7 +141,6 @@ export function ProgramFileCreate() {
         setErrored(true);
       }
     } catch (err) {
-      console.log(err);
       setOutputData('Error Occurred');
       setErrored(true);
     }
@@ -121,21 +148,30 @@ export function ProgramFileCreate() {
   };
 
   const onSave = async () => {
-    if (!file.data) {
+    if (!fileData.data) {
       throw new Error('Content is empty');
     }
     setFileNameDialog(false);
+    setSaveButtonDisabled(true);
     const formData = new FormData();
-    formData.append('file', new Blob([file.data]), `${fileName}.${langExt[languageType as LanguageType]}`);
+    const fileNameWithExtension = fileId ? fileName : `${fileName}.${langExt[languageSelected]}`;
+    formData.append('file', new Blob([fileData.data]), fileNameWithExtension);
     // TODO:: Better error handling
-    const fileRes = await axios.post(`api/storage/${activity.parent.id}/upload`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const fileRes = fileId
+      ? await axios.put(`api/storage/${fileId}/upload`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+      : await axios.post(`api/storage/${activity.parent.id}/upload`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
     // reload the data
     await dispatch(getActivityCollectionThunk(activityCollection.id));
     await dispatch(cleanUpFile(tmpKey));
+    setSaveButtonDisabled(false);
     navigate(`/activity-collections/${activityCollection.id}/activities/${activityId}/files/${fileRes.data.id}/edit`);
   };
   return (
@@ -154,7 +190,7 @@ export function ProgramFileCreate() {
                 setFileName(e.target.value);
               }}
             />
-            <InputGroup.Text>.{langExt[languageType as LanguageType]}</InputGroup.Text>
+            <InputGroup.Text>.{langExt[languageSelected]}</InputGroup.Text>
           </InputGroup>
         </Modal.Body>
         <Modal.Footer>
@@ -166,11 +202,11 @@ export function ProgramFileCreate() {
           </Button>
         </Modal.Footer>
       </Modal>
-      <div>Create {languageType} program</div>
+      <div>Create {languageSelected} program</div>
       <CodeMirror
         className="code-mirror"
-        value={file.data}
-        extensions={[langMap[languageType as LanguageType]]}
+        value={fileData.data}
+        extensions={[langMap[languageSelected]]}
         onChange={(data: string) => {
           dispatch(saveFileContent({ data, fileName: tmpKey, lastAccessed: Date.now() }));
         }}
@@ -188,7 +224,17 @@ export function ProgramFileCreate() {
       <Button className="mx-2 my-2" disabled={runButtonDisabled} onClick={runProgramHandler}>
         Run
       </Button>
-      <Button className="mx-2 my-2" disabled={saveButtonDisabled} onClick={() => setFileNameDialog(true)}>
+      <Button
+        className="mx-2 my-2"
+        disabled={saveButtonDisabled}
+        onClick={() => {
+          if (!fileId) {
+            setFileNameDialog(true);
+            return;
+          }
+          onSave();
+        }}
+      >
         Save
       </Button>
     </div>
