@@ -6,6 +6,7 @@ import { Readable } from 'stream';
 import { randomUUID } from 'crypto';
 import util from 'util';
 import { exec } from 'child_process';
+import { StreamableFile } from '@nestjs/common';
 import { ExecutionEnvironment } from './dtos/simple-execute-request.dto';
 import { ExecutionOutput, SimpleExecuteResponseDto } from './dtos/simple-execute-response.dto';
 
@@ -36,7 +37,12 @@ export class ProgramExecuterService {
     // console.log(this.tmpWorkspacesParentDir);
   }
 
-  async simpleExecute(sources: Express.Multer.File[], inputs: Express.Multer.File[], environment: string) {
+  async simpleExecute(
+    sources: Express.Multer.File[],
+    inputs: Express.Multer.File[],
+    environment: string,
+    mainFile: string
+  ) {
     if (environment !== ExecutionEnvironment.PYTHON3.toLowerCase()) {
       throw new Error('Only support python environment for now');
     }
@@ -75,7 +81,7 @@ export class ProgramExecuterService {
         `cat ${path.join(tmpWorkspaceDir, input.originalname)}` +
         `| docker run -i -v /var/run/docker.sock:/var/run/docker.sock  ` +
         `-v ${tmpWorkspaceDir}:/home -m 256m --cpus="0.5" ` +
-        `-w /home -a stdin -a stdout -a stderr  python timeout 5 python main.py`;
+        `-w /home -a stdin -a stdout -a stderr  python timeout 5 python ${mainFile}`;
 
       try {
         const resExecution = await execute(command);
@@ -91,5 +97,10 @@ export class ProgramExecuterService {
     }
     res.workspaceName = workspaceName;
     return res;
+  }
+
+  streamFile(workspaceName: string, fileName: string) {
+    const tmpWorkspaceDir = path.join(this.tmpWorkspacesParentDir, workspaceName);
+    return new StreamableFile(fs.createReadStream(path.join(tmpWorkspaceDir, fileName)));
   }
 }

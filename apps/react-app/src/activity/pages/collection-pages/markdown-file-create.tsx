@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { MarkdownComponent } from '../../components/markdown-component';
 import { RootState, useAppDispatch } from '../../../store';
@@ -7,6 +7,7 @@ import { getActivityCollectionThunk } from '../../activity-collection-slice';
 
 export function MarkdownFileCreate() {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const activityCollection = useSelector((state: RootState) => state.activityCollection.current);
   const { activityId } = useParams();
 
@@ -28,13 +29,16 @@ export function MarkdownFileCreate() {
           const formData = new FormData();
           formData.append('file', new Blob([content]), `${name}.md`);
           // TODO:: Better error handling
-          await axios.post(`api/storage/${activity.parent.id}/upload`, formData, {
+          const fileRes = await axios.post(`api/storage/${activity.parent.id}/upload`, formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
           });
           // reload the data
           await dispatch(getActivityCollectionThunk(activityCollection.id));
+          navigate(
+            `/activity-collections/${activityCollection.id}/activities/${activityId}/files/${fileRes.data.id}/edit`
+          );
         }}
       />
     </div>

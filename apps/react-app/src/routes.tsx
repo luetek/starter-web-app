@@ -28,8 +28,8 @@ export const router = createBrowserRouter(
       <Route path="activity-collections">
         <Route path="create" element={<ActivityCollectionCreatePage />} />
         <Route path=":id/view" element={<ActivityCollectionViewPage />} />
-        <Route path=":id/edit" element={<ActivityCollectionEditPage />}>
-          <Route path="" index element={<ActivityCollectionMetadataEditPage />} />
+        <Route path=":id" element={<ActivityCollectionEditPage />}>
+          <Route path="edit" index element={<ActivityCollectionMetadataEditPage />} />
           <Route path="activities/create" element={<ActivityCreatePage />} />
           <Route path="activities/:activityId/edit" element={<ActivityEditMetadataPage />} />
           <Route path="activities/:activityId/files/markdown-create" element={<MarkdownFileCreate />} />

@@ -3,9 +3,7 @@ export enum ExecutionEnvironment {
 }
 
 export class SimpleExecuteRequestDto {
-  executionEnvironment: ExecutionEnvironment;
+  environment: ExecutionEnvironment;
 
-  source: string;
-
-  input: string;
+  mainFile: string;
 }
