@@ -158,7 +158,8 @@ export function MarkdownComponent(props: MarkdownComponentProps) {
             variant="primary"
             onClick={() => {
               setFileNameDialog(false);
-              onSave(fileName as string, cherryInstance?.getMarkdown());
+              const fileNameWithExtension = fileNameRecieved || `${fileName}.md`;
+              onSave(fileNameWithExtension as string, cherryInstance?.getMarkdown());
             }}
           >
             Save Changes

@@ -57,11 +57,13 @@ export class ActivitySubscriber implements EntitySubscriberInterface<ActivityEnt
     const createActivityFolderRequest = new CreateFolderRequestDto();
     createActivityFolderRequest.name = 'activities';
     createActivityFolderRequest.parentId = collectionEntity.parent.id;
+    this.logger.log(`Folder create request ${JSON.stringify(createActivityFolderRequest)}`);
     const activityFolder = await this.fileSystemService.createDirectory(createActivityFolderRequest);
 
     const createFolderRequest = new CreateFolderRequestDto();
     createFolderRequest.name = event.entity.readableId;
     createFolderRequest.parentId = activityFolder.id;
+    this.logger.log(`Folder create request 2 ${JSON.stringify(createActivityFolderRequest)}`);
     const parentFolder = await this.fileSystemService.createDirectory(createFolderRequest);
     this.logger.log(`Folder created ${JSON.stringify(parentFolder)}`);
     entity.parent = await this.storagePathRepository.findOneOrFail({ where: { id: parentFolder.id } });

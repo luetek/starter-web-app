@@ -13,4 +13,10 @@ export interface StoragePath {
   parentId: number;
 
   storageType: StorageType;
+
+  version: number;
+
+  createdAt: Date;
+
+  updatedAt: Date;
 }

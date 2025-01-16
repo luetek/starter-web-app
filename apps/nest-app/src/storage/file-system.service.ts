@@ -43,9 +43,12 @@ export class FileSystemService {
     folderEntity.name = createFolderRequest.name;
     folderEntity.parent = parentEntity;
     folderEntity.storageType = StorageType.FOLDER;
+    console.log(JSON.stringify(parentEntity));
+    console.log(createFolderRequest.name);
     const existing = await this.storagePathRepository.findOne({
-      where: { parent: parentEntity, name: createFolderRequest.name },
+      where: { parentId: parentEntity.id, name: createFolderRequest.name },
     });
+    console.log(JSON.stringify(existing));
     if (existing) {
       return this.mapper.map(existing, StoragePathEntity, StoragePathDto);
     }

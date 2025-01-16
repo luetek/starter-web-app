@@ -10,7 +10,7 @@ export class StoragePathDto implements StoragePath {
   name!: string;
 
   @AutoMap()
-  pathUrl!: string;
+  readonly pathUrl!: string;
 
   @AutoMap()
   parentId!: number;
@@ -24,6 +24,15 @@ export class StoragePathDto implements StoragePath {
 
   // Optional
   parent?: StoragePathDto;
+
+  @AutoMap()
+  version!: number;
+
+  @AutoMap(() => Date)
+  createdAt!: Date;
+
+  @AutoMap(() => Date)
+  updatedAt!: Date;
 }
 
 export class PaginatedStoragePathDto {

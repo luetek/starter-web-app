@@ -10,6 +10,8 @@ export class FileData {
   fileName!: string;
 
   lastAccessed!: number; // millis
+
+  version!: number;
 }
 
 export class FileStorageCache {
@@ -34,9 +36,17 @@ const slice = createSlice({
       return state;
     },
     saveFileContent: (state, fileData: PayloadAction<FileData>) => {
+      const file = state.files.filter((f) => f.fileName === fileData.payload.fileName)[0];
       const files = state.files.filter(
         (f) => f.fileName !== fileData.payload.fileName && dateDiff(Date.now(), f.lastAccessed) < 5
       );
+      /*
+      if (
+        !file ||
+        file.version < fileData.payload.version ||
+        (file.version === fileData.payload.version && file.lastAccessed < fileData.payload.lastAccessed)
+      )
+        */
       state = { files: [...files, fileData.payload] };
       return state;
     },

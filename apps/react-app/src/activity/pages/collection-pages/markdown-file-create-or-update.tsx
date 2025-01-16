@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -9,7 +10,6 @@ import { saveFileContent } from '../../file-storage-slice';
 
 export function MarkdownFileCreateOrUpdate() {
   const [fileName, setFileName] = useState('');
-
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const activityCollection = useSelector((state: RootState) => state.activityCollection.current);
@@ -30,8 +30,9 @@ export function MarkdownFileCreateOrUpdate() {
         data: '',
         fileName: tmpKey,
         lastAccessed: Date.now(),
+        version: 0,
       },
-    [files, tmpKey]
+    [tmpKey]
   );
 
   useEffect(() => {
@@ -43,15 +44,14 @@ export function MarkdownFileCreateOrUpdate() {
         for await (const chunk of chunks) {
           str += chunk;
         }
-        dispatch(saveFileContent({ data: str, fileName: tmpKey, lastAccessed: Date.now() }));
-        console.log(str);
+        dispatch(saveFileContent({ data: str, fileName: tmpKey, lastAccessed: Date.now(), version: file.version }));
       }
     };
     if (file) {
       setFileName(file.name);
       loadFile();
     }
-  }, [file, tmpKey, dispatch]);
+  }, [file]);
 
   if (!activityCollection || !activity) return 'Loading';
   return (
@@ -62,7 +62,11 @@ export function MarkdownFileCreateOrUpdate() {
         parent={activity.parent}
         fileNameRecieved={fileName}
         isEditor
-        onChange={(txt) => dispatch(saveFileContent({ data: txt, fileName: tmpKey, lastAccessed: Date.now() }))}
+        onChange={(txt) =>
+          dispatch(
+            saveFileContent({ data: txt, fileName: tmpKey, lastAccessed: Date.now(), version: fileData.version })
+          )
+        }
         onSave={async (filename, content) => {
           if (!content) {
             throw new Error('Content is empty');

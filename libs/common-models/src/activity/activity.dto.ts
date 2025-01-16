@@ -70,6 +70,10 @@ export class ActivityDto implements Activity {
   collectionId!: number;
 }
 
+export class ProgrammingActivityDto extends ActivityDto {
+  activitySpec!: ProgrammingActivityWithStdioCheck;
+}
+
 export class CreateActivityCollectionRequestDto {
   @AutoMap()
   readableId!: string;

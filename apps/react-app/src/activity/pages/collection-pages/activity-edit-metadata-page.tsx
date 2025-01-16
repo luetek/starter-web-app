@@ -2,9 +2,16 @@
 import { useParams } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityDto, ActivityType, ReadingActivity, StoragePathDto } from '@luetek/common-models';
+import {
+  ActivityDto,
+  ActivityType,
+  ProgrammingActivityDto,
+  ProgrammingActivityWithStdioCheck,
+  ReadingActivity,
+  StoragePathDto,
+} from '@luetek/common-models';
 import { classValidatorResolver } from '@hookform/resolvers/class-validator';
-import { useForm } from 'react-hook-form';
+import { Control, FormProvider, useForm, useFormContext } from 'react-hook-form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
 import Stack from 'react-bootstrap/Stack';
@@ -38,11 +45,42 @@ function ReadingActivityEditView(props: {
   );
 }
 
+function ProgrammingActivityEditView(props: {
+  activitySpec: ProgrammingActivityWithStdioCheck;
+  setActivitySpecValue: (activitySpec: ProgrammingActivityWithStdioCheck) => void;
+  files: StoragePathDto[] | undefined;
+}) {
+  const { activitySpec, files, setActivitySpecValue } = props;
+  const { register } = useFormContext<ProgrammingActivityDto>();
+  const descriptionFiles = files?.filter((file) => file.name.endsWith('.md')) || [];
+
+  return (
+    <div>
+      <div> Programming Activity with Stdin </div>
+      <div className="row">
+        <Form.Group className="mb-3 col-sm" controlId="editActivity.description">
+          <Form.Select aria-label="Select activity type" {...register('activitySpec.descriptionFile')}>
+            <option value={undefined}>Select the description file</option>
+            {descriptionFiles.map((ff) => (
+              <option key={ff.id} value={ff.name}>
+                {ff.name}
+              </option>
+            ))}
+          </Form.Select>
+        </Form.Group>
+      </div>
+    </div>
+  );
+}
+
 export function ActivityEditMetadataPage() {
   const { id, activityId } = useParams();
   const addKeywordInputRef = useRef<HTMLInputElement>();
   const dispatch = useAppDispatch();
   const resolver = classValidatorResolver(ActivityDto);
+  const methods = useForm<ActivityDto>({
+    resolver,
+  });
   const {
     register,
     handleSubmit,
@@ -50,9 +88,7 @@ export function ActivityEditMetadataPage() {
     setValue,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<ActivityDto>({
-    resolver,
-  });
+  } = methods;
   const activityCollection = useSelector((state: RootState) => state.activityCollection.current);
   const activity = activityCollection?.activities.filter(
     (act) => act.id === (activityId ? parseInt(activityId, 10) : null)
@@ -111,68 +147,82 @@ export function ActivityEditMetadataPage() {
   return (
     <div className="edit-activity-page-form container">
       <div className="w-100 text-center mt-2"> Edit Activity </div>
-      <Form>
-        <div className="row">
-          <Form.Group className="mb-3 col-sm" controlId="editActivity.title">
-            <Form.Label>Title</Form.Label>
-            <Form.Control type="text" placeholder="" {...register('title')} />
-            {errors.title && <span>{errors.title.message}</span>}
-          </Form.Group>
-          <Form.Group className="mb-3 col-sm" controlId="editActivity.readableId">
-            <Form.Label>Title</Form.Label>
-            <Form.Control type="text" readOnly placeholder="" {...register('readableId')} />
-            {errors.readableId && <span>{errors.readableId.message}</span>}
-          </Form.Group>
-        </div>
+      <FormProvider {...methods}>
+        <Form>
+          <div className="row">
+            <Form.Group className="mb-3 col-sm" controlId="editActivity.title">
+              <Form.Label>Title</Form.Label>
+              <Form.Control type="text" placeholder="" {...register('title')} />
+              {errors.title && <span>{errors.title.message}</span>}
+            </Form.Group>
+            <Form.Group className="mb-3 col-sm" controlId="editActivity.readableId">
+              <Form.Label>Title</Form.Label>
+              <Form.Control type="text" readOnly placeholder="" {...register('readableId')} />
+              {errors.readableId && <span>{errors.readableId.message}</span>}
+            </Form.Group>
+          </div>
 
-        <div className="row">
-          <Form.Group className="mb-3 col-sm" controlId="editActivity.description">
-            <Form.Label>Last Name</Form.Label>
-            <Form.Control as="textarea" rows={5} {...register('description')} />
-            {errors.description && <span>{errors.description.message}</span>}
-          </Form.Group>
-        </div>
-        {/* Keywords Form Elements */}
-        <div className="row">
-          <Form.Group className="mb-3 col-sm" controlId="editActivity.addKeywords">
-            <InputGroup className="mb-3">
-              <InputGroup.Text>Add Keywords</InputGroup.Text>
-              <Form.Control ref={addKeywordInputRef as any} placeholder="enter keywords" aria-label="enter keywords" />
-              <Button variant="outline-secondary" id="button-addon2" onClick={addKeywordHandler}>
-                Add
-              </Button>
-            </InputGroup>
-          </Form.Group>
+          <div className="row">
+            <Form.Group className="mb-3 col-sm" controlId="editActivity.description">
+              <Form.Label>Last Name</Form.Label>
+              <Form.Control as="textarea" rows={5} {...register('description')} />
+              {errors.description && <span>{errors.description.message}</span>}
+            </Form.Group>
+          </div>
+          {/* Keywords Form Elements */}
+          <div className="row">
+            <Form.Group className="mb-3 col-sm" controlId="editActivity.addKeywords">
+              <InputGroup className="mb-3">
+                <InputGroup.Text>Add Keywords</InputGroup.Text>
+                <Form.Control
+                  ref={addKeywordInputRef as any}
+                  placeholder="enter keywords"
+                  aria-label="enter keywords"
+                />
+                <Button variant="outline-secondary" id="button-addon2" onClick={addKeywordHandler}>
+                  Add
+                </Button>
+              </InputGroup>
+            </Form.Group>
 
-          <Form.Group className="mb-3 col-sm" controlId="editActivity.keywordsList">
-            <Stack direction="horizontal" gap={2}>
-              {keywords.map((keyword) => (
-                <Badge key={keyword} pill bg="primary">
-                  {keyword} <CloseButton onClick={(e) => removeKeywordHandler(e, keyword)} />
-                </Badge>
-              ))}
-            </Stack>
-          </Form.Group>
-        </div>
+            <Form.Group className="mb-3 col-sm" controlId="editActivity.keywordsList">
+              <Stack direction="horizontal" gap={2}>
+                {keywords.map((keyword) => (
+                  <Badge key={keyword} pill bg="primary">
+                    {keyword} <CloseButton onClick={(e) => removeKeywordHandler(e, keyword)} />
+                  </Badge>
+                ))}
+              </Stack>
+            </Form.Group>
+          </div>
 
-        {activityType === ActivityType.READING_ACTIVITY ? (
-          <ReadingActivityEditView
-            activitySpec={activitySpec as ReadingActivity}
-            setActivitySpecValue={(spec: ReadingActivity) => setValue('activitySpec', spec)}
-            files={activity?.parent.children}
-          />
-        ) : null}
+          {activityType === ActivityType.READING_ACTIVITY ? (
+            <ReadingActivityEditView
+              activitySpec={activitySpec as ReadingActivity}
+              setActivitySpecValue={(spec: ReadingActivity) => setValue('activitySpec', spec)}
+              files={activity?.parent.children}
+            />
+          ) : null}
 
-        {apiError ? <div>{apiError}</div> : <div>{apiMessage}</div>}
-        <Button
-          className="edit-activity-submit-button"
-          disabled={isSubmitting}
-          type="submit"
-          onClick={handleSubmit(submitHandler)}
-        >
-          Save
-        </Button>
-      </Form>
+          {activityType === ActivityType.PROGRAMMING_ACTIVITY_STDIO_CHECK ? (
+            <ProgrammingActivityEditView
+              activitySpec={activitySpec as ProgrammingActivityWithStdioCheck}
+              setActivitySpecValue={(spec: ProgrammingActivityWithStdioCheck) => setValue('activitySpec', spec)}
+              files={activity?.parent.children}
+            />
+          ) : null}
+
+          {apiError ? <div>{apiError}</div> : <div>{apiMessage}</div>}
+          <Button
+            className="edit-activity-submit-button"
+            disabled={isSubmitting}
+            type="submit"
+            onClick={handleSubmit(submitHandler)}
+          >
+            Save
+          </Button>
+        </Form>
+      </FormProvider>
     </div>
   );
 }

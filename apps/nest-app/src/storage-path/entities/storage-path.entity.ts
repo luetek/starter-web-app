@@ -2,12 +2,15 @@ import {
   BeforeInsert,
   BeforeUpdate,
   Column,
+  CreateDateColumn,
   Entity,
   Index,
   PrimaryGeneratedColumn,
   Tree,
   TreeChildren,
   TreeParent,
+  UpdateDateColumn,
+  VersionColumn,
 } from 'typeorm';
 import { AutoMap } from '@automapper/classes';
 import { StoragePath, StorageType } from '@luetek/common-models';
@@ -72,4 +75,16 @@ export class StoragePathEntity implements StoragePath {
     const parentPathUrl = this.parent ? this.parent.pathUrl : '/';
     this.pathUrl = parentPathUrl + name;
   }
+
+  @AutoMap()
+  @VersionColumn()
+  version: number;
+
+  @AutoMap(() => Date)
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @AutoMap(() => Date)
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

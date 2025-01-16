@@ -72,8 +72,9 @@ export function ProgramFileCreateOrUpdate() {
         data: '',
         fileName: tmpKey,
         lastAccessed: Date.now(),
+        version: 0,
       },
-    [files, tmpKey]
+    [tmpKey]
   );
 
   const activity = activityCollection?.activities?.filter((act) => act.id === parseInt(activityId as string, 10))[0];
@@ -88,8 +89,14 @@ export function ProgramFileCreateOrUpdate() {
         for await (const chunk of chunks) {
           str += chunk;
         }
-        dispatch(saveFileContent({ data: str, fileName: tmpKey, lastAccessed: Date.now() }));
-        console.log(str);
+        dispatch(
+          saveFileContent({
+            data: str,
+            fileName: tmpKey,
+            lastAccessed: new Date(file.updatedAt).getTime(),
+            version: file.version,
+          })
+        );
       }
     };
     if (file) {
@@ -97,7 +104,7 @@ export function ProgramFileCreateOrUpdate() {
       loadFile();
       setLanguageSelected(getLanguageTypeFromFileName(file.name));
     }
-  }, [file, tmpKey, dispatch]);
+  }, [file]);
 
   if (!activityCollection || !activity || !languageSelected) return 'Loading';
 
@@ -208,7 +215,7 @@ export function ProgramFileCreateOrUpdate() {
         value={fileData.data}
         extensions={[langMap[languageSelected]]}
         onChange={(data: string) => {
-          dispatch(saveFileContent({ data, fileName: tmpKey, lastAccessed: Date.now() }));
+          dispatch(saveFileContent({ data, fileName: tmpKey, lastAccessed: Date.now(), version: fileData.version }));
         }}
       />
       <div className="d-flex">
