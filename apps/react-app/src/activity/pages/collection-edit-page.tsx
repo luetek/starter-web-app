@@ -3,16 +3,18 @@ import { TreeTable } from 'primereact/treetable';
 import { Column } from 'primereact/column';
 import { TreeNode } from 'primereact/treenode';
 import { useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { IconType } from 'primereact/utils';
 import { faBook, faBookOpen, faFile, faPenToSquare, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { PrimeIcons } from 'primereact/api';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { RootState, useAppDispatch } from '../../store';
 import { getActivityCollectionThunk } from '../activity-collection-slice';
 
 import './act-col.scss';
 import 'primeicons/primeicons.css';
+import { FileNameModalComponent } from '../components/file-name-modal-component';
+import { persistNewFile } from '../file-storage-slice';
 
 enum NodeType {
   COLLECTION = 'Collection',
@@ -87,49 +89,94 @@ const nameTemplate = (node: SideMenuTreeNode) => {
   );
 };
 // Create action menu for each type.
-const actionTemplate = (node: SideMenuTreeNode) => {
-  const { id, parentActivityId } = node.data;
-  switch (node.data.type) {
-    case NodeType.COLLECTION:
-      return (
-        <div>
-          <Link to="activities/create" className="mx-2">
-            <FontAwesomeIcon icon={faSquarePlus} />
-          </Link>
-          <Link to="" className="mx-2">
-            <FontAwesomeIcon icon={faPenToSquare} />
-          </Link>
-        </div>
-      );
-    case NodeType.ACTIVITY:
-      return (
-        <div>
-          <Link to={`activities/${id}/files/markdown-create`} className="mx-2">
-            <FontAwesomeIcon icon={faSquarePlus} />
-          </Link>
-          <Link to={`activities/${id}/edit`} className="mx-2">
-            <FontAwesomeIcon icon={faPenToSquare} />
-          </Link>
-        </div>
-      );
-    case NodeType.FILE:
-      return (
-        <div>
-          <Link to={`activities/${parentActivityId}/files/${id}/edit`} className="mx-2">
-            <FontAwesomeIcon icon={faPenToSquare} />
-          </Link>
-        </div>
-      );
-  }
-  throw new Error('Unknown type');
+const createActionTemplate = (handler: (activityId: number, fileExt: string) => void) => {
+  const actionTemplate = (node: SideMenuTreeNode) => {
+    const { id, parentActivityId } = node.data;
+    switch (node.data.type) {
+      case NodeType.COLLECTION:
+        return (
+          <div>
+            <Link to="activities/create" className="mx-2">
+              <FontAwesomeIcon icon={faSquarePlus} />
+            </Link>
+            <Link to="" className="mx-2">
+              <FontAwesomeIcon icon={faPenToSquare} />
+            </Link>
+          </div>
+        );
+      case NodeType.ACTIVITY:
+        return (
+          <div className="d-flex">
+            <Dropdown className="dropdown-admin-side-menu">
+              <Dropdown.Toggle variant="danger" className="dropdown-admin-side-menu-button">
+                <FontAwesomeIcon icon={faSquarePlus} />
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item className="mx-2" onClick={() => handler(id, 'md')}>
+                  Markdown
+                </Dropdown.Item>
+                <Dropdown.Item className="mx-2" onClick={() => handler(id, 'py')}>
+                  Python
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+
+            <Link to={`activities/${id}/edit`} className="mx-2">
+              <FontAwesomeIcon icon={faPenToSquare} />
+            </Link>
+          </div>
+        );
+      case NodeType.FILE:
+        return (
+          <div>
+            <Link to={`activities/${parentActivityId}/files/${id}/edit`} className="mx-2">
+              <FontAwesomeIcon icon={faPenToSquare} />
+            </Link>
+          </div>
+        );
+    }
+    throw new Error('Unknown type');
+  };
+  return actionTemplate;
 };
 
 export function ActivityCollectionEditPage() {
-  const params = useParams();
+  const { id, activityId, fileId } = useParams();
   const dispatch = useAppDispatch();
   const [nodes, setNodes] = useState<TreeNode[]>([]);
+  // For passing arround arguments from handlers.
+  const [activityIdForAction, setActivityIdForAction] = useState<number>();
+  const [fileExtension, setFileExtension] = useState('');
+  const [showfileNameDialog, setShowfileNameDialog] = useState(false);
   const activityCollection = useSelector((state: RootState) => state.activityCollection.current);
-  const { id } = params;
+  const activitySelected = useMemo(
+    () => activityCollection?.activities.filter((act) => act.id === (activityId ? parseInt(activityId, 10) : 0))[0],
+    [activityId, activityCollection]
+  );
+
+  const createFileSaveSubmitHandler = async (fileName: string) => {
+    if (!activityCollection || !activityIdForAction) return;
+    const activitySelectedForAction = activityCollection.activities.filter((act) => act.id === activityIdForAction)[0];
+    await dispatch(persistNewFile({ folderId: activitySelectedForAction.parent.id, fileName })).unwrap();
+    // TODO:: We can do this efficiently
+    await dispatch(getActivityCollectionThunk(activityCollection.id));
+    // TODO:: Redirect to fileEdit Page
+  };
+
+  const actionTemplate = useMemo(() => {
+    const createFileHandler = async (actId: number, fileExt: string) => {
+      setShowfileNameDialog(true);
+      setFileExtension(fileExt);
+      setActivityIdForAction(actId);
+    };
+    return createActionTemplate(createFileHandler);
+  }, [setShowfileNameDialog, setFileExtension]);
+
+  const fileSelected = useMemo(
+    () => activitySelected?.parent?.children?.filter((file) => file.id === (fileId ? parseInt(fileId, 10) : 0))[0],
+    [fileId, activitySelected]
+  );
+
   useEffect(() => {
     if (id) dispatch(getActivityCollectionThunk(parseInt(id, 10)));
   }, [dispatch, id]);
@@ -150,7 +197,7 @@ export function ActivityCollectionEditPage() {
       node.id = `${activityCollection.id.toString()}-${activity.id.toString()}`;
       node.key = node.id;
       node.label = activity.readableId;
-      node.expanded = true;
+      node.expanded = activitySelected?.id === activity.id;
       node.data = { id: activity.id, type: NodeType.ACTIVITY, readableId: activity.readableId };
       node.children = activity.parent?.children
         ?.map((file) => {
@@ -159,7 +206,7 @@ export function ActivityCollectionEditPage() {
           fileNode.id = `${activityCollection.id.toString()}-${activity.id.toString()}-${file.id.toString()}`;
           fileNode.key = fileNode.id;
           fileNode.label = file.name;
-          fileNode.expanded = true;
+          fileNode.expanded = fileSelected?.id === file.id;
           fileNode.data = { id: file.id, type: NodeType.FILE, readableId: file.name, parentActivityId: activity.id };
           return fileNode;
         })
@@ -167,12 +214,12 @@ export function ActivityCollectionEditPage() {
       return node;
     });
     setNodes([root]);
-  }, [activityCollection]);
+  }, [activityCollection, activitySelected, fileSelected]);
 
   if (!activityCollection) return <div>Loading ...</div>;
   return (
     <div>
-      <div>Activity Collection Edit Page {params.id}</div>
+      <div>Activity Collection Edit Page {activityCollection.title}</div>
       <div className="activity-col-container">
         <div className="activity-col-side-tree-menu">
           <TreeTable value={nodes}>
@@ -180,6 +227,12 @@ export function ActivityCollectionEditPage() {
             <Column body={actionTemplate} />
           </TreeTable>
         </div>
+        <FileNameModalComponent
+          showfileNameDialog={showfileNameDialog}
+          setShowfileNameDialog={setShowfileNameDialog}
+          fileExtension={fileExtension}
+          submitHandler={createFileSaveSubmitHandler}
+        />
         <div className="activity-col-main-content">
           <Outlet />
         </div>

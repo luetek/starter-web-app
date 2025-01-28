@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import { userReducer } from '../auth/user-slice';
 import { activityCollectionReducer } from '../activity/activity-collection-slice';
-import { fileStorageReducer } from '../activity/file-storage-slice';
+import { fileCacheReducer } from '../activity/file-storage-slice';
 
 const persistConfig = {
   key: 'root',
@@ -12,11 +12,11 @@ const persistConfig = {
 };
 
 const persistedReducer = persistReducer(persistConfig, userReducer);
-const persistedFileStorageReducer = persistReducer(persistConfig, fileStorageReducer);
+const persistedFileStorageReducer = persistReducer(persistConfig, fileCacheReducer);
 const rootReducer = combineReducers({
   user: persistedReducer,
   activityCollection: activityCollectionReducer,
-  fileStorageReducer: persistedFileStorageReducer,
+  fileCache: persistedFileStorageReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

@@ -1,16 +1,11 @@
 import { StoragePathDto } from '@luetek/common-models';
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Cherry from 'cherry-markdown';
 import * as echarts from 'echarts';
 import axios from 'axios';
 
 import 'cherry-markdown/dist/cherry-markdown.css';
 import { CherryEditorOptions } from 'cherry-markdown/types/cherry';
-import Button from 'react-bootstrap/Button';
-
-import Modal from 'react-bootstrap/Modal';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Form from 'react-bootstrap/Form';
 // eslint-disable-next-line @typescript-eslint/no-var-requires, import/extensions
 const MathJax = require('mathjax/es5/tex-svg.js');
 
@@ -18,9 +13,7 @@ interface MarkdownComponentProps {
   parent: StoragePathDto;
   content: string;
   isEditor: boolean;
-  // eslint-disable-next-line react/require-default-props
-  fileNameRecieved?: string;
-  onSave: (filename: string, content: string | undefined) => void;
+  onSave: () => void;
   onChange: (txt: string, html: string) => void;
 }
 
@@ -28,9 +21,8 @@ interface MarkdownComponentProps {
 // https://github.com/tuanjs/react-cherry-markdown
 // Use the above component to build this component.
 export function MarkdownComponent(props: MarkdownComponentProps) {
-  const { parent, content, isEditor, fileNameRecieved, onSave, onChange } = props;
-  const [fileName, setFileName] = useState(fileNameRecieved);
-  const [fileNameDialog, setFileNameDialog] = useState(false);
+  const { parent, content, isEditor, onSave, onChange } = props;
+  const [callSaveFunction, setCallSaveFunction] = useState(false);
   const [cherryInstance, setCherryInstance] = useState<Cherry | null>(null);
   const initialized = useRef(false);
   const editorRef = useRef<HTMLDivElement>(null);
@@ -44,6 +36,17 @@ export function MarkdownComponent(props: MarkdownComponentProps) {
   }, [cherryInstance, content]);
 
   useEffect(() => {
+    const fun = async () => {
+      if (callSaveFunction) {
+        await onSave();
+        console.log('Save button Clicked');
+        setCallSaveFunction(false);
+      }
+    };
+    fun();
+  }, [callSaveFunction, onSave]);
+
+  useEffect(() => {
     if (!initialized.current) {
       // Use this trick to initialise only once.
       // https://react.dev/blog/2022/03/29/react-v18#new-strict-mode-behaviors
@@ -51,15 +54,7 @@ export function MarkdownComponent(props: MarkdownComponentProps) {
       initialized.current = true;
       const saveMenu = Cherry.createMenuHook('Save', {
         // eslint-disable-next-line func-names, object-shorthand
-        onClick: function () {
-          if (!fileName) {
-            setFileNameDialog(true);
-            return;
-          }
-          const fileNameWithExtension = fileNameRecieved || `${fileName}.md`;
-          // eslint-disable-next-line react/no-this-in-sfc
-          onSave(fileNameWithExtension, this.$cherry.lastMarkdownText);
-        },
+        onClick: () => setCallSaveFunction(true),
       });
       // eslint-disable-next-line react-hooks/exhaustive-deps
       setCherryInstance(
@@ -133,39 +128,6 @@ export function MarkdownComponent(props: MarkdownComponentProps) {
   }, []);
   return (
     <div>
-      <Modal show={fileNameDialog} onHide={() => setFileNameDialog(false)} animation={false}>
-        <Modal.Header closeButton>
-          <Modal.Title>Modal heading</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <InputGroup className="mb-3">
-            <InputGroup.Text>file Name</InputGroup.Text>
-            <Form.Control
-              aria-label="filename without the extension"
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                e.preventDefault();
-                setFileName(e.target.value);
-              }}
-            />
-            <InputGroup.Text>.md</InputGroup.Text>
-          </InputGroup>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setFileNameDialog(false)}>
-            Close
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              setFileNameDialog(false);
-              const fileNameWithExtension = fileNameRecieved || `${fileName}.md`;
-              onSave(fileNameWithExtension as string, cherryInstance?.getMarkdown());
-            }}
-          >
-            Save Changes
-          </Button>
-        </Modal.Footer>
-      </Modal>
       <div style={{ height: '80vh', width: '100%' }} ref={editorRef} />
     </div>
   );
