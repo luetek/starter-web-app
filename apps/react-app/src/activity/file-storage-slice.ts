@@ -124,7 +124,7 @@ export const loadFile = createAsyncThunk<FileData, StoragePathDto, { state: Root
     }
 
     if (fileRes.status !== 200) throw new Error('Unable to save new File');
-    const fileData = new FileData();
+    const fileData = {} as FileData;
     fileData.fileId = fileReq.id;
     fileData.version = fileReq.version;
     fileData.lastAccessed = new Date(fileReq.updatedAt).getTime();
@@ -152,14 +152,7 @@ const slice = createSlice({
       const files = state.files.filter(
         (f) => f.fileId !== fileData.payload.fileId && dateDiff(Date.now(), f.lastAccessed) < 5
       );
-      /*
-      if (
-        !file ||
-        file.version < fileData.payload.version ||
-        (file.version === fileData.payload.version && file.lastAccessed < fileData.payload.lastAccessed)
-      )
-        */
-      const newFile = new FileData();
+      const newFile = {} as FileData;
       newFile.data = fileData.payload.data;
       newFile.fileId = fileData.payload.fileId;
       newFile.lastAccessed = Date.now();
@@ -202,9 +195,15 @@ const slice = createSlice({
       const files = state.files.filter(
         (f) => f.fileId !== action.payload.fileId && dateDiff(Date.now(), f.lastAccessed) < 5
       );
-      if (action.payload.version >= file.version && action.payload.lastAccessed > file.lastAccessed) {
+
+      if (
+        !file ||
+        action.payload.version > file.version ||
+        (action.payload.version === file.version && action.payload.lastAccessed > file.lastAccessed)
+      ) {
         state = { files: [...files, action.payload] };
       }
+
       return state;
     });
   },
@@ -212,4 +211,4 @@ const slice = createSlice({
 
 export const fileCacheReducer = slice.reducer;
 
-export const { cleanUpCache, updateFileCacheContent: saveFileContent, cleanUpFile } = slice.actions;
+export const { cleanUpCache, updateFileCacheContent, cleanUpFile } = slice.actions;

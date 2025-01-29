@@ -11,6 +11,7 @@ import { ActivityCollectionEditPage } from './activity/pages/collection-edit-pag
 import { ActivityCollectionMetadataEditPage } from './activity/pages/collection-edit-child-pages/collection-metadata-edit-page';
 import { ActivityCreatePage } from './activity/pages/collection-edit-child-pages/activity-create-page';
 import { ActivityEditMetadataPage } from './activity/pages/collection-edit-child-pages/activity-edit-metadata-page';
+import { FileEditPage } from './activity/pages/collection-edit-child-pages/file-edit-page';
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -29,6 +30,7 @@ export const router = createBrowserRouter(
           <Route path="edit" index element={<ActivityCollectionMetadataEditPage />} />
           <Route path="activities/create" element={<ActivityCreatePage />} />
           <Route path="activities/:activityId/edit" element={<ActivityEditMetadataPage />} />
+          <Route path="activities/:activityId/files/:fileId/edit" element={<FileEditPage />} />;
         </Route>
       </Route>
     </Route>
