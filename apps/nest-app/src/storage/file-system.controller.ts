@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -37,6 +38,12 @@ export class FileSystemController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@Param('id') id: number, @UploadedFile() file: Express.Multer.File): Promise<StoragePathDto> {
     return this.fileSystemService.upload(file, id);
+  }
+
+  @Delete(':id')
+  @UseInterceptors(FileInterceptor('file'))
+  async deleteFile(@Param('id') id: number): Promise<string> {
+    return this.fileSystemService.deleteFile(id);
   }
 
   @Put(':id/upload')

@@ -61,6 +61,22 @@ export const persistNewFile = createAsyncThunk<StoragePathDto, NewFilePersistReq
   }
 );
 
+export const deleteFile = createAsyncThunk<boolean, number, { state: RootState }>(
+  'file-cache/PersistNew',
+  async (fileId, thunkApi) => {
+    const userAccessToken = thunkApi.getState().user;
+
+    const fileRes = await axios.delete(`api/storage/${fileId}`, {
+      headers: {
+        Authorization: `Bearer ${userAccessToken?.token}`,
+      },
+    });
+
+    if (fileRes.status !== 200) throw new Error('Unable to delete File');
+    return true;
+  }
+);
+
 export const persistExistingFile = createAsyncThunk<StoragePathDto, StoragePathDto, { state: RootState }>(
   'file-cache/PersistExisiting',
   async (fileDto, thunkApi) => {

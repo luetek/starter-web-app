@@ -72,6 +72,14 @@ export class FileSystemService {
     return this.mapper.map(res, StoragePathEntity, StoragePathDto);
   }
 
+  async deleteFile(id: number): Promise<string> {
+    const fileEntity = await this.storagePathRepository.findOneOrFail({ where: { id } });
+    const filePath = fileEntity.pathUrl;
+    await fs.promises.rm(path.join(this.rootDir, filePath));
+    await this.storagePathRepository.delete(fileEntity.id);
+    return 'done';
+  }
+
   async upload(file: Express.Multer.File, id: number): Promise<StoragePathDto> {
     console.log(file);
 

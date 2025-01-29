@@ -5,16 +5,18 @@ import { TreeNode } from 'primereact/treenode';
 import { useSelector } from 'react-redux';
 import { useEffect, useMemo, useState } from 'react';
 import { IconType } from 'primereact/utils';
-import { faBook, faBookOpen, faFile, faPenToSquare, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
+import { faBook, faBookOpen, faFile, faPenToSquare, faSquarePlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Dropdown from 'react-bootstrap/Dropdown';
+import Button from 'react-bootstrap/Button';
 import { RootState, useAppDispatch } from '../../store';
 import { getActivityCollectionThunk } from '../activity-collection-slice';
 
 import './act-col.scss';
 import 'primeicons/primeicons.css';
 import { FileNameModalComponent } from '../components/file-name-modal-component';
-import { persistNewFile } from '../file-storage-slice';
+import { deleteFile, persistNewFile } from '../file-storage-slice';
+import { ConfirmationModalComponent } from '../components/confirmation-model';
 
 enum NodeType {
   COLLECTION = 'Collection',
@@ -89,7 +91,10 @@ const nameTemplate = (node: SideMenuTreeNode) => {
   );
 };
 // Create action menu for each type.
-const createActionTemplate = (handler: (activityId: number, fileExt: string) => void) => {
+const createActionTemplate = (
+  fileCreateHandler: (activityId: number, fileExt: string) => void,
+  fileDeleteHandler: (activityId: number) => void
+) => {
   const actionTemplate = (node: SideMenuTreeNode) => {
     const { id, parentActivityId } = node.data;
     switch (node.data.type) {
@@ -112,10 +117,10 @@ const createActionTemplate = (handler: (activityId: number, fileExt: string) => 
                 <FontAwesomeIcon icon={faSquarePlus} />
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                <Dropdown.Item className="mx-2" onClick={() => handler(id, 'md')}>
+                <Dropdown.Item className="mx-2" onClick={() => fileCreateHandler(id, 'md')}>
                   Markdown
                 </Dropdown.Item>
-                <Dropdown.Item className="mx-2" onClick={() => handler(id, 'py')}>
+                <Dropdown.Item className="mx-2" onClick={() => fileCreateHandler(id, 'py')}>
                   Python
                 </Dropdown.Item>
               </Dropdown.Menu>
@@ -132,6 +137,9 @@ const createActionTemplate = (handler: (activityId: number, fileExt: string) => 
             <Link to={`activities/${parentActivityId}/files/${id}/edit`} className="mx-2">
               <FontAwesomeIcon icon={faPenToSquare} />
             </Link>
+            <Button className="mx-2" onClick={() => fileDeleteHandler(id)}>
+              <FontAwesomeIcon icon={faTrash} />
+            </Button>
           </div>
         );
     }
@@ -146,8 +154,11 @@ export function ActivityCollectionEditPage() {
   const [nodes, setNodes] = useState<TreeNode[]>([]);
   // For passing arround arguments from handlers.
   const [activityIdForAction, setActivityIdForAction] = useState<number>();
+  const [fileIdForAction, setFileIdForAction] = useState<number>();
   const [fileExtension, setFileExtension] = useState('');
   const [showfileNameDialog, setShowfileNameDialog] = useState(false);
+  const [showDeleteFileDialog, setShowDeleteFileDialog] = useState(false);
+
   const activityCollection = useSelector((state: RootState) => state.activityCollection.current);
   const activitySelected = useMemo(
     () => activityCollection?.activities.filter((act) => act.id === (activityId ? parseInt(activityId, 10) : 0))[0],
@@ -163,13 +174,27 @@ export function ActivityCollectionEditPage() {
     // TODO:: Redirect to fileEdit Page
   };
 
+  const deleteFileSubmitHandler = async () => {
+    if (!fileIdForAction || !activityCollection) throw new Error('fileIdForAction not set');
+
+    await dispatch(deleteFile(fileIdForAction)).unwrap();
+    // TODO:: We can do this efficiently
+    await dispatch(getActivityCollectionThunk(activityCollection.id));
+    // TODO:: Redirect to fileEdit Page
+  };
+
   const actionTemplate = useMemo(() => {
     const createFileHandler = async (actId: number, fileExt: string) => {
       setShowfileNameDialog(true);
       setFileExtension(fileExt);
       setActivityIdForAction(actId);
     };
-    return createActionTemplate(createFileHandler);
+    const deleteFileHandler = async (fId: number) => {
+      setShowDeleteFileDialog(true);
+      setFileIdForAction(fId);
+    };
+
+    return createActionTemplate(createFileHandler, deleteFileHandler);
   }, [setShowfileNameDialog, setFileExtension]);
 
   const fileSelected = useMemo(
@@ -227,6 +252,13 @@ export function ActivityCollectionEditPage() {
             <Column body={actionTemplate} />
           </TreeTable>
         </div>
+        <ConfirmationModalComponent
+          showConfirmationDialog={showDeleteFileDialog}
+          title="Confirm"
+          message="Are you sure you want to delete this file?"
+          setShowConfirmationDialog={setShowDeleteFileDialog}
+          confirmationHandler={deleteFileSubmitHandler}
+        />
         <FileNameModalComponent
           showfileNameDialog={showfileNameDialog}
           setShowfileNameDialog={setShowfileNameDialog}
