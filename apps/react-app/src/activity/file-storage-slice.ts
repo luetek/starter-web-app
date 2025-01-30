@@ -89,7 +89,7 @@ export const persistExistingFile = createAsyncThunk<StoragePathDto, StoragePathD
     formData.append('file', new Blob([fileData.data]), fileDto.name);
     // TODO:: Better error handling
 
-    const fileRes = await axios.post(`api/storage/${fileDto.id}/upload`, formData, {
+    const fileRes = await axios.put(`api/storage/${fileDto.id}/upload`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${userAccessToken?.token}`,

@@ -34,7 +34,6 @@ export function ConfirmationModalComponent(props: ConfirmationModalComponentProp
     }
     setIsSubmitting(false);
   };
-  console.log(error);
 
   return (
     <Modal show={showConfirmationDialog} onHide={() => setShowConfirmationDialog(false)} animation={false}>

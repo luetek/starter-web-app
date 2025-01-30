@@ -36,9 +36,7 @@ export function FileEditPage() {
     }
     if (!reload) return '';
     const ff = files.filter((f) => f.fileId === file.id)[0];
-    console.log('Reloading fileData');
-    console.log(ff);
-    return ff.data;
+    return ff?.data || '';
   }, [file, reload]);
 
   useEffect(() => {
@@ -87,7 +85,6 @@ export function FileEditPage() {
           fileType={fileTypeSelected}
           onSave={onSaveHandler}
           onChange={(txt) => {
-            console.log(txt);
             dispatch(
               updateFileCacheContent({
                 data: txt,
