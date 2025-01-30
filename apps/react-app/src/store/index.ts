@@ -3,6 +3,8 @@ import storage from 'redux-persist/lib/storage';
 import { useDispatch } from 'react-redux';
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import { userReducer } from '../auth/user-slice';
+import { activityCollectionReducer } from '../activity/activity-collection-slice';
+import { fileCacheReducer } from '../activity/file-storage-slice';
 
 const persistConfig = {
   key: 'root',
@@ -10,7 +12,12 @@ const persistConfig = {
 };
 
 const persistedReducer = persistReducer(persistConfig, userReducer);
-const rootReducer = combineReducers({ user: persistedReducer });
+const persistedFileStorageReducer = persistReducer(persistConfig, fileCacheReducer);
+const rootReducer = combineReducers({
+  user: persistedReducer,
+  activityCollection: activityCollectionReducer,
+  fileCache: persistedFileStorageReducer,
+});
 
 export type RootState = ReturnType<typeof rootReducer>;
 export const store = configureStore({

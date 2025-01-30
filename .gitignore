@@ -42,3 +42,5 @@ Thumbs.db
 
 .env
 test.db
+unit-test.db
+test-data

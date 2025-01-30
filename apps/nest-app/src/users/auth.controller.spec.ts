@@ -67,6 +67,9 @@ describe('Auth Acceptance/E2E Tests', () => {
   });
 
   afterAll(async () => {
+    await userPasswordsRepository.clear();
+    await usersRepository.clear();
+    await userAccessTokensRepository.clear();
     await app.close();
   });
 });

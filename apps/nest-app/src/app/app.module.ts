@@ -7,13 +7,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
 import { ScheduleModule } from '@nestjs/schedule';
+import { MulterModule } from '@nestjs/platform-express';
+import multer from 'multer';
 import { LoggerModule } from '../logger/logger.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { UserModule } from '../users/user.module';
-import { StorageModule } from '../storage/storage.module';
 import { AppConfigModule } from '../app-config/app-config.module';
-import { ActivityCollectionModule } from '../activity-collection/activity-collection.module';
+import { StoragePathModule } from '../storage-path/storage-path.module';
+import { ActivityModule } from '../activity/activity.module';
+import { ProgramExecuterModule } from '../program-executer/program-executer.module';
 
 @Module({
   imports: [
@@ -50,12 +53,24 @@ import { ActivityCollectionModule } from '../activity-collection/activity-collec
     AutomapperModule.forRoot({
       strategyInitializer: classes(),
     }),
+    MulterModule.registerAsync({
+      useFactory: () => {
+        return {
+          storage: multer.memoryStorage(),
+          limits: {
+            fileSize: 10 * 1024 * 1024, // 10 MB max size
+            files: 10, // One file max
+          },
+        };
+      },
+    }),
     ScheduleModule.forRoot(),
     LoggerModule,
     AppConfigModule,
     UserModule,
-    StorageModule,
-    ActivityCollectionModule,
+    StoragePathModule,
+    ActivityModule,
+    ProgramExecuterModule,
   ],
   controllers: [AppController],
   providers: [AppService],
