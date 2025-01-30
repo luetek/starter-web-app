@@ -34,7 +34,7 @@ export function FileEditPage() {
     if (!file) {
       throw new Error('Unknown file');
     }
-    if (!reload) return '';
+
     const ff = files.filter((f) => f.fileId === file.id)[0];
     return ff?.data || '';
   }, [file, reload]);
@@ -45,10 +45,10 @@ export function FileEditPage() {
         throw new Error('Unknown file');
       }
       await dispatch(loadFile(file)).unwrap();
-      setReload(true);
+      setReload(!reload);
     };
     asyncLoadFile();
-  }, [file, reload]); // We want to load when file change occurs in the url.
+  }, [file]); // We want to load when file change occurs in the url.
 
   if (!activityCollection || !activity || !file) return 'Loading';
 

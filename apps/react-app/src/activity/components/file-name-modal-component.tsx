@@ -43,7 +43,6 @@ export function FileNameModalComponent(props: FileNameModalComponentProps) {
       setError(err.message || err.data.message);
     }
   };
-  console.log(errors);
 
   return (
     <Modal show={showfileNameDialog} onHide={() => setShowfileNameDialog(false)} animation={false}>

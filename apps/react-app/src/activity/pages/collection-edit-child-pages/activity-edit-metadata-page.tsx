@@ -45,23 +45,46 @@ function ReadingActivityEditView(props: {
   );
 }
 
-function ProgrammingActivityEditView(props: {
-  activitySpec: ProgrammingActivityWithStdioCheck;
-  setActivitySpecValue: (activitySpec: ProgrammingActivityWithStdioCheck) => void;
-  files: StoragePathDto[] | undefined;
-}) {
-  const { activitySpec, files, setActivitySpecValue } = props;
+function ProgrammingActivityEditView(props: { files: StoragePathDto[] | undefined }) {
+  const { files } = props;
   const { register } = useFormContext<ProgrammingActivityDto>();
   const descriptionFiles = files?.filter((file) => file.name.endsWith('.md')) || [];
-
+  const sourceTestFiles = files?.filter((file) => file.name.endsWith('.py')) || [];
   return (
     <div>
       <div> Programming Activity with Stdin </div>
       <div className="row">
-        <Form.Group className="mb-3 col-sm" controlId="editActivity.description">
-          <Form.Select aria-label="Select activity type" {...register('activitySpec.descriptionFile')}>
+        <Form.Group className="mb-3 col-sm" controlId="editActivity.prg-simp-description">
+          <Form.Label>Description File</Form.Label>
+          <Form.Select {...register('activitySpec.descriptionFile')}>
             <option value={undefined}>Select the description file</option>
             {descriptionFiles.map((ff) => (
+              <option key={ff.id} value={ff.name}>
+                {ff.name}
+              </option>
+            ))}
+          </Form.Select>
+        </Form.Group>
+      </div>
+      <div className="row">
+        <Form.Group className="mb-3 col-sm" controlId="editActivity.testSourceFile">
+          <Form.Label>Test Source File</Form.Label>
+          <Form.Select aria-label="Select activity type" {...register('activitySpec.checkerSrcMainFile')}>
+            <option value={undefined}>Select the test source file</option>
+            {sourceTestFiles.map((ff) => (
+              <option key={ff.id} value={ff.name}>
+                {ff.name}
+              </option>
+            ))}
+          </Form.Select>
+        </Form.Group>
+      </div>
+      <div className="row">
+        <Form.Group className="mb-3 col-sm" controlId="editActivity.inputSourceFile">
+          <Form.Label>Input Source File (initial code)</Form.Label>
+          <Form.Select {...register('activitySpec.inputSrcMainFile')}>
+            <option value={undefined}>Select the input source file</option>
+            {sourceTestFiles.map((ff) => (
               <option key={ff.id} value={ff.name}>
                 {ff.name}
               </option>
@@ -205,11 +228,7 @@ export function ActivityEditMetadataPage() {
           ) : null}
 
           {activityType === ActivityType.PROGRAMMING_ACTIVITY_STDIO_CHECK ? (
-            <ProgrammingActivityEditView
-              activitySpec={activitySpec as ProgrammingActivityWithStdioCheck}
-              setActivitySpecValue={(spec: ProgrammingActivityWithStdioCheck) => setValue('activitySpec', spec)}
-              files={activity?.parent.children}
-            />
+            <ProgrammingActivityEditView files={activity?.parent.children} />
           ) : null}
 
           {apiError ? <div>{apiError}</div> : <div>{apiMessage}</div>}
