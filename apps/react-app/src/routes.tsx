@@ -12,6 +12,11 @@ import { ActivityCollectionMetadataEditPage } from './activity/pages/collection-
 import { ActivityCreatePage } from './activity/pages/collection-edit-child-pages/activity-create-page';
 import { ActivityEditMetadataPage } from './activity/pages/collection-edit-child-pages/activity-edit-metadata-page';
 import { FileEditPage } from './activity/pages/collection-edit-child-pages/file-edit-page';
+import { ActivityViewPage } from './activity/pages/activity-view-page';
+import {
+  ReadingActivityContentIndexView,
+  ReadingActivityContentView,
+} from './activity/pages/collection-view-child-pages/reading-activity-page-content-view';
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -23,9 +28,17 @@ export const router = createBrowserRouter(
       <Route path="login" element={<LoginPage />} />
       <Route path="logout" element={<LogoutPage />} />
       <Route path="profile" element={<ProfilePage />} />
+      {/* User View Routes */}
+      <Route path="collections">
+        <Route path=":id/view" element={<ActivityCollectionViewPage />} />
+        <Route path=":id/activities/:activityId/view" element={<ActivityViewPage />}>
+          <Route path="" index element={<ReadingActivityContentIndexView />} />
+          <Route path="pages/:pageId" element={<ReadingActivityContentView />} />
+        </Route>
+      </Route>
+      {/* Admin Routes */}
       <Route path="activity-collections">
         <Route path="create" element={<ActivityCollectionCreatePage />} />
-        <Route path=":id/view" element={<ActivityCollectionViewPage />} />
         <Route path=":id" element={<ActivityCollectionEditPage />}>
           <Route path="edit" index element={<ActivityCollectionMetadataEditPage />} />
           <Route path="activities/create" element={<ActivityCreatePage />} />

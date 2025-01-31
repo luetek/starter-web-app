@@ -49,7 +49,7 @@ export function ActivityCollectionViewPage() {
       <h2>Course Content</h2>
       {!activities || activities.length === 0 ? <div> No Course Content</div> : null}
       <Accordion>
-        {activitySection.map((entry) => {
+        {activitySection.map((entry, sectionIndex) => {
           const section = entry.title;
           const { sectionId, orderedActivities } = entry;
 
@@ -62,11 +62,11 @@ export function ActivityCollectionViewPage() {
                     <Accordion.Item eventKey={activityId.toString()}>
                       <Accordion.Header>
                         <span className="text-primary">
-                          {sectionId}.{activityIndex + 1} &nbsp;&nbsp;&nbsp;
+                          {sectionIndex + 1}.{activityIndex + 1} &nbsp;&nbsp;&nbsp;
                         </span>
                         <Link
                           style={{ textDecoration: 'none' }}
-                          to={`/collections/${activityCollection.id}/activities/${activityId}`}
+                          to={`/collections/${activityCollection.id}/activities/${activityId}/view`}
                         >
                           {idToActivityMap[activityId].title}
                         </Link>
