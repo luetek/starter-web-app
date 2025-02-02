@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '../../store';
 import { getActivityCollectionThunk } from '../activity-collection-slice';
 import { ReadingActivityView } from './collection-view-child-pages/reading-activity-view';
+import { ProgrammingWithStdinView } from './collection-view-child-pages/programming-with-stdin-view';
 
 function getSummaryStatus(activityId: number) {
   return false;
@@ -21,6 +22,10 @@ export function ActivityView(props: { activity: ActivityDto }) {
 
   if (activity.activitySpec.type === ActivityType.READING_ACTIVITY) {
     return <ReadingActivityView activity={activity} />;
+  }
+
+  if (activity.activitySpec.type === ActivityType.PROGRAMMING_ACTIVITY_STDIO_CHECK) {
+    return <ProgrammingWithStdinView activity={activity} />;
   }
   throw new Error(`Unknown type for post${activity.activitySpec.type}`);
 }
