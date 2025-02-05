@@ -10,6 +10,7 @@ export function getTypeFromFileName(fileName: string): FileType {
   const ext = fileName.split('.')[1];
   if (ext === 'py') return FileType.PYTHON;
   if (ext === 'md') return FileType.MARKDOWN;
+  if (ext === 'txt') return FileType.TEXT;
   throw new Error(`Unknown extension ${fileName}`);
 }
 export const fileExtension: Record<FileType, string> = {

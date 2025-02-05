@@ -1,5 +1,4 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
@@ -8,7 +7,6 @@ import { cpp } from '@codemirror/lang-cpp';
 import { LanguageSupport } from '@codemirror/language';
 import { useEffect, useMemo, useState } from 'react';
 import { faSquareCheck } from '@fortawesome/free-solid-svg-icons';
-import { randomInt } from 'crypto';
 import Button from 'react-bootstrap/Button';
 import { ActivityDto, ProgrammingActivityWithStdioCheck } from '@luetek/common-models';
 import { RootState, useAppDispatch } from '../../../store';

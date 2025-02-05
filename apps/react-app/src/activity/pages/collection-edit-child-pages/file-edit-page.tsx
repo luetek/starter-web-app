@@ -8,6 +8,7 @@ import { getActivityCollectionThunk } from '../../activity-collection-slice';
 import { loadFile, persistExistingFile, updateFileCacheContent } from '../../file-storage-slice';
 import { CodeMirrorComponent } from '../../components/code-mirror-component';
 import { FileType, getTypeFromFileName } from '../../constants';
+import { TextEditorComponent } from '../../components/text-editor-component';
 
 export function FileEditPage() {
   const [reload, setReload] = useState(false);
@@ -83,6 +84,20 @@ export function FileEditPage() {
         <CodeMirrorComponent
           content={fileDataInitial}
           fileType={fileTypeSelected}
+          onSave={onSaveHandler}
+          onChange={(txt) => {
+            dispatch(
+              updateFileCacheContent({
+                data: txt,
+                fileId: file.id,
+              })
+            );
+          }}
+        />
+      ) : null}
+      {fileTypeSelected === 'text' ? (
+        <TextEditorComponent
+          content={fileDataInitial}
           onSave={onSaveHandler}
           onChange={(txt) => {
             dispatch(

@@ -9,6 +9,7 @@ import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MulterModule } from '@nestjs/platform-express';
 import multer from 'multer';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { LoggerModule } from '../logger/logger.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
@@ -64,6 +65,7 @@ import { ProgramExecuterModule } from '../program-executer/program-executer.modu
         };
       },
     }),
+    EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
     LoggerModule,
     AppConfigModule,
