@@ -18,6 +18,7 @@ import { AppConfigModule } from '../app-config/app-config.module';
 import { StoragePathModule } from '../storage-path/storage-path.module';
 import { ActivityModule } from '../activity/activity.module';
 import { ProgramExecuterModule } from '../program-executer/program-executer.module';
+import { SubmissionModule } from '../submission/submission.module';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { ProgramExecuterModule } from '../program-executer/program-executer.modu
     StoragePathModule,
     ActivityModule,
     ProgramExecuterModule,
+    SubmissionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
