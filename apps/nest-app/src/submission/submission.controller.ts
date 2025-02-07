@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ReqLogger } from '../logger/req-logger';
 import { SubmissionRequestDto } from './dtos/submission.request.dto';
@@ -19,5 +19,10 @@ export class SubmissionController {
     this.logger.log(JSON.stringify(files.inputs));
     this.logger.log(JSON.stringify(req));
     return this.submissionService.create(files.inputs, req);
+  }
+
+  @Get()
+  getSubmissions(@Query('activityId') activityId: number, @Query('userId') userId: number) {
+    return this.submissionService.findByUserAndActivityId(userId, activityId);
   }
 }
