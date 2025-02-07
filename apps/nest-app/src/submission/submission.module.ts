@@ -4,11 +4,15 @@ import { LoggerModule } from '../logger/logger.module';
 import { SubmissionEntity } from './entities/submission.entity';
 import { SubmissionService } from './submission.service';
 import { SubmissionController } from './submission.controller';
+import { SubmissionAutoMapperProfile } from './submission-auto-mapper.profile';
+import { StorageModule } from '../storage/storage.module';
+import { ActivityEntity } from '../activity/entities/activity.entity';
+import { UserEntity } from '../users/entities/user.entity';
 
 @Module({
-  imports: [LoggerModule, TypeOrmModule.forFeature([SubmissionEntity])],
+  imports: [LoggerModule, StorageModule, TypeOrmModule.forFeature([SubmissionEntity, ActivityEntity, UserEntity])],
   controllers: [SubmissionController],
-  providers: [SubmissionService],
+  providers: [SubmissionService, SubmissionAutoMapperProfile],
   exports: [],
 })
 export class SubmissionModule {}

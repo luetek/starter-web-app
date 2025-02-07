@@ -12,3 +12,5 @@ export * from './activity/common';
 export * from './activity/activity.interface';
 export * from './activity/activity-spec-metadata';
 export * from './activity/activity.dto';
+
+export * from './submission/submision.dto';
