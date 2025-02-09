@@ -6,12 +6,39 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  ValueTransformer,
 } from 'typeorm';
 import { AutoMap } from '@automapper/classes';
-import { SubmissionStatus } from '@luetek/common-models';
+import {
+  ProgrammingActivitySubmissionWithStdioCheck,
+  SubmissionSpecMetadata,
+  SubmissionStatus,
+  SubmissionType,
+} from '@luetek/common-models';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { UserEntity } from '../../users/entities/user.entity';
 import { ActivityEntity } from '../../activity/entities/activity.entity';
 import { StoragePathEntity } from '../../storage-path/entities/storage-path.entity';
+
+const submissionSpecTransformer: ValueTransformer = {
+  /*
+  Used to marshal data when writing to the database.
+  */
+  to: (value: SubmissionSpecMetadata): string => {
+    return JSON.stringify(instanceToPlain(value));
+  } /**
+
+ /**
+  * Used to unmarshal data when reading from the database.
+  */,
+  from: (value: string): SubmissionSpecMetadata => {
+    const plainObj = JSON.parse(value) as SubmissionSpecMetadata;
+    if (plainObj.type === SubmissionType.PROGRAMMING_ACTIVITY_STDIO__SUBMISSION)
+      return plainToInstance(ProgrammingActivitySubmissionWithStdioCheck, plainObj);
+
+    throw new Error('Unable to parse');
+  },
+};
 
 @Entity()
 export class SubmissionEntity {
@@ -42,9 +69,13 @@ export class SubmissionEntity {
   })
   status: SubmissionStatus;
 
-  @AutoMap()
+  @AutoMap(() => String)
   @Column()
-  type: string;
+  type: SubmissionType;
+
+  @AutoMap(() => SubmissionSpecMetadata)
+  @Column({ type: 'varchar', length: 512, nullable: false, transformer: submissionSpecTransformer })
+  submissionSpec: SubmissionSpecMetadata;
 
   // Parent folder for the activity
   @AutoMap(() => StoragePathEntity)

@@ -37,6 +37,45 @@ export class ProgramExecuterService {
     // console.log(this.tmpWorkspacesParentDir);
   }
 
+  async createTmpWorkspace() {
+    const workspaceName = randomUUID();
+    const tmpWorkspaceDir = path.join(this.tmpWorkspacesParentDir, workspaceName);
+    await fs.promises.mkdir(tmpWorkspaceDir);
+    return tmpWorkspaceDir;
+  }
+
+  async execute(workspaceDir: string, mainFile: string, inputs: string[], environment: string) {
+    if (environment !== ExecutionEnvironment.PYTHON3.toLowerCase()) {
+      throw new Error('Only support python environment for now');
+    }
+    const res = new SimpleExecuteResponseDto();
+    res.outputs = [];
+    const promises = inputs.map(async (input, index) => {
+      const output = new ExecutionOutput();
+      output.inputFile = input;
+      const command =
+        `cat ${path.join(workspaceDir, input)}` +
+        `| docker run -i -v /var/run/docker.sock:/var/run/docker.sock  ` +
+        `-v ${workspaceDir}:/home -m 256m --cpus="0.5" ` +
+        `-w /home -a stdin -a stdout -a stderr  python timeout 5 python ${mainFile}`;
+      try {
+        const resExecution = await execute(command);
+        output.outputFile = `output-${index}.txt`;
+        await fs.promises.writeFile(path.join(workspaceDir, output.outputFile), resExecution.stdout);
+        output.returnCode = 0;
+      } catch (e) {
+        output.returnCode = e.code; // 124 code means timeout
+        output.errorFile = `error-${index}.txt`;
+        await fs.promises.writeFile(path.join(workspaceDir, output.errorFile), e.stderr);
+      }
+      res.outputs.push(output);
+    });
+
+    await Promise.all(promises);
+    res.workspaceDir = workspaceDir;
+    return res;
+  }
+
   async simpleExecute(
     sources: Express.Multer.File[],
     inputs: Express.Multer.File[],

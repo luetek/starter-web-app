@@ -1,12 +1,17 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
 import { randomUUID } from 'crypto';
-import { CreateFolderRequestDto, SubmissionDto, SubmissionStatus } from '@luetek/common-models';
+import {
+  CreateFolderRequestDto,
+  ProgrammingActivitySubmissionWithStdioCheck,
+  SubmissionDto,
+  SubmissionStatus,
+  SubmissionType,
+} from '@luetek/common-models';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
-import { SubmissionRequestDto } from './dtos/submission.request.dto';
 import { FileSystemService } from '../storage/file-system.service';
 import { SubmissionEntity } from './entities/submission.entity';
 import { ActivityEntity } from '../activity/entities/activity.entity';
@@ -14,6 +19,7 @@ import { UserEntity } from '../users/entities/user.entity';
 import { EventService } from '../event/event.service';
 import { ReqLogger } from '../logger/req-logger';
 import { SubmissionEventPayload } from './dtos/submission-event.payload';
+import { ProgrammingActivitySubmissionRequestDto } from './dtos/programming-activity-submission.request.dto';
 
 export class SubmissionService {
   constructor(
@@ -31,7 +37,7 @@ export class SubmissionService {
     this.logger.setContext(SubmissionService.name);
   }
 
-  async create(inputs: Express.Multer.File[], req: SubmissionRequestDto) {
+  async create(inputs: Express.Multer.File[], req: ProgrammingActivitySubmissionRequestDto) {
     const collectionFolder = await this.fileSystemService.createRootDirectory('submissions');
     const createFolderRequest = new CreateFolderRequestDto();
     createFolderRequest.name = randomUUID();
@@ -43,7 +49,11 @@ export class SubmissionService {
     submissionEntity.parentId = submissionFolder.id;
     submissionEntity.user = await this.userRepository.findOneByOrFail({ id: req.userId });
     submissionEntity.status = SubmissionStatus.CREATED;
-    submissionEntity.type = req.type;
+    submissionEntity.type = SubmissionType.PROGRAMMING_ACTIVITY_STDIO__SUBMISSION;
+    const submissionSpec = new ProgrammingActivitySubmissionWithStdioCheck();
+    submissionSpec.environment = req.environment;
+    submissionSpec.inputSrcMainFile = req.inputSrcMainFile;
+    submissionEntity.submissionSpec = submissionSpec;
     const res = await this.submissionRepository.manager.transaction(async (tm) => {
       const subEn = await this.submissionRepository.save(submissionEntity);
       const payload = new SubmissionEventPayload();

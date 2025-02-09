@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import path from 'path';
 import fs from 'fs';
 import { PROGRAMMING_ACTIVITY_STDIN_SUBMISSION_TYPE } from '@luetek/common-models';
+import { Repository } from 'typeorm';
 import { LoggerModule } from '../logger/logger.module';
 import { AppConfigModule } from '../app-config/app-config.module';
 import { StoragePathEntity } from '../storage-path/entities/storage-path.entity';
@@ -12,9 +13,12 @@ import { ProgramExecuterService } from './program-executer.service';
 import { EventService } from '../event/event.service';
 import { SubmissionEventProcessor } from './submission-event.processor';
 import { EventModule } from '../event/event.module';
+import { SubmissionEntity } from '../submission/entities/submission.entity';
+import { StorageModule } from '../storage/storage.module';
+import { FileSystemService } from '../storage/file-system.service';
 
 @Module({
-  imports: [LoggerModule, AppConfigModule, EventModule, TypeOrmModule.forFeature([StoragePathEntity])],
+  imports: [LoggerModule, AppConfigModule, EventModule, StorageModule, TypeOrmModule.forFeature([StoragePathEntity])],
   controllers: [ProgramExecuterController],
   providers: [
     {
@@ -29,13 +33,20 @@ import { EventModule } from '../event/event.module';
     },
     {
       provide: SubmissionEventProcessor,
-      inject: [ProgramExecuterService, EventService, ReqLogger],
+      inject: [ProgramExecuterService, EventService, ReqLogger, getRepositoryToken(SubmissionEntity)],
       useFactory: async (
         programExecuterService: ProgramExecuterService,
         eventService: EventService,
-        logger: ReqLogger
+        fileSystemService: FileSystemService,
+        logger: ReqLogger,
+        submissionRepository: Repository<SubmissionEntity>
       ) => {
-        const service = new SubmissionEventProcessor(programExecuterService, logger);
+        const service = new SubmissionEventProcessor(
+          programExecuterService,
+          fileSystemService,
+          submissionRepository,
+          logger
+        );
         eventService.register(service, PROGRAMMING_ACTIVITY_STDIN_SUBMISSION_TYPE);
         return service;
       },

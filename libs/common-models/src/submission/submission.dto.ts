@@ -1,13 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { StoragePathDto } from '../storage-path/storage-path.dto';
-
-export enum SubmissionStatus {
-  CREATED = 'CREATED',
-  EVALUATING = 'EVALUATING',
-  DONE = 'DONE',
-}
-
-export const PROGRAMMING_ACTIVITY_STDIN_SUBMISSION_TYPE = 'programming-activity-stdin';
+import { SubmissionStatus, SubmissionType } from './submission.interface';
+import { SubmissionSpecMetadata } from './submission-spec-metadata';
 
 export class SubmissionDto {
   @AutoMap()
@@ -21,6 +15,12 @@ export class SubmissionDto {
 
   @AutoMap(() => String)
   status!: SubmissionStatus;
+
+  @AutoMap(() => String)
+  type!: SubmissionType;
+
+  @AutoMap(() => SubmissionSpecMetadata)
+  submissionSpec: SubmissionSpecMetadata;
 
   // Parent folder for the activity
   @AutoMap(() => StoragePathDto)

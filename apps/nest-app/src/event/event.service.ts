@@ -55,7 +55,9 @@ export class EventService {
       const entityLocked = await eventQueryBuilder.where({ id: entity.id }).getOne();
       if (processor) {
         await processor.process(entity.payload);
-        await entityManager.delete(EventEntity, entityLocked);
+        this.logger.log(JSON.stringify(entityLocked));
+        const res = await entityManager.delete(EventEntity, entityLocked.id);
+        this.logger.log(JSON.stringify(res));
         this.logger.log(`Processing done ${entity.id} of type ${entity.type}`);
       }
     });

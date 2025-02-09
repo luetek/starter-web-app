@@ -19,6 +19,7 @@ The relationship between the modules must be a DAG otherwise it becomes difficul
   ProgramExecutor --> Event;
   ProgramExecutor --> Activity;
   ProgramExecutor --> Submission;
+  ProgramExecutor --> Storage;
   Submission --> Event;
   Submission --> Storage;
   Event --> AppConfig;
