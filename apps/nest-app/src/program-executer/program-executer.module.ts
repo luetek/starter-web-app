@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import path from 'path';
 import fs from 'fs';
-import { PROGRAMMING_ACTIVITY_STDIN_SUBMISSION_TYPE } from '@luetek/common-models';
 import { Repository } from 'typeorm';
+import { SubmissionType } from '@luetek/common-models';
 import { LoggerModule } from '../logger/logger.module';
 import { AppConfigModule } from '../app-config/app-config.module';
 import { StoragePathEntity } from '../storage-path/entities/storage-path.entity';
@@ -18,7 +18,13 @@ import { StorageModule } from '../storage/storage.module';
 import { FileSystemService } from '../storage/file-system.service';
 
 @Module({
-  imports: [LoggerModule, AppConfigModule, EventModule, StorageModule, TypeOrmModule.forFeature([StoragePathEntity])],
+  imports: [
+    LoggerModule,
+    AppConfigModule,
+    EventModule,
+    StorageModule,
+    TypeOrmModule.forFeature([StoragePathEntity, SubmissionEntity]),
+  ],
   controllers: [ProgramExecuterController],
   providers: [
     {
@@ -33,7 +39,13 @@ import { FileSystemService } from '../storage/file-system.service';
     },
     {
       provide: SubmissionEventProcessor,
-      inject: [ProgramExecuterService, EventService, ReqLogger, getRepositoryToken(SubmissionEntity)],
+      inject: [
+        ProgramExecuterService,
+        EventService,
+        FileSystemService,
+        ReqLogger,
+        getRepositoryToken(SubmissionEntity),
+      ],
       useFactory: async (
         programExecuterService: ProgramExecuterService,
         eventService: EventService,
@@ -47,7 +59,7 @@ import { FileSystemService } from '../storage/file-system.service';
           submissionRepository,
           logger
         );
-        eventService.register(service, PROGRAMMING_ACTIVITY_STDIN_SUBMISSION_TYPE);
+        eventService.register(service, SubmissionType.PROGRAMMING_ACTIVITY_STDIO__SUBMISSION);
         return service;
       },
     },

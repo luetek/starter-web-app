@@ -62,9 +62,7 @@ export class SubmissionService {
       await this.eventService.emit(tm, payload);
       return subEn;
     });
-    this.logger.log(
-      `submission created id = ${res.id} type = ${res.type} activityId = ${res.activityId} userId = ${res.userId}`
-    );
+    this.logger.log(`submission created id = ${JSON.stringify(res)}`);
     return this.mapper.map(res, SubmissionEntity, SubmissionDto);
   }
 

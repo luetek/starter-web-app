@@ -1,6 +1,6 @@
 ### submission create api
 
-POST http://localhost:3000/api/submissions HTTP/1.1
+POST http://localhost:3000/api/submissions/programming-activity-stdin HTTP/1.1
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
@@ -23,11 +23,14 @@ Content-Disposition: form-data; name="activityId"
 
 6
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="type"
+Content-Disposition: form-data; name="environment"
 
-programming-activity-stdin
+PYTHON3
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="inputSrcMainFile"
+
+a.py
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
 
 ### submission get api
 GET http://localhost:3000/api/submissions?userId=1&activityId=6 HTTP/1.1

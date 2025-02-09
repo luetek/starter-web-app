@@ -42,6 +42,7 @@ export class SubmissionEventProcessor implements EventProcessor {
   }
 
   async process(payload: SubmissionEventPayload) {
+    this.logger.log('Starting submission processing');
     const submissionEntity = await this.submissionRepository.findOneOrFail({
       where: { id: payload.submissionId },
       relations: ['parent', 'parent.children', 'activity', 'activity.parent', 'activity.parent.children'],
@@ -50,9 +51,11 @@ export class SubmissionEventProcessor implements EventProcessor {
     const tmpWorkspaceDir = await this.programExecuterService.createTmpWorkspace();
     await this.copyFolderToTmpWorkspace(tmpWorkspaceDir, submissionEntity.parent);
     await this.copyFolderToTmpWorkspace(tmpWorkspaceDir, submissionEntity.activity.parent);
+    this.logger.log('copying files to rmp workspce done');
     const programmingActivity = submissionEntity.activity.activitySpec as ProgrammingActivityWithStdioCheck;
     const programmingActivitySubmissionSpec =
       submissionEntity.submissionSpec as ProgrammingActivitySubmissionWithStdioCheck;
+    this.logger.log(`submsion spec =  ${JSON.stringify(programmingActivitySubmissionSpec)}`);
     const result = await this.programExecuterService.execute(
       tmpWorkspaceDir,
       programmingActivitySubmissionSpec.inputSrcMainFile,

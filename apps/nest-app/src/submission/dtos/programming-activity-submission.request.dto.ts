@@ -1,4 +1,4 @@
-import { ExecutionEnvironment, SubmissionType } from '@luetek/common-models';
+import { ExecutionEnvironment } from '@luetek/common-models';
 
 export class ProgrammingActivitySubmissionRequestDto {
   activityId: number;

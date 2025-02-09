@@ -45,7 +45,7 @@ export class ProgramExecuterService {
   }
 
   async execute(workspaceDir: string, mainFile: string, inputs: string[], environment: string) {
-    if (environment !== ExecutionEnvironment.PYTHON3.toLowerCase()) {
+    if (environment !== ExecutionEnvironment.PYTHON3.toString()) {
       throw new Error('Only support python environment for now');
     }
     const res = new SimpleExecuteResponseDto();

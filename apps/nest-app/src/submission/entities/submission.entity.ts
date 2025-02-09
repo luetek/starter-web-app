@@ -70,7 +70,11 @@ export class SubmissionEntity {
   status: SubmissionStatus;
 
   @AutoMap(() => String)
-  @Column()
+  @Column({
+    enum: SubmissionType,
+    type: 'simple-enum',
+    nullable: false,
+  })
   type: SubmissionType;
 
   @AutoMap(() => SubmissionSpecMetadata)
