@@ -7,6 +7,8 @@ export enum SubmissionStatus {
   DONE = 'DONE',
 }
 
+export const PROGRAMMING_ACTIVITY_STDIN_SUBMISSION_TYPE = 'programming-activity-stdin';
+
 export class SubmissionDto {
   @AutoMap()
   id!: number;

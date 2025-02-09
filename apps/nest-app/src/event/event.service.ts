@@ -3,7 +3,6 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClsService, ClsStore } from 'nestjs-cls';
-import { randomUUID } from 'crypto';
 import { EventPayload } from './event-payload';
 import { EventEntity } from './entity/event.entity';
 import { EventProcessor } from './event-processor';
@@ -22,12 +21,15 @@ export class EventService {
     logger.setContext(EventService.name);
   }
 
-  async emit(payload: EventPayload) {
+  // Ensure transaction is managed properly using entityManager
+  async emit(entityManager: EntityManager, payload: EventPayload) {
     const event = new EventEntity();
     event.type = payload.type;
     event.payload = payload;
-    const eventEn = await this.eventRepository.save(event);
+    event.requestId = this.cls.getId();
+    const eventEn = await entityManager.save(event);
     this.eventEmitter.emit('async-event-created', eventEn);
+    return eventEn;
   }
 
   register(processor: EventProcessor, eventType: string) {
@@ -40,16 +42,17 @@ export class EventService {
 
   // TODO:: If there are items in the event tables, retry them periodically.
   @OnEvent('async-event-created')
-  async handleOrderCreatedEvent(entity: EventEntity): Promise<void> {
+  private async handleOrderCreatedEvent(entity: EventEntity): Promise<void> {
     const processor = this.registry.get(entity.type);
-    this.cls.set('CLS_ID', randomUUID());
+    this.cls.set('CLS_ID', entity.requestId);
     this.logger.log(`Processing ${entity.id} of type ${entity.type}`);
     this.eventRepository.manager.transaction(async (entityManager: EntityManager): Promise<void> => {
-      const entityLocked = await entityManager
-        .createQueryBuilder(EventEntity, 'event')
-        .setLock('pessimistic_write')
-        .where({ id: entity.id })
-        .getOne();
+      const { type } = entityManager.connection.driver.options;
+      let eventQueryBuilder = entityManager.createQueryBuilder(EventEntity, 'event');
+      if (type === 'postgres') {
+        eventQueryBuilder = eventQueryBuilder.setLock('pessimistic_write');
+      }
+      const entityLocked = await eventQueryBuilder.where({ id: entity.id }).getOne();
       if (processor) {
         await processor.process(entity.payload);
         await entityManager.delete(EventEntity, entityLocked);

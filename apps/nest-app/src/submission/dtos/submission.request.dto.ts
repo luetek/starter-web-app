@@ -5,4 +5,7 @@ export class SubmissionRequestDto {
 
   // Evaluate this and store. Otherwise temporary
   final: boolean;
+
+  // Programming-activity, Questionaire etc.
+  type: string;
 }

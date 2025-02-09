@@ -8,9 +8,15 @@ import { SubmissionAutoMapperProfile } from './submission-auto-mapper.profile';
 import { StorageModule } from '../storage/storage.module';
 import { ActivityEntity } from '../activity/entities/activity.entity';
 import { UserEntity } from '../users/entities/user.entity';
+import { EventModule } from '../event/event.module';
 
 @Module({
-  imports: [LoggerModule, StorageModule, TypeOrmModule.forFeature([SubmissionEntity, ActivityEntity, UserEntity])],
+  imports: [
+    LoggerModule,
+    StorageModule,
+    EventModule,
+    TypeOrmModule.forFeature([SubmissionEntity, ActivityEntity, UserEntity]),
+  ],
   controllers: [SubmissionController],
   providers: [SubmissionService, SubmissionAutoMapperProfile],
   exports: [],

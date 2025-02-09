@@ -11,10 +11,15 @@ import { FileSystemService } from '../storage/file-system.service';
 import { SubmissionEntity } from './entities/submission.entity';
 import { ActivityEntity } from '../activity/entities/activity.entity';
 import { UserEntity } from '../users/entities/user.entity';
+import { EventService } from '../event/event.service';
+import { ReqLogger } from '../logger/req-logger';
+import { SubmissionEventPayload } from './dtos/submission-event.payload';
 
 export class SubmissionService {
   constructor(
     private fileSystemService: FileSystemService,
+    private eventService: EventService,
+    private logger: ReqLogger,
     @InjectRepository(SubmissionEntity)
     private submissionRepository: Repository<SubmissionEntity>,
     @InjectRepository(ActivityEntity)
@@ -23,7 +28,7 @@ export class SubmissionService {
     private userRepository: Repository<UserEntity>,
     @InjectMapper() private mapper: Mapper
   ) {
-    // console.log(this.tmpWorkspacesParentDir);
+    this.logger.setContext(SubmissionService.name);
   }
 
   async create(inputs: Express.Multer.File[], req: SubmissionRequestDto) {
@@ -38,7 +43,18 @@ export class SubmissionService {
     submissionEntity.parentId = submissionFolder.id;
     submissionEntity.user = await this.userRepository.findOneByOrFail({ id: req.userId });
     submissionEntity.status = SubmissionStatus.CREATED;
-    const res = await this.submissionRepository.save(submissionEntity);
+    submissionEntity.type = req.type;
+    const res = await this.submissionRepository.manager.transaction(async (tm) => {
+      const subEn = await this.submissionRepository.save(submissionEntity);
+      const payload = new SubmissionEventPayload();
+      payload.type = subEn.type;
+      payload.submissionId = subEn.id;
+      await this.eventService.emit(tm, payload);
+      return subEn;
+    });
+    this.logger.log(
+      `submission created id = ${res.id} type = ${res.type} activityId = ${res.activityId} userId = ${res.userId}`
+    );
     return this.mapper.map(res, SubmissionEntity, SubmissionDto);
   }
 

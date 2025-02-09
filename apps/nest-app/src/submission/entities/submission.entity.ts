@@ -42,6 +42,10 @@ export class SubmissionEntity {
   })
   status: SubmissionStatus;
 
+  @AutoMap()
+  @Column()
+  type: string;
+
   // Parent folder for the activity
   @AutoMap(() => StoragePathEntity)
   @ManyToOne(() => StoragePathEntity)
