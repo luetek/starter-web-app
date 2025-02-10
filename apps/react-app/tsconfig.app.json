@@ -20,6 +20,6 @@
     "src/**/*.jsx",
     "src/**/*.ts",
     "src/**/*.tsx",
-    "src/activity/pages/collection-edit-child-pages/file-create-edit-page.tsxd"
+    "src/activity/pages/collection-edit-child-pages/file-create-edit-page.tsx"
   ]
 }

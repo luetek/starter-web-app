@@ -47,9 +47,27 @@ function ReadingActivityEditView(props: {
 
 function ProgrammingActivityEditView(props: { files: StoragePathDto[] | undefined }) {
   const { files } = props;
-  const { register } = useFormContext<ProgrammingActivityDto>();
+  const { register, watch, setValue } = useFormContext<ProgrammingActivityDto>();
+  const [currentTestFile, setCurrentTestfile] = useState('');
   const descriptionFiles = files?.filter((file) => file.name.endsWith('.md')) || [];
-  const sourceTestFiles = files?.filter((file) => file.name.endsWith('.py')) || [];
+  const sourceFiles = files?.filter((file) => file.name.endsWith('.py')) || [];
+  const allTestFilesList = files?.filter((file) => file.name.endsWith('.txt')) || [];
+
+  const testFiles = watch('activitySpec.testInputFiles') || [];
+  const availableTestFilesList = allTestFilesList.filter((ff) => !testFiles.includes(ff.name));
+  const removeTestFileHandler = (e: any, str: string) => {
+    e.preventDefault();
+    setValue(
+      'activitySpec.testInputFiles',
+      testFiles.filter((t) => t !== str)
+    );
+  };
+  const addKeywordHandler = () => {
+    if (currentTestFile.length > 0) {
+      setValue('activitySpec.testInputFiles', [...testFiles, currentTestFile]);
+    }
+  };
+
   return (
     <div>
       <div> Programming Activity with Stdin </div>
@@ -71,7 +89,7 @@ function ProgrammingActivityEditView(props: { files: StoragePathDto[] | undefine
           <Form.Label>Test Source File</Form.Label>
           <Form.Select aria-label="Select activity type" {...register('activitySpec.checkerSrcMainFile')}>
             <option value={undefined}>Select the test source file</option>
-            {sourceTestFiles.map((ff) => (
+            {sourceFiles.map((ff) => (
               <option key={ff.id} value={ff.name}>
                 {ff.name}
               </option>
@@ -84,12 +102,46 @@ function ProgrammingActivityEditView(props: { files: StoragePathDto[] | undefine
           <Form.Label>Input Source File (initial code)</Form.Label>
           <Form.Select {...register('activitySpec.inputSrcMainFile')}>
             <option value={undefined}>Select the input source file</option>
-            {sourceTestFiles.map((ff) => (
+            {sourceFiles.map((ff) => (
               <option key={ff.id} value={ff.name}>
                 {ff.name}
               </option>
             ))}
           </Form.Select>
+        </Form.Group>
+      </div>
+      <div className="row">
+        <Form.Group className="mb-3 col-sm" controlId="editActivity.addTestFiles">
+          <InputGroup className="mb-3">
+            <InputGroup.Text>Add TestFiles</InputGroup.Text>
+            <Form.Control
+              as={Form.Select}
+              value={currentTestFile}
+              onChange={(e) => setCurrentTestfile(e.currentTarget.value)}
+              placeholder="Add Test Files"
+              aria-label="add test files"
+            >
+              <option value="">select a test file</option>
+              {availableTestFilesList.map((item) => (
+                <option key={item.id} value={item.name}>
+                  {item.name}
+                </option>
+              ))}
+            </Form.Control>
+            <Button variant="outline-secondary" id="button-addon2" onClick={addKeywordHandler}>
+              Add
+            </Button>
+          </InputGroup>
+        </Form.Group>
+
+        <Form.Group className="mb-3 col-sm" controlId="editActivity.keywordsList">
+          <Stack direction="horizontal" gap={2}>
+            {testFiles.map((testFile) => (
+              <Badge key={testFile} pill bg="primary">
+                {testFile} <CloseButton onClick={(e) => removeTestFileHandler(e, testFile)} />
+              </Badge>
+            ))}
+          </Stack>
         </Form.Group>
       </div>
     </div>

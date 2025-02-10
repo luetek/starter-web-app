@@ -123,6 +123,9 @@ const createActionTemplate = (
                 <Dropdown.Item className="mx-2" onClick={() => fileCreateHandler(id, 'py')}>
                   Python
                 </Dropdown.Item>
+                <Dropdown.Item className="mx-2" onClick={() => fileCreateHandler(id, 'txt')}>
+                  Text
+                </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
 

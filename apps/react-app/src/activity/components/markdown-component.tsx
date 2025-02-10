@@ -1,3 +1,4 @@
+/* eslint-disable react/require-default-props */
 import { StoragePathDto } from '@luetek/common-models';
 import { useEffect, useRef, useState } from 'react';
 import Cherry from 'cherry-markdown';
@@ -13,8 +14,8 @@ interface MarkdownComponentProps {
   parent: StoragePathDto;
   content: string;
   isEditor: boolean;
-  onSave: () => void;
-  onChange: (txt: string, html: string) => void;
+  onSave?: () => void;
+  onChange?: (txt: string, html: string) => void;
 }
 
 // TODO:: Add error handling modals
@@ -37,7 +38,7 @@ export function MarkdownComponent(props: MarkdownComponentProps) {
 
   useEffect(() => {
     const fun = async () => {
-      if (callSaveFunction) {
+      if (callSaveFunction && onSave) {
         await onSave();
         console.log('Save button Clicked');
         setCallSaveFunction(false);

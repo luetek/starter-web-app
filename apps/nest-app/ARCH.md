@@ -10,12 +10,19 @@ The relationship between the modules must be a DAG otherwise it becomes difficul
   graph TD;
   ProgramExecuter --> FileSystem
   ProgramExecuter --> AppConfig
-  Activty --> Storage
+  Activity --> Storage
   Storage --> FileSystem
   Storage --> StoragePath;
   Storage --> AppConfig;
   StoragePath --> AppConfig;
   User--> AppConfig;
+  ProgramExecutor --> Event;
+  ProgramExecutor --> Activity;
+  ProgramExecutor --> Submission;
+  ProgramExecutor --> Storage;
+  Submission --> Event;
+  Submission --> Storage;
+  Event --> AppConfig;
   AppConfig --> Config
 ```
 
@@ -54,6 +61,12 @@ This modules is responsible for creating an activity. The activity is associated
 
 Once the record is saved the corresponding subscriber will save the data in `activity.json` for backup purposes. This ensures file system contains the total backup of data and can be used to restore the system incase of data loss in db.
 
+### Submission Module
+
+This module is responsible for storing user responses to an activity. For a code by user, or a answer sheet by user.
+
+Once the response is stored in files the event will be emiited which will be picked by a different module for processing it. One example is program executer which will process programming activity.
+
 ### Program Executer Module
 
-This module is responsible for executing the user program (for now python code.) This module will ensure program is run inside a docker container therby restricting execution environment and ensuring malicous code does not cause security issues.
+This module is responsible for executing the user program (for now python code.) This module will ensure program is run inside a docker container therby restricting execution environment and ensuring malicous code does not cause security issues. This module will process the submission event of types programming activity

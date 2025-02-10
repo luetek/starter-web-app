@@ -9,6 +9,7 @@ import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MulterModule } from '@nestjs/platform-express';
 import multer from 'multer';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { LoggerModule } from '../logger/logger.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
@@ -17,6 +18,7 @@ import { AppConfigModule } from '../app-config/app-config.module';
 import { StoragePathModule } from '../storage-path/storage-path.module';
 import { ActivityModule } from '../activity/activity.module';
 import { ProgramExecuterModule } from '../program-executer/program-executer.module';
+import { SubmissionModule } from '../submission/submission.module';
 
 @Module({
   imports: [
@@ -64,6 +66,7 @@ import { ProgramExecuterModule } from '../program-executer/program-executer.modu
         };
       },
     }),
+    EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
     LoggerModule,
     AppConfigModule,
@@ -71,6 +74,7 @@ import { ProgramExecuterModule } from '../program-executer/program-executer.modu
     StoragePathModule,
     ActivityModule,
     ProgramExecuterModule,
+    SubmissionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
