@@ -13,6 +13,20 @@ export class SubmissionSpecMetadata implements SubmissionSpec {
   readonly type: SubmissionType;
 }
 
+export class ProgrammingOutputCompareTestResult {
+  inputFile!: string;
+
+  passed!: boolean;
+
+  returnCode!: number;
+
+  errorFile?: string;
+
+  userOutputFile?: string;
+
+  testOutputFile: string;
+}
+
 export class ProgrammingActivitySubmissionWithStdioCheck extends SubmissionSpecMetadata {
   constructor() {
     super(SubmissionType.PROGRAMMING_ACTIVITY_STDIO__SUBMISSION);
@@ -23,4 +37,10 @@ export class ProgrammingActivitySubmissionWithStdioCheck extends SubmissionSpecM
 
   @AutoMap()
   environment!: ExecutionEnvironment;
+
+  @AutoMap()
+  accepted?: boolean;
+
+  @AutoMap()
+  results?: ProgrammingOutputCompareTestResult[];
 }

@@ -60,12 +60,12 @@ export class ProgramExecuterService {
         `-w /home -a stdin -a stdout -a stderr  python timeout 5 python ${mainFile}`;
       try {
         const resExecution = await execute(command);
-        output.outputFile = `output-${index}.txt`;
+        output.outputFile = `${mainFile}-output-${index}.txt`;
         await fs.promises.writeFile(path.join(workspaceDir, output.outputFile), resExecution.stdout);
         output.returnCode = 0;
       } catch (e) {
         output.returnCode = e.code; // 124 code means timeout
-        output.errorFile = `error-${index}.txt`;
+        output.errorFile = `${mainFile}-error-${index}.txt`;
         await fs.promises.writeFile(path.join(workspaceDir, output.errorFile), e.stderr);
       }
       res.outputs.push(output);

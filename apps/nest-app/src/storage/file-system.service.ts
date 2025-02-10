@@ -10,6 +10,7 @@ import { InjectMapper } from '@automapper/nestjs';
 import { pipeline } from 'node:stream/promises';
 import { instanceToPlain } from 'class-transformer';
 import { Mapper } from '@automapper/core';
+import streamEqual from 'stream-equal';
 import { StoragePathEntity } from '../storage-path/entities/storage-path.entity';
 import { FileStreamDto } from './dtos/file-stream-dto';
 
@@ -47,12 +48,9 @@ export class FileSystemService {
     folderEntity.name = createFolderRequest.name;
     folderEntity.parent = parentEntity;
     folderEntity.storageType = StorageType.FOLDER;
-    console.log(JSON.stringify(parentEntity));
-    console.log(createFolderRequest.name);
     const existing = await this.storagePathRepository.findOne({
       where: { parentId: parentEntity.id, name: createFolderRequest.name },
     });
-    console.log(JSON.stringify(existing));
     if (existing) {
       return this.mapper.map(existing, StoragePathEntity, StoragePathDto);
     }
@@ -85,8 +83,6 @@ export class FileSystemService {
   }
 
   async upload(file: Express.Multer.File, id: number): Promise<StoragePathDto> {
-    console.log(file);
-
     const parentEntity = await this.storagePathRepository.findOne({ where: { id } });
     const storage = new StoragePathEntity();
     storage.name = file.originalname;
@@ -119,8 +115,6 @@ export class FileSystemService {
   }
 
   async updateFileContent(file: Express.Multer.File, id: number) {
-    console.log(file);
-
     const storage = await this.storagePathRepository.findOne({ where: { id } });
     storage.mimeType = file.mimetype;
     storage.size = file.size;
@@ -171,5 +165,12 @@ export class FileSystemService {
     await pipeline(Readable.from(str), stream);
     const res = await this.storagePathRepository.save(fileEntity);
     return this.mapper.map(res, StoragePathEntity, StoragePathDto);
+  }
+
+  async areEqual(file1: StoragePath, file2: StoragePath): Promise<boolean> {
+    const stream1 = fs.createReadStream(path.join(this.rootDir, file1.pathUrl));
+    const stream2 = fs.createReadStream(path.join(this.rootDir, file2.pathUrl));
+
+    return streamEqual(stream1, stream2);
   }
 }

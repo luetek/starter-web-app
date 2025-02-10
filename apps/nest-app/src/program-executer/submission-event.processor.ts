@@ -2,7 +2,12 @@ import { Repository } from 'typeorm';
 import { Readable } from 'stream';
 import fs from 'fs';
 import path from 'path';
-import { ProgrammingActivitySubmissionWithStdioCheck, ProgrammingActivityWithStdioCheck } from '@luetek/common-models';
+import {
+  ProgrammingActivitySubmissionWithStdioCheck,
+  ProgrammingActivityWithStdioCheck,
+  ProgrammingOutputCompareTestResult,
+  SubmissionStatus,
+} from '@luetek/common-models';
 import { EventProcessor } from '../event/event-processor';
 import { ReqLogger } from '../logger/req-logger';
 import { SubmissionEventPayload } from '../submission/dtos/submission-event.payload';
@@ -56,14 +61,14 @@ export class SubmissionEventProcessor implements EventProcessor {
     const programmingActivitySubmissionSpec =
       submissionEntity.submissionSpec as ProgrammingActivitySubmissionWithStdioCheck;
     this.logger.log(`submsion spec =  ${JSON.stringify(programmingActivitySubmissionSpec)}`);
-    const result = await this.programExecuterService.execute(
+    const userResult = await this.programExecuterService.execute(
       tmpWorkspaceDir,
       programmingActivitySubmissionSpec.inputSrcMainFile,
       programmingActivity.testInputFiles,
       programmingActivitySubmissionSpec.environment
     );
-    await Promise.all(
-      result.outputs.map(async (output) => {
+    const userResultFiles = await Promise.all(
+      userResult.outputs.map(async (output) => {
         if (output.returnCode === 0) {
           const stream = fs.createReadStream(path.join(tmpWorkspaceDir, output.outputFile));
           return this.fileSystemService.uploadStream(stream, submissionEntity.parent, output.outputFile);
@@ -72,7 +77,46 @@ export class SubmissionEventProcessor implements EventProcessor {
         return this.fileSystemService.uploadStream(stream, submissionEntity.parent, output.errorFile);
       })
     );
-    this.logger.log(`Processing done ${JSON.stringify(result)}`);
-    this.logger.log(JSON.stringify(payload));
+    this.logger.log(`Processing userResult done ${JSON.stringify(userResult)}`);
+
+    const testResult = await this.programExecuterService.execute(
+      tmpWorkspaceDir,
+      programmingActivity.inputSrcMainFile,
+      programmingActivity.testInputFiles,
+      'PYTHON3'
+    );
+    const testResultFiles = await Promise.all(
+      testResult.outputs.map(async (output) => {
+        if (output.returnCode === 0) {
+          const stream = fs.createReadStream(path.join(tmpWorkspaceDir, output.outputFile));
+          return this.fileSystemService.uploadStream(stream, submissionEntity.parent, output.outputFile);
+        }
+        throw new Error('test program has thrown error');
+      })
+    );
+    this.logger.log(`Processing testResult done ${JSON.stringify(testResult)}`);
+    const submissionResults = await Promise.all(
+      testResultFiles.map(async (testResultFile, index) => {
+        const { inputFile, returnCode, errorFile, outputFile } = userResult.outputs[index];
+        const userResultFile = userResultFiles[index];
+        const passed = returnCode === 0 && (await this.fileSystemService.areEqual(testResultFile, userResultFile));
+        return {
+          inputFile,
+          passed,
+          returnCode,
+          errorFile,
+          userOutputFile: outputFile,
+          testOutputFile: testResultFile.name,
+        } as ProgrammingOutputCompareTestResult;
+      })
+    );
+    const accepted = submissionResults.every((item) => item.passed === true);
+    submissionEntity.status = SubmissionStatus.DONE;
+    programmingActivitySubmissionSpec.accepted = accepted;
+    programmingActivitySubmissionSpec.results = submissionResults;
+    submissionEntity.submissionSpec = programmingActivitySubmissionSpec;
+    this.logger.log(JSON.stringify(programmingActivitySubmissionSpec));
+    await this.submissionRepository.save(submissionEntity);
+    this.logger.log(`done ${JSON.stringify(payload)}`);
   }
 }
