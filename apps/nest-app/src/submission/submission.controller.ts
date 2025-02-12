@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ReqLogger } from '../logger/req-logger';
 import { SubmissionService } from './submission.service';
@@ -27,5 +27,10 @@ export class SubmissionController {
   @Get()
   getSubmissions(@Query('activityId') activityId: number, @Query('userId') userId: number) {
     return this.submissionService.findByUserAndActivityId(userId, activityId);
+  }
+
+  @Get(':submissionId')
+  getSubmission(@Param('submissionId') submissionId: number) {
+    return this.submissionService.findBySubmissionId(submissionId);
   }
 }

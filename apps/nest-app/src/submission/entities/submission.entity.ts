@@ -62,7 +62,7 @@ export class SubmissionEntity {
   @Column({ name: 'userId' })
   userId: number;
 
-  @AutoMap()
+  @AutoMap(() => String)
   @Column({
     type: 'simple-enum',
     enum: SubmissionStatus,

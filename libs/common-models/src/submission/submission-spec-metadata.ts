@@ -24,7 +24,7 @@ export class ProgrammingOutputCompareTestResult {
 
   userOutputFile?: string;
 
-  testOutputFile: string;
+  testOutputFile?: string;
 }
 
 export class ProgrammingActivitySubmissionWithStdioCheck extends SubmissionSpecMetadata {

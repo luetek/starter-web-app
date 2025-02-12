@@ -20,7 +20,7 @@ export class SubmissionDto {
   type!: SubmissionType;
 
   @AutoMap(() => SubmissionSpecMetadata)
-  submissionSpec: SubmissionSpecMetadata;
+  submissionSpec!: SubmissionSpecMetadata;
 
   // Parent folder for the activity
   @AutoMap(() => StoragePathDto)

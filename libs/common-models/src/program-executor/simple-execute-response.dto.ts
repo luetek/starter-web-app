@@ -6,7 +6,7 @@ export class ExecutionOutput {
 
   errorFile?: string;
 
-  returnCode: number;
+  returnCode!: number;
 }
 
 export class SimpleExecuteResponseDto {

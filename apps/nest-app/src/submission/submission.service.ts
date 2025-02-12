@@ -70,4 +70,9 @@ export class SubmissionService {
     const res = await this.submissionRepository.find({ where: { userId, activityId }, relations: ['parent'] });
     return this.mapper.mapArray(res, SubmissionEntity, SubmissionDto);
   }
+
+  async findBySubmissionId(submissionId: number) {
+    const res = await this.submissionRepository.find({ where: { id: submissionId }, relations: ['parent'] });
+    return this.mapper.mapArray(res, SubmissionEntity, SubmissionDto);
+  }
 }

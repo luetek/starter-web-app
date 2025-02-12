@@ -1,7 +1,7 @@
 import { ExecutionEnvironment } from './common';
 
 export class SimpleExecuteRequestDto {
-  environment: ExecutionEnvironment;
+  environment!: ExecutionEnvironment;
 
-  mainFile: string;
+  mainFile!: string;
 }
