@@ -55,6 +55,10 @@ export function ProgrammingWithStdinView(props: { activity: ActivityDto }) {
     [srcFile, files]
   );
 
+  useEffect(() => {
+    setUserSourceCode(srcData);
+  }, [srcData]);
+
   const onSubmitHandler = async (e: any) => {
     e.preventDefault();
     if (!userId) {
@@ -114,9 +118,12 @@ export function ProgrammingWithStdinView(props: { activity: ActivityDto }) {
       <div className="w-100">
         <CodeMirror
           className="code-mirror"
-          value={srcData}
+          value={userSourceCode}
           extensions={[langMap[getTypeFromFileName(srcFile?.name) as LanguageType]]}
-          onChange={(s) => setUserSourceCode(s)}
+          onChange={(s) => {
+            setUserSourceCode(s);
+            console.log(s);
+          }}
         />
         <div className="d-flex">
           <Button className="m-2" disabled={submitButtonDisabled} onClick={(e) => onSubmitHandler(e)}>
